@@ -1,6 +1,8 @@
 /**
- * @agentkit/ui - 共享 UI 组件库
+ * @agentkit/ui - Web Components library built with Lit
  */
 
-export { Button } from "./button";
-export type { ButtonProps } from "./button";
+import "./styles.css";
+
+export { AkButton } from "./button.ts";
+export type { ButtonVariant, ButtonSize } from "./button.ts";

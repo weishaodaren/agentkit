@@ -1,4 +1,4 @@
-import { Button } from "@agentkit/ui";
+import "@agentkit/ui";
 import { generateId } from "@agentkit/utils";
 
 export function App() {
@@ -6,7 +6,7 @@ export function App() {
     <div style={{ padding: "2rem" }}>
       <h1>AgentKit</h1>
       <p>项目已就绪！Session ID: {generateId()}</p>
-      <Button variant="primary">开始使用</Button>
+      <ak-button variant="primary">开始使用</ak-button>
     </div>
   );
 }

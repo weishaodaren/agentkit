@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* AgentKit UI 设计令牌 */
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #64748b;
+  --color-secondary-hover: #475569;
+}
