@@ -10,17 +10,22 @@
     "build": "turbo run build",
     "dev": "turbo watch dev --ui=tui",
     "lint": "turbo run lint",
+    "bootstrap": "pnpm install",
     "format": "turbo run format",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "turbo run build && changeset publish"
   },
   "devDependencies": {
-    "@commitlint/cli": "catalog:",
-    "@commitlint/config-conventional": "catalog:",
-    "lefthook": "catalog:",
-    "oxfmt": "catalog:",
-    "oxlint": "catalog:",
-    "turbo": "catalog:",
-    "typescript": "catalog:"
+    "@changesets/cli": "2.31.0",
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "lefthook": "2.1.9",
+    "oxfmt": "0.55.0",
+    "oxlint": "1.70.0",
+    "turbo": "2.9.18",
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=22"
