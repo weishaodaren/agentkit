@@ -3,6 +3,8 @@ packages:
   - packages/*
 
 catalog:
+  '@commitlint/cli': ^21.0
+  '@commitlint/config-conventional': ^21.0
   '@types/react': ^19.1
   '@vitejs/plugin-react': ^6.0
   lefthook: ^2.1

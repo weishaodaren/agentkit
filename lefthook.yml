@@ -16,6 +16,5 @@ pre-commit:
 
 commit-msg:
   commands:
-    # 可扩展 commitlint 校验
-    # commitlint:
-    #   run: pnpm commitlint --edit {1}
+    commitlint:
+      run: pnpm commitlint --edit {1}

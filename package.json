@@ -1,6 +1,11 @@
 {
   "name": "agentkit",
   "private": true,
+  "type": "module",
+  "author": "weishaodaren",
+  "keywords": [
+    "Agent"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo watch dev --ui=tui",
@@ -9,6 +14,8 @@
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
     "lefthook": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
