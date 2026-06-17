@@ -6,7 +6,7 @@ pre-commit:
   commands:
     lint:
       glob: "*.{ts,tsx}"
-      run: pnpm turbo run lint --affected --filter=./{staged_files}
+      run: pnpm oxlint {staged_files}
     format:
       glob: "*.{ts,tsx,json,css}"
       run: pnpm oxfmt write {staged_files}
