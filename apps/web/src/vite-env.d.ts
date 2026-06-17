@@ -7,8 +7,14 @@ declare module "react" {
     interface IntrinsicElements {
       "ak-button": React.DetailedHTMLProps<
         React.HTMLAttributes<AkButton> & {
-          variant?: "primary" | "secondary" | "ghost";
-          size?: "sm" | "md" | "lg";
+          variant?:
+            | "default"
+            | "destructive"
+            | "outline"
+            | "secondary"
+            | "ghost"
+            | "link";
+          size?: "default" | "sm" | "lg" | "icon";
           disabled?: boolean;
         },
         AkButton

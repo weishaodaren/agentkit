@@ -5,7 +5,12 @@ import dts from "unplugin-dts/vite";
 
 export default defineConfig({
   plugins: [tailwindcss(), dts()],
+  css: {
+    transformer: "lightningcss",
+  },
+  oxc: {},
   build: {
+    minify: "oxc",
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "AgentKitUI",
