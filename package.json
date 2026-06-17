@@ -1,0 +1,22 @@
+{
+  "name": "agentkit",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo watch dev --ui=tui",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "lefthook": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.30.2"
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicolo-ribaudo/oxc-project.github.io/compiled-schema/oxlint_schema.json",
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "eqeqeq": "error"
+  },
+  "ignorePatterns": ["dist", "node_modules", "*.js", "*.cjs", "*.mjs"]
+}

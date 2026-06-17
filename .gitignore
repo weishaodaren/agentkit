@@ -137,7 +137,19 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
+# Turbo
+.turbo
+
 # Vite files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# oxlint
+.oxlintcache
+
+# OS
+.DS_Store
+Thumbs.db
+
+.qoder
