@@ -24,20 +24,23 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./styles.css": "./dist/index.css"
+      "import": "./dist/index.js"
+    }
   },
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "lint": "oxlint .",
     "format": "oxfmt write .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@lit-labs/signals": "^0.3.0",
-    "lit": "^3.3.3"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lit": "^3.3.3",
+    "tailwind-merge": "^3.6.0",
+    "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",

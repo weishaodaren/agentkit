@@ -1,82 +1,60 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "./shared/cn";
+import { TW } from "./shared/tailwindMixin";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
-export type ButtonSize = "sm" | "md" | "lg";
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
+
+type ButtonVariants = VariantProps<typeof buttonVariants>;
+
+const TwLitElement = TW(LitElement);
 
 @customElement("ak-button")
-export class AkButton extends LitElement {
-  static override styles = css`
-    :host {
-      display: inline-block;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 0.375rem;
-      font-weight: 500;
-      transition: all 150ms ease;
-      font-family: inherit;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Variants */
-    .primary {
-      background-color: var(--color-primary, #2563eb);
-      color: white;
-    }
-    .primary:hover:not(:disabled) {
-      background-color: var(--color-primary-hover, #1d4ed8);
-    }
-
-    .secondary {
-      background-color: var(--color-secondary, #64748b);
-      color: white;
-    }
-    .secondary:hover:not(:disabled) {
-      background-color: var(--color-secondary-hover, #475569);
-    }
-
-    .ghost {
-      background-color: transparent;
-      color: var(--color-primary, #2563eb);
-    }
-    .ghost:hover:not(:disabled) {
-      background-color: rgba(37, 99, 235, 0.08);
-    }
-
-    /* Sizes */
-    .sm {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
-    }
-    .md {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-    }
-    .lg {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-    }
-  `;
+export class AkButton extends TwLitElement {
+  @property({ type: String })
+  variant: ButtonVariants["variant"] = "default";
 
   @property({ type: String })
-  variant: ButtonVariant = "primary";
-
-  @property({ type: String })
-  size: ButtonSize = "md";
+  size: ButtonVariants["size"] = "default";
 
   @property({ type: Boolean })
   disabled = false;
 
   override render() {
     return html`
-      <button class="${this.variant} ${this.size}" ?disabled=${this.disabled}>
+      <button
+        class=${cn(buttonVariants({ variant: this.variant, size: this.size }))}
+        ?disabled=${this.disabled}
+      >
         <slot></slot>
       </button>
     `;
@@ -88,3 +66,6 @@ declare global {
     "ak-button": AkButton;
   }
 }
+
+export { buttonVariants };
+export type { ButtonVariants };

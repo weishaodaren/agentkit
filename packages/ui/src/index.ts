@@ -1,8 +1,8 @@
 /**
- * @agentkit/ui - Web Components library built with Lit
+ * @agentkit/ui - Web Components library built with Lit + Tailwind CSS
  */
 
-import "./styles.css";
-
-export { AkButton } from "./button.ts";
-export type { ButtonVariant, ButtonSize } from "./button.ts";
+export { AkButton, buttonVariants } from "./button";
+export type { ButtonVariants } from "./button";
+export { cn } from "./shared/cn";
+export { TW, tailwind } from "./shared/tailwindMixin";
