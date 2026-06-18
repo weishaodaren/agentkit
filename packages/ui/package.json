@@ -40,7 +40,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@lit-labs/motion": "^1.1.0",
     "@lit-labs/signals": "^0.3.0",
+    "@lit-labs/virtualizer": "^2.1.1",
     "@lit/react": "^1.0.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
