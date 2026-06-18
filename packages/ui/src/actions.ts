@@ -34,7 +34,7 @@ export class AkActions extends AkElement {
           (item) => html`
             <button
               class=${cn(
-                "inline-flex cursor-pointer items-center gap-1 rounded-md border-0 bg-transparent px-2 py-1 text-xs transition-colors",
+                "ak-btn-interactive inline-flex cursor-pointer items-center gap-1 rounded-md border-0 bg-transparent px-2 py-1 text-xs",
                 item.active
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",

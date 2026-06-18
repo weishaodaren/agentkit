@@ -77,7 +77,7 @@ export class AkFileCard extends AkElement {
     return html`
       <div
         class=${cn(
-          "flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2",
+          "ak-motion-slide-up ak-card-hover flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2",
           this.status === "error" && "border-destructive",
         )}
       >

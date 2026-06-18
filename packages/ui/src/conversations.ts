@@ -48,14 +48,15 @@ export class AkConversations extends AkElement {
 
         <div class="flex-1 overflow-y-auto p-1">
           ${this.items.map(
-            (item) => html`
+            (item, i) => html`
               <button
                 class=${cn(
-                  "flex w-full cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent px-3 py-2 text-left transition-colors",
+                  "ak-btn-interactive ak-motion-fade-in flex w-full cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent px-3 py-2 text-left",
                   item.active || item.key === this.activeKey
                     ? "bg-accent text-accent-foreground"
                     : "text-foreground hover:bg-accent/50",
                 )}
+                style="animation-delay: ${i * 40}ms;"
                 @click=${() => this._handleClick(item)}
               >
                 ${item.icon

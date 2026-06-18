@@ -51,13 +51,13 @@ export class AkPrompts extends AkElement {
 
         <div class=${cn("grid gap-2", gridCols[this.columns])}>
           ${this.items.map(
-            (item) => html`
+            (item, i) => html`
               <button
                 class=${cn(
-                  "flex cursor-pointer flex-col items-start gap-1 rounded-lg border border-border bg-card p-3 text-left transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
+                  "ak-card-hover ak-motion-slide-up flex cursor-pointer flex-col items-start gap-1 rounded-lg border border-border bg-card p-3 text-left",
                   item.disabled && "pointer-events-none opacity-50",
                 )}
+                style="animation-delay: ${i * 50}ms;"
                 ?disabled=${item.disabled}
                 @click=${() => this._handleClick(item)}
               >

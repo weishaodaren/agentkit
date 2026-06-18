@@ -54,7 +54,7 @@ export class AkSuggestion extends AkElement {
     return html`
       <div
         class=${cn(
-          "max-h-48 overflow-y-auto rounded-lg border border-border bg-card p-1 shadow-lg",
+          "ak-motion-slide-up max-h-48 overflow-y-auto rounded-lg border border-border bg-card p-1 shadow-lg",
         )}
       >
         ${this._filteredItems.map(

@@ -44,10 +44,10 @@ export class AkSources extends AkElement {
             (item, i) => html`
               <button
                 class=${cn(
-                  "flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
+                  "ak-card-hover ak-motion-zoom-in flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left",
                   "max-w-[200px]",
                 )}
+                style="animation-delay: ${i * 60}ms;"
                 @click=${() => this._handleClick(item)}
               >
                 <span

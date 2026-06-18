@@ -95,7 +95,7 @@ export class AkNotification extends AkElement {
           (toast) => html`
             <div
               class=${cn(
-                "flex w-80 items-start gap-3 rounded-lg border border-border bg-card p-4 shadow-lg transition-all duration-300",
+                "ak-motion-enter-right flex w-80 items-start gap-3 rounded-lg border border-border bg-card p-4 shadow-lg transition-all duration-300",
                 toast.visible
                   ? "translate-y-0 opacity-100"
                   : "-translate-y-2 opacity-0",

@@ -31,7 +31,12 @@ export class AkWelcome extends AkElement {
 
   override render() {
     return html`
-      <div class=${cn(welcomeVariants({ variant: this.variant }))}>
+      <div
+        class=${cn(
+          welcomeVariants({ variant: this.variant }),
+          "ak-motion-fade-in",
+        )}
+      >
         <!-- Icon -->
         <slot name="icon"></slot>
 
