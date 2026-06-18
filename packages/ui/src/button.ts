@@ -1,8 +1,8 @@
-import { LitElement, html } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "./shared/cn";
-import { TW } from "./shared/tailwindMixin";
+import { AkElement } from "./shared/base-element";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
@@ -36,10 +36,8 @@ const buttonVariants = cva(
 
 type ButtonVariants = VariantProps<typeof buttonVariants>;
 
-const TwLitElement = TW(LitElement);
-
 @customElement("ak-button")
-export class AkButton extends TwLitElement {
+export class AkButton extends AkElement {
   @property({ type: String })
   variant: ButtonVariants["variant"] = "default";
 
