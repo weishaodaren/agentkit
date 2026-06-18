@@ -10,15 +10,16 @@ export default defineConfig({
   },
   oxc: {},
   build: {
-    minify: "oxc",
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "AgentKitUI",
-      fileName: "index",
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        "adaptor/react": resolve(__dirname, "src/adaptor/react.ts"),
+        "adaptor/vue": resolve(__dirname, "src/adaptor/vue.ts"),
+      },
       formats: ["es"],
     },
     rolldownOptions: {
-      external: [/^lit/, /^@lit/],
+      external: [/^lit/, /^@lit/, /^react/, /^vue/],
     },
   },
 });

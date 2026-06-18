@@ -18,13 +18,18 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./adaptor/react": {
+      "types": "./dist/adaptor/react.d.ts",
+      "import": "./dist/adaptor/react.js"
+    },
+    "./adaptor/vue": {
+      "types": "./dist/adaptor/vue.d.ts",
+      "import": "./dist/adaptor/vue.js"
     }
   },
   "scripts": {
@@ -36,6 +41,7 @@
   },
   "dependencies": {
     "@lit-labs/signals": "^0.3.0",
+    "@lit/react": "^1.0.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lit": "^3.3.3",
@@ -44,9 +50,27 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
+    "@types/react": "catalog:",
+    "react": "catalog:",
     "tailwindcss": "^4.3.1",
     "typescript": "catalog:",
     "unplugin-dts": "^1.0.2",
     "vite": "catalog:"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "vue": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
   }
 }
