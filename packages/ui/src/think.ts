@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 @customElement("ak-think")
 export class AkThink extends AkElement {
@@ -113,21 +114,7 @@ export class AkThink extends AkElement {
               this._isExpanded && "rotate-90",
             )}
           >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4.5 2.5L8 6L4.5 9.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            ${icon("chevron-right", 12)}
           </span>
 
           <!-- Title -->

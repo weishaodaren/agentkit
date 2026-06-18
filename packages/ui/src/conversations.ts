@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 export interface ConversationItem {
   key: string;
@@ -60,8 +61,12 @@ export class AkConversations extends AkElement {
                 @click=${() => this._handleClick(item)}
               >
                 ${item.icon
-                  ? html`<span class="shrink-0 text-sm">${item.icon}</span>`
-                  : html`<span class="shrink-0 text-sm">💬</span>`}
+                  ? html`<span class="shrink-0 text-sm"
+                      >${icon(item.icon, 14)}</span
+                    >`
+                  : html`<span class="shrink-0 text-sm"
+                      >${icon("message-circle", 14)}</span
+                    >`}
                 <div class="min-w-0 flex-1">
                   <div class="truncate text-sm">${item.label}</div>
                   ${item.timestamp

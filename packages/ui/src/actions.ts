@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 export interface ActionsItem {
   key: string;
@@ -45,7 +46,9 @@ export class AkActions extends AkElement {
               title=${item.label}
             >
               ${item.icon
-                ? html`<span class="text-sm">${item.icon}</span>`
+                ? html`<span class="flex items-center"
+                    >${icon(item.icon, 14)}</span
+                  >`
                 : nothing}
               <span>${item.label}</span>
             </button>

@@ -44,25 +44,25 @@ const CONVERSATIONS: ConversationItem[] = [
     key: "c1",
     label: "关于 React 19 新特性",
     timestamp: "今天 14:30",
-    icon: "⚛️",
+    icon: "code",
   },
   {
     key: "c2",
     label: "TypeScript 类型体操练习",
     timestamp: "今天 10:15",
-    icon: "🔷",
+    icon: "braces",
   },
   {
     key: "c3",
     label: "Lit Web Components 入门",
     timestamp: "昨天",
-    icon: "🧪",
+    icon: "flask-conical",
   },
   {
     key: "c4",
     label: "Tailwind CSS v4 迁移指南",
     timestamp: "昨天",
-    icon: "🎨",
+    icon: "palette",
   },
 ];
 
@@ -288,17 +288,17 @@ export function App() {
     {
       key: "like",
       label: liked ? "已赞" : "点赞",
-      icon: liked ? "❤️" : "🤍",
+      icon: liked ? "heart" : "heart",
       active: liked,
     },
     {
       key: "bookmark",
       label: bookmarked ? "已收藏" : "收藏",
-      icon: bookmarked ? "⭐" : "☆",
+      icon: bookmarked ? "bookmark-check" : "bookmark",
       active: bookmarked,
     },
-    { key: "share", label: "分享", icon: "🔗" },
-    { key: "report", label: "举报", icon: "🚩", disabled: true },
+    { key: "share", label: "分享", icon: "share-2" },
+    { key: "report", label: "举报", icon: "flag", disabled: true },
   ];
 
   return (

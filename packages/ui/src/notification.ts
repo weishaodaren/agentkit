@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 export interface NotificationOptions {
   key?: string;
@@ -75,13 +76,13 @@ export class AkNotification extends AkElement {
   }
 
   private _typeIcon(type: string) {
-    const icons: Record<string, string> = {
-      info: "ℹ️",
-      success: "✅",
-      warning: "⚠️",
-      error: "❌",
+    const map: Record<string, string> = {
+      info: "info",
+      success: "circle-check",
+      warning: "circle-alert",
+      error: "circle-x",
     };
-    return icons[type] ?? icons.info;
+    return icon(map[type] ?? "info", 18);
   }
 
   override render() {
@@ -115,10 +116,10 @@ export class AkNotification extends AkElement {
                   : nothing}
               </div>
               <button
-                class="shrink-0 cursor-pointer border-0 bg-transparent text-muted-foreground hover:text-foreground"
+                class="ak-btn-interactive shrink-0 cursor-pointer border-0 bg-transparent text-muted-foreground hover:text-foreground"
                 @click=${() => this.close(toast.id)}
               >
-                ✕
+                ${icon("x", 14)}
               </button>
             </div>
           `,

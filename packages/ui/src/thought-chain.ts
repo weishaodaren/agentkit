@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 export interface ThoughtChainItem {
   key: string;
@@ -108,13 +109,13 @@ export class AkThoughtChain extends AkElement {
   }
 
   private _statusIcon(status: string) {
-    const icons: Record<string, string> = {
-      pending: "⏳",
-      running: "🔄",
-      success: "✅",
-      error: "❌",
+    const map: Record<string, string> = {
+      pending: "clock",
+      running: "loader",
+      success: "circle-check",
+      error: "circle-x",
     };
-    return icons[status] ?? "⏳";
+    return icon(map[status] ?? "clock", 14);
   }
 
   private _statusColor(status: string) {
@@ -158,8 +159,8 @@ export class AkThoughtChain extends AkElement {
                 <span
                   class="transition-transform duration-200 ${this._isCollapsed
                     ? ""
-                    : "rotate-90"}"
-                  >▶</span
+                    : "rotate-90"} inline-flex"
+                  >${icon("chevron-right", 12)}</span
                 >
                 ${this._isCollapsed ? "展开" : "收起"}思考过程
               </button>
@@ -180,7 +181,9 @@ export class AkThoughtChain extends AkElement {
                         this._statusColor(item.status ?? "pending"),
                       )}
                     >
-                      ${item.icon ?? this._statusIcon(item.status ?? "pending")}
+                      ${item.icon
+                        ? icon(item.icon, 14)
+                        : this._statusIcon(item.status ?? "pending")}
                     </div>
                     ${i < this.items.length - 1
                       ? html`<div class="w-px flex-1 bg-border"></div>`

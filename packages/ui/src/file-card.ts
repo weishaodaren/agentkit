@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -17,32 +18,32 @@ function formatFileSize(bytes: number): string {
 function getFileIcon(name: string): string {
   const ext = name.split(".").pop()?.toLowerCase() ?? "";
   const iconMap: Record<string, string> = {
-    pdf: "📄",
-    doc: "📝",
-    docx: "📝",
-    xls: "📊",
-    xlsx: "📊",
-    ppt: "📑",
-    pptx: "📑",
-    png: "🖼️",
-    jpg: "🖼️",
-    jpeg: "🖼️",
-    gif: "🖼️",
-    svg: "🖼️",
-    mp4: "🎬",
-    mp3: "🎵",
-    zip: "📦",
-    rar: "📦",
-    js: "⚡",
-    ts: "⚡",
-    py: "🐍",
-    html: "🌐",
-    css: "🎨",
-    json: "📋",
-    md: "📝",
-    txt: "📄",
+    pdf: "file-text",
+    doc: "file-text",
+    docx: "file-text",
+    xls: "table",
+    xlsx: "table",
+    ppt: "presentation",
+    pptx: "presentation",
+    png: "image",
+    jpg: "image",
+    jpeg: "image",
+    gif: "image",
+    svg: "image",
+    mp4: "video",
+    mp3: "music",
+    zip: "archive",
+    rar: "archive",
+    js: "file-code",
+    ts: "file-code",
+    py: "file-code",
+    html: "file-code",
+    css: "file-code",
+    json: "file-json",
+    md: "file-text",
+    txt: "file",
   };
-  return iconMap[ext] ?? "📄";
+  return iconMap[ext] ?? "file";
 }
 
 @customElement("ak-file-card")
@@ -82,7 +83,9 @@ export class AkFileCard extends AkElement {
         )}
       >
         <!-- Icon -->
-        <span class="shrink-0 text-lg">${getFileIcon(this.name)}</span>
+        <span class="shrink-0 text-muted-foreground"
+          >${icon(getFileIcon(this.name), 18)}</span
+        >
 
         <!-- Info -->
         <div class="min-w-0 flex-1">
@@ -100,7 +103,9 @@ export class AkFileCard extends AkElement {
                   </div>
                 `
               : this.status === "error"
-                ? html`<span class="text-destructive">上传失败</span>`
+                ? html`<span class="flex items-center gap-1 text-destructive"
+                    >${icon("circle-x", 12)} 上传失败</span
+                  >`
                 : formatFileSize(this.size)}
           </div>
         </div>
@@ -109,10 +114,10 @@ export class AkFileCard extends AkElement {
         ${this.removable
           ? html`
               <button
-                class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent text-muted-foreground transition-colors hover:text-foreground"
+                class="ak-btn-interactive flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent text-muted-foreground hover:text-foreground"
                 @click=${this._handleRemove}
               >
-                ✕
+                ${icon("x", 14)}
               </button>
             `
           : nothing}

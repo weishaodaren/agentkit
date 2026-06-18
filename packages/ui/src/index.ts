@@ -6,6 +6,7 @@
 export { cn } from "./shared/cn";
 export { TW, tailwind } from "./shared/tailwindMixin";
 export { AkElement } from "./shared/base-element";
+export { icon, iconSvg } from "./shared/icons";
 
 // Components
 export { AkButton, buttonVariants } from "./button";

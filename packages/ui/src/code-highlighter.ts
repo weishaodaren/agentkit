@@ -14,6 +14,7 @@ import yaml from "highlight.js/lib/languages/yaml";
 import markdown from "highlight.js/lib/languages/markdown";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
+import { icon } from "./shared/icons";
 
 // Register common languages
 hljs.registerLanguage("typescript", typescript);
@@ -165,7 +166,13 @@ export class AkCodeHighlighter extends AkElement {
             )}
             @click=${this._handleCopy}
           >
-            ${this._copied ? "✓ 已复制" : "复制"}
+            ${this._copied
+              ? html`<span class="flex items-center gap-1"
+                  >${icon("check", 14)} 已复制</span
+                >`
+              : html`<span class="flex items-center gap-1"
+                  >${icon("copy", 14)} 复制</span
+                >`}
           </button>
         </div>
 
