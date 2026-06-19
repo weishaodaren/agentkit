@@ -20,6 +20,8 @@ import {
   AkThoughtChain,
   AkSuggestion,
   AkCodeHighlighter,
+  AkMarkdown,
+  AkXCard,
 } from "../index";
 
 // Button
@@ -153,5 +155,24 @@ export const CodeHighlighter = createComponent({
   react: React,
   events: {
     onCopy: "copy",
+  },
+});
+
+// Markdown
+export const Markdown = createComponent({
+  tagName: "ak-markdown",
+  elementClass: AkMarkdown,
+  react: React,
+  events: {},
+});
+
+// XCard
+export const XCard = createComponent({
+  tagName: "ak-x-card",
+  elementClass: AkXCard,
+  react: React,
+  events: {
+    onCardLoad: "card-load",
+    onCardClose: "card-close",
   },
 });

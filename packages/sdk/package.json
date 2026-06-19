@@ -1,0 +1,33 @@
+{
+  "name": "@agentkit/sdk",
+  "version": "0.1.0",
+  "description": "AgentKit SDK - AI conversation data flow management (XRequest + useXChat)",
+  "keywords": [
+    "ai",
+    "chat",
+    "llm",
+    "sdk",
+    "streaming"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "tsc && vite build",
+    "lint": "oxlint .",
+    "format": "oxfmt write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "catalog:",
+    "unplugin-dts": "^1.0.2",
+    "vite": "catalog:"
+  }
+}

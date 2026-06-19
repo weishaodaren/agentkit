@@ -79,6 +79,16 @@ export const motionCSS: CSSResult = unsafeCSS(`
     40% { transform: scale(1); opacity: 1; }
   }
 
+  /* antd loadingMove: translateY 0→4→0→-4→0 over 2s */
+  @keyframes ak-loading-bounce {
+    0%   { transform: translateY(0); }
+    10%  { transform: translateY(4px); }
+    20%  { transform: translateY(0); }
+    30%  { transform: translateY(-4px); }
+    40%  { transform: translateY(0); }
+    100% { transform: translateY(0); }
+  }
+
   @keyframes ak-typewriter-cursor {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }

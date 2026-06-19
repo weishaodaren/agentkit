@@ -59,10 +59,13 @@ export class AkThink extends AkElement {
       }
     }
     if (changed.has("content")) {
-      this._typedLength = 0;
-      if (this._isExpanded && this.content) {
-        this._startTyping();
-      }
+      // Defer state change to avoid update-in-update cycle
+      requestAnimationFrame(() => {
+        this._typedLength = 0;
+        if (this._isExpanded && this.content) {
+          this._startTyping();
+        }
+      });
     }
   }
 

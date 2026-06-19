@@ -12,6 +12,17 @@ export interface ActionsItem {
   disabled?: boolean;
 }
 
+/**
+ * antd token mapping:
+ *   list gap: paddingXS (8px) → gap-2
+ *   item height: controlHeightSM (24px) → h-6
+ *   item paddingInline: paddingXXS+1 (5px) → px-[5px]
+ *   item paddingBlock: paddingXXS (4px) → py-1
+ *   item borderRadiusSM (4px) → rounded
+ *   item fontSize (14px) → text-sm
+ *   transition: all motionDurationMid(200ms) motionEaseInOut
+ *   hover: colorBgTextHover → hover:bg-black/[0.04]
+ */
 @customElement("ak-actions")
 export class AkActions extends AkElement {
   @property({ type: Array })
@@ -30,16 +41,20 @@ export class AkActions extends AkElement {
 
   override render() {
     return html`
-      <div class="flex items-center gap-1">
+      <!-- antd: inline-flex, flex-row, items-center, gap paddingXS(8px) -->
+      <div class="inline-flex items-center gap-2">
         ${this.items.map(
           (item) => html`
             <button
               class=${cn(
-                "ak-btn-interactive inline-flex cursor-pointer items-center gap-1 rounded-md border-0 bg-transparent px-2 py-1 text-xs",
+                // antd: h controlHeightSM(24px), inline-flex, items-center, justify-center
+                // px paddingXXS+1(5px), py paddingXXS(4px), rounded borderRadiusSM(4px)
+                "inline-flex h-6 cursor-pointer items-center justify-center gap-1 rounded border-0 bg-transparent px-[5px] py-1 text-sm",
+                "transition-all duration-200",
                 item.active
                   ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                item.disabled && "pointer-events-none opacity-50",
+                  : "text-muted-foreground hover:bg-black/[0.04] hover:text-foreground",
+                item.disabled && "pointer-events-none opacity-45",
               )}
               ?disabled=${item.disabled}
               @click=${() => this._handleClick(item)}

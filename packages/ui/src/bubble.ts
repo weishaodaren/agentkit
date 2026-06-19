@@ -4,11 +4,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
 
+/**
+ * antd token mapping:
+ *   columnGap: paddingSM (12px) → gap-3
+ *   content paddingInline: padding (16px) → px-4
+ *   content paddingBlock: paddingSM (12px) → py-3
+ *   content borderRadius default: borderRadius*2 (12px) → rounded-xl
+ *   content corner shape: start gets sharper top-left corner
+ *   content filled: colorFillContent → bg-muted
+ *   loading dots: 4px, colorPrimary, translateY ±4px, 2s
+ *   typing cursor: "|" blink 0.8s
+ */
 const bubbleVariants = cva("flex gap-3", {
   variants: {
     placement: {
-      start: "flex-row",
-      end: "flex-row-reverse",
+      start: "flex-row self-start",
+      end: "flex-row-reverse self-end",
     },
   },
   defaultVariants: {
@@ -40,6 +51,10 @@ export class AkBubble extends AkElement {
   @property({ type: String })
   avatar = "";
 
+  /** Content shape variant */
+  @property({ type: String })
+  shape: "default" | "round" | "corner" = "default";
+
   @state()
   private _typedLength = 0;
 
@@ -68,8 +83,10 @@ export class AkBubble extends AkElement {
   override updated(changed: Map<string, unknown>) {
     if (changed.has("content") || changed.has("typing")) {
       if (this.typing && this.content) {
-        this._typedLength = 0;
-        this._startTyping();
+        requestAnimationFrame(() => {
+          this._typedLength = 0;
+          this._startTyping();
+        });
       }
     }
   }
@@ -98,13 +115,25 @@ export class AkBubble extends AkElement {
     return this.content.slice(0, this._typedLength);
   }
 
-  override render() {
-    const motionClass =
-      this.placement === "start" ? "ak-motion-slide-up" : "ak-motion-slide-up";
+  /** antd: corner shape gives one sharper corner based on placement */
+  private get _shapeClasses(): string {
+    if (this.shape === "round") return "rounded-[20px]";
+    if (this.shape === "corner") {
+      return this.placement === "start"
+        ? "rounded-xl rounded-tl-[2px]"
+        : "rounded-xl rounded-tr-[2px]";
+    }
+    return "rounded-xl"; // default: 12px
+  }
 
+  override render() {
     return html`
       <div
-        class=${cn(bubbleVariants({ placement: this.placement }), motionClass)}
+        class=${cn(
+          bubbleVariants({ placement: this.placement }),
+          "ak-motion-slide-up",
+          this.loading && "items-center",
+        )}
       >
         <!-- Avatar -->
         ${this.avatar
@@ -117,39 +146,45 @@ export class AkBubble extends AkElement {
             </div>`
           : html`<slot name="avatar"></slot>`}
 
-        <!-- Bubble Content -->
-        <div
-          class=${cn(
-            "max-w-[80%] rounded-lg px-3 py-2",
-            this.placement === "start"
-              ? "bg-muted text-foreground"
-              : "bg-primary text-primary-foreground",
-          )}
-        >
-          ${this.loading
-            ? html`
-                <div class="flex items-center gap-1.5">
-                  <span
-                    class="inline-block h-2 w-2 rounded-full bg-current opacity-60"
-                    style="animation: ak-pulse-dot 1.4s ease-in-out infinite; animation-delay: 0ms;"
-                  ></span>
-                  <span
-                    class="inline-block h-2 w-2 rounded-full bg-current opacity-60"
-                    style="animation: ak-pulse-dot 1.4s ease-in-out infinite; animation-delay: 200ms;"
-                  ></span>
-                  <span
-                    class="inline-block h-2 w-2 rounded-full bg-current opacity-60"
-                    style="animation: ak-pulse-dot 1.4s ease-in-out infinite; animation-delay: 400ms;"
-                  ></span>
-                </div>
-              `
-            : this.content
-              ? html`<div class="whitespace-pre-wrap text-sm">
-                  ${this._visibleContent}${this._isTyping
-                    ? html`<span class="ak-cursor"></span>`
-                    : nothing}
-                </div>`
-              : html`<slot></slot>`}
+        <!-- Body (flex column) -->
+        <div class="flex max-w-full flex-col">
+          <!-- Content -->
+          <div
+            class=${cn(
+              "box-border max-w-full break-words px-4 py-3 text-sm leading-[1.5714] text-foreground",
+              this._shapeClasses,
+              this.placement === "start"
+                ? "bg-muted"
+                : "bg-primary text-primary-foreground",
+            )}
+            style="min-height: 46px;"
+          >
+            ${this.loading
+              ? html`
+                  <!-- antd: 4px dots, colorPrimary, translateY ±4px, 2s cycle -->
+                  <div class="flex h-8 items-center gap-1 px-0.5">
+                    <span
+                      class="inline-block h-1 w-1 rounded-full bg-primary"
+                      style="animation: ak-loading-bounce 2s linear infinite; animation-delay: 0s;"
+                    ></span>
+                    <span
+                      class="inline-block h-1 w-1 rounded-full bg-primary"
+                      style="animation: ak-loading-bounce 2s linear infinite; animation-delay: 0.2s;"
+                    ></span>
+                    <span
+                      class="inline-block h-1 w-1 rounded-full bg-primary"
+                      style="animation: ak-loading-bounce 2s linear infinite; animation-delay: 0.4s;"
+                    ></span>
+                  </div>
+                `
+              : this.content
+                ? html`<div class="whitespace-pre-wrap">
+                    ${this._visibleContent}${this._isTyping
+                      ? html`<span class="ak-cursor"></span>`
+                      : nothing}
+                  </div>`
+                : html`<slot></slot>`}
+          </div>
         </div>
       </div>
     `;

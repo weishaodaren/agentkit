@@ -14,6 +14,8 @@ import {
   Suggestion,
   CodeHighlighter,
   Button,
+  Markdown,
+  XCard,
 } from "@agentkit/ui/adaptor/react";
 import type {
   PromptsItem,
@@ -23,6 +25,7 @@ import type {
   ThoughtChainItem,
   SuggestionItem,
   NotificationOptions,
+  XCardItem,
 } from "@agentkit/ui";
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -132,6 +135,85 @@ const SUGGESTIONS: SuggestionItem[] = [
   { key: "sg3", label: "/settings 设置", value: "/settings" },
   { key: "sg4", label: "/export 导出对话", value: "/export" },
   { key: "sg5", label: "/theme 切换主题", value: "/theme" },
+];
+
+const SAMPLE_MARKDOWN = `# AgentKit UI 组件库
+
+## 特性
+
+- **Lit Web Components** — 框架无关，可在 React/Vue/Angular 中使用
+- **Tailwind CSS v4** — 原子化 CSS，Shadow DOM 内嵌样式
+- **流式 Markdown 渲染** — 支持 AI 对话中逐字输出
+- **Lucide 图标** — 1400+ 精美 SVG 图标
+
+## 快速开始
+
+\`\`\`bash
+pnpm add @agentkit/ui
+\`\`\`
+
+## 使用示例
+
+\`\`\`tsx
+import { Bubble, Sender, Markdown } from "@agentkit/ui/adaptor/react";
+
+function Chat() {
+  return (
+    <div>
+      <Bubble content="Hello!" placement="start" />
+      <Markdown content={response} streamStatus="loading" />
+      <Sender onSubmit={handleSend} />
+    </div>
+  );
+}
+\`\`\`
+
+> 💡 **提示**: 使用 \`streamStatus="loading"\` 可以启用打字光标效果
+
+## 对比表格
+
+| 特性 | @agentkit/ui | antd-x |
+|------|-------------|--------|
+| 框架 | Lit + Tailwind | React + CSS-in-JS |
+| 大小 | ~150KB gzip | ~300KB gzip |
+| 多框架 | ✅ React/Vue | ❌ 仅 React |
+
+---
+
+*Powered by [Lit](https://lit.dev) and [Tailwind CSS](https://tailwindcss.com)*
+`;
+
+const XCARD_ITEMS: XCardItem[] = [
+  {
+    key: "card1",
+    title: "API 文档",
+    content: "查看完整的 API 参考文档，了解所有组件的属性和事件。",
+    type: "default",
+    icon: "file-text",
+    closable: true,
+  },
+  {
+    key: "card2",
+    title: "快速开始",
+    content: "只需 3 步即可将 AgentKit UI 集成到你的项目中。",
+    type: "info",
+    icon: "zap",
+  },
+  {
+    key: "card3",
+    title: "部署成功",
+    content: "你的应用已成功部署到生产环境。",
+    type: "success",
+    icon: "check-circle",
+  },
+  {
+    key: "card4",
+    title: "性能警告",
+    content: "检测到页面加载时间超过 3 秒，建议优化组件渲染性能。",
+    type: "warning",
+    icon: "alert-triangle",
+    closable: true,
+  },
 ];
 
 // ─── Notification helper ─────────────────────────────────────────
@@ -482,6 +564,16 @@ export function App() {
             <Button variant="destructive">Destructive</Button>
             <Button variant="link">Link</Button>
           </div>
+        </Section>
+
+        {/* Markdown */}
+        <Section title="Markdown 流式渲染">
+          <Markdown content={SAMPLE_MARKDOWN} />
+        </Section>
+
+        {/* XCard */}
+        <Section title="XCard 动态卡片">
+          <XCard items={XCARD_ITEMS} columns="2" />
         </Section>
 
         <div style={{ height: "4rem" }} />

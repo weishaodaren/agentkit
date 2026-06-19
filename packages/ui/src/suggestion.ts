@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html, nothing, type PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cn } from "./shared/cn";
 import { AkElement } from "./shared/base-element";
@@ -26,16 +26,20 @@ export class AkSuggestion extends AkElement {
   private get _filteredItems() {
     if (!this.filterValue) return this.items;
     const lower = this.filterValue.toLowerCase();
-    const filtered = this.items.filter(
+    return this.items.filter(
       (item) =>
         item.label.toLowerCase().includes(lower) ||
         item.value.toLowerCase().includes(lower),
     );
-    // Clamp selected index when filtered list shrinks
-    if (this._selectedIndex >= filtered.length) {
-      this._selectedIndex = Math.max(0, filtered.length - 1);
+  }
+
+  override willUpdate(changed: PropertyValues) {
+    if (changed.has("filterValue") || changed.has("items")) {
+      const filtered = this._filteredItems;
+      if (this._selectedIndex >= filtered.length) {
+        this._selectedIndex = Math.max(0, filtered.length - 1);
+      }
     }
-    return filtered;
   }
 
   private _handleSelect(item: SuggestionItem) {

@@ -54,10 +54,13 @@ export class AkThoughtChain extends AkElement {
   override updated(changed: Map<string, unknown>) {
     if (changed.has("items")) {
       this._stopAllTyping();
-      this._typedLengths = {};
-      if (!this._isCollapsed) {
-        this._startAllTyping();
-      }
+      // Defer state change to avoid triggering update during update cycle
+      requestAnimationFrame(() => {
+        this._typedLengths = {};
+        if (!this._isCollapsed) {
+          this._startAllTyping();
+        }
+      });
     }
   }
 
@@ -157,9 +160,10 @@ export class AkThoughtChain extends AkElement {
                 @click=${this._toggleCollapse}
               >
                 <span
-                  class="transition-transform duration-200 ${this._isCollapsed
+                  class="inline-flex transition-transform duration-200 ${this
+                    ._isCollapsed
                     ? ""
-                    : "rotate-90"} inline-flex"
+                    : "rotate-90"}"
                   >${icon("chevron-right", 12)}</span
                 >
                 ${this._isCollapsed ? "展开" : "收起"}思考过程
@@ -169,35 +173,45 @@ export class AkThoughtChain extends AkElement {
         ${!this._isCollapsed
           ? this.items.map(
               (item, i) => html`
+                <!-- antd: relative, flex, alignItems baseline, gap marginSM(12px) -->
                 <div
-                  class="ak-motion-slide-up flex gap-3"
-                  style="animation-delay: ${i * 60}ms;"
+                  class="ak-motion-slide-up relative flex gap-3"
+                  style="align-items: baseline; animation-delay: ${i * 60}ms;"
                 >
-                  <!-- Timeline -->
+                  <!-- antd: node-header flex col -->
                   <div class="flex flex-col items-center">
-                    <div
-                      class=${cn(
-                        "flex h-6 w-6 items-center justify-center rounded-full text-xs transition-all duration-300",
-                        this._statusColor(item.status ?? "pending"),
-                      )}
-                    >
-                      ${item.icon
-                        ? icon(item.icon, 14)
-                        : this._statusIcon(item.status ?? "pending")}
+                    <!-- antd: node-icon, lineHeight 1, fontSize iconSize(14) -->
+                    <div class="relative leading-none">
+                      <div
+                        class=${cn(
+                          "flex items-center justify-center rounded-full transition-all duration-200",
+                          this._statusColor(item.status ?? "pending"),
+                        )}
+                        style="width: 14px; height: 14px; font-size: 14px;"
+                      >
+                        ${item.icon
+                          ? icon(item.icon, 14)
+                          : this._statusIcon(item.status ?? "pending")}
+                      </div>
+                      <!-- antd: connector line via ::after, 1px solid colorFillContent -->
+                      ${i < this.items.length - 1
+                        ? html`<div
+                            class="absolute left-1/2 top-full w-px -translate-x-1/2 bg-border"
+                            style="height: calc(100% + 16px);"
+                          ></div>`
+                        : nothing}
                     </div>
-                    ${i < this.items.length - 1
-                      ? html`<div class="w-px flex-1 bg-border"></div>`
-                      : nothing}
                   </div>
 
-                  <!-- Content -->
+                  <!-- antd: node-content-box, marginBottom margin(16px) -->
                   <div class="flex-1 pb-4">
-                    <div class="text-sm font-medium text-foreground">
+                    <!-- antd: node-title, fontWeight 500, flex, gap marginXS(8px) -->
+                    <div class="flex gap-2 text-sm font-medium text-foreground">
                       ${item.title}
                     </div>
                     ${item.description
                       ? html`<div
-                          class="mt-1 whitespace-pre-wrap text-xs text-muted-foreground"
+                          class="mt-2 whitespace-pre-wrap text-sm leading-[1.5714] text-muted-foreground"
                         >
                           ${this._getItemVisibleText(
                             item.key,

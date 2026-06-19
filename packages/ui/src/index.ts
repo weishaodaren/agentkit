@@ -44,3 +44,8 @@ export { AkSuggestion } from "./suggestion";
 export type { SuggestionItem } from "./suggestion";
 
 export { AkCodeHighlighter } from "./code-highlighter";
+
+export { AkMarkdown } from "./markdown";
+
+export { AkXCard } from "./x-card";
+export type { XCardItem } from "./x-card";
