@@ -1,7 +1,7 @@
 import { html, nothing, type PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
 
 export interface SuggestionItem {
   key: string;

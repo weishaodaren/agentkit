@@ -3,7 +3,7 @@
  * Uses icon-nodes.json from lucide-static to generate inline SVG strings.
  *
  * Usage in Lit render():
- *   import { icon } from "./shared/icons";
+ *   import { icon } from "@/shared/shared/icons";
  *   html`${icon("copy", 16)}`
  */
 import { unsafeHTML } from "lit/directives/unsafe-html.js";

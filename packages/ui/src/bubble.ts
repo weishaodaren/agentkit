@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
 
 /**
  * antd token mapping:

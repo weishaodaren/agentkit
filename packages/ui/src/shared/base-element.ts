@@ -1,5 +1,5 @@
 import { LitElement } from "lit";
-import { TW } from "./tailwindMixin";
+import { TW } from "@/shared/tailwindMixin";
 
 /**
  * AkElement - Base class for all AgentKit UI components.

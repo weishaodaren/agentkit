@@ -19,10 +19,8 @@ import {
   AkConversations,
   AkThoughtChain,
   AkSuggestion,
-  AkCodeHighlighter,
-  AkMarkdown,
   AkXCard,
-} from "../index";
+} from "@/index";
 
 // Button
 export const Button = createComponent({
@@ -146,24 +144,6 @@ export const Suggestion = createComponent({
   events: {
     onSelect: "select",
   },
-});
-
-// CodeHighlighter
-export const CodeHighlighter = createComponent({
-  tagName: "ak-code-highlighter",
-  elementClass: AkCodeHighlighter,
-  react: React,
-  events: {
-    onCopy: "copy",
-  },
-});
-
-// Markdown
-export const Markdown = createComponent({
-  tagName: "ak-markdown",
-  elementClass: AkMarkdown,
-  react: React,
-  events: {},
 });
 
 // XCard

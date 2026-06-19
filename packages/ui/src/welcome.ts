@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
 
 const welcomeVariants = cva("flex gap-4", {
   variants: {

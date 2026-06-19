@@ -1,8 +1,8 @@
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
 
 const buttonVariants = cva(
   "ak-btn-interactive inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",

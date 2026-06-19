@@ -1,6 +1,6 @@
 import { adoptStyles, type LitElement, unsafeCSS } from "lit";
-import tailwindCss from "../styles/tailwind.global.css?inline";
-import { motionCSS } from "./motion";
+import tailwindCss from "@/styles/tailwind.global.css?inline";
+import { motionCSS } from "@/shared/motion";
 
 declare global {
   export type LitMixin<T = unknown> = new (...args: any[]) => T & LitElement;

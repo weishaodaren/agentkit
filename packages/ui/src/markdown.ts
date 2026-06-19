@@ -2,8 +2,7 @@ import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { marked } from "marked";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
+import { AkElement } from "@/shared/base-element";
 
 /**
  * antd-x XMarkdown 对标实现

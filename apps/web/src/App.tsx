@@ -12,11 +12,11 @@ import {
   Conversations,
   ThoughtChain,
   Suggestion,
-  CodeHighlighter,
   Button,
-  Markdown,
   XCard,
 } from "@agentkit/ui/adaptor/react";
+// Optional plugins (install marked + highlight.js separately)
+import { CodeHighlighter, Markdown } from "@agentkit/ui/adaptor/react-plugins";
 import type {
   PromptsItem,
   ActionsItem,
@@ -148,7 +148,7 @@ const SAMPLE_MARKDOWN = `# AgentKit UI 组件库
 
 ## 快速开始
 
-\`\`\`bash
+\`\`\`ts
 pnpm add @agentkit/ui
 \`\`\`
 

@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import hljs from "highlight.js/lib/core";
@@ -12,9 +12,9 @@ import bash from "highlight.js/lib/languages/bash";
 import sql from "highlight.js/lib/languages/sql";
 import yaml from "highlight.js/lib/languages/yaml";
 import markdown from "highlight.js/lib/languages/markdown";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
-import { icon } from "./shared/icons";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
+import { icon } from "@/shared/icons";
 
 // Register common languages
 hljs.registerLanguage("typescript", typescript);

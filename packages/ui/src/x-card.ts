@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
-import { icon } from "./shared/icons";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
+import { icon } from "@/shared/icons";
 
 /**
  * antd-x XCard 对标实现

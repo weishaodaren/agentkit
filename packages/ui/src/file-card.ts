@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { cn } from "./shared/cn";
-import { AkElement } from "./shared/base-element";
-import { icon } from "./shared/icons";
+import { cn } from "@/shared/cn";
+import { AkElement } from "@/shared/base-element";
+import { icon } from "@/shared/icons";
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 B";
