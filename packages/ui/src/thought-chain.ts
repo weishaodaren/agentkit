@@ -211,7 +211,7 @@ export class AkThoughtChain extends AkElement {
                     </div>
                     ${item.description
                       ? html`<div
-                          class="mt-2 whitespace-pre-wrap text-sm leading-[1.5714] text-muted-foreground"
+                          class="mt-2 text-sm leading-[1.5714] text-muted-foreground"
                         >
                           ${this._getItemVisibleText(
                             item.key,

@@ -151,7 +151,7 @@ export class AkThink extends AkElement {
           style="transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);"
         >
           <div class="border-t border-border px-3 py-2">
-            <div class="whitespace-pre-wrap text-sm text-muted-foreground">
+            <div class="text-sm text-muted-foreground">
               ${this.content
                 ? html`${this.content.slice(0, this._typedLength)}${this
                     ._isTyping

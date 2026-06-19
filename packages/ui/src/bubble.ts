@@ -178,7 +178,7 @@ export class AkBubble extends AkElement {
                   </div>
                 `
               : this.content
-                ? html`<div class="whitespace-pre-wrap">
+                ? html`<div>
                     ${this._visibleContent}${this._isTyping
                       ? html`<span class="ak-cursor"></span>`
                       : nothing}
