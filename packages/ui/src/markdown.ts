@@ -6,13 +6,11 @@ import { AkElement } from "@/shared/base-element";
 
 /**
  * antd-x XMarkdown 对标实现
- * 流式友好的 Markdown 渲染器
+ * 纯 Markdown 解析渲染器
  *
  * 特性:
- * - 流式渲染: content 逐字到达时平滑显示
+ * - 流式友好: content 更新时平滑重渲染
  * - 代码高亮: 集成 highlight.js (通过 CodeHighlighter 主题)
- * - 自定义标签: <think>...</think> 映射为思考块
- * - 打字光标: 流式末尾显示闪烁光标
  * - 安全: HTML 输出未经过 sanitize, 请勿渲染不受信任的内容
  */
 
@@ -69,18 +67,6 @@ function escapeHtml(str: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-/**
- * Process custom <think>...</think> tags in markdown content.
- * Converts them to styled think blocks.
- */
-function processThinkBlocks(htmlStr: string): string {
-  return htmlStr.replace(
-    /&lt;think&gt;([\s\S]*?)&lt;\/think&gt;/g,
-    (_match, content: string) =>
-      `<div class="ak-md-think"><div class="ak-md-think-header">💭 思考过程</div><div class="ak-md-think-content">${content}</div></div>`,
-  );
 }
 
 /** Inline markdown styles injected into Shadow DOM */
@@ -198,45 +184,9 @@ const markdownCSS = `
     margin: 1em 0;
   }
 
-  /* Think block */
-  .ak-md-think {
-    margin: 1em 0;
-    border: 1px solid var(--_border, #e5e7eb);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .ak-md-think-header {
-    padding: 8px 12px;
-    background: var(--_muted, #f9fafb);
-    font-size: 13px;
-    font-weight: 500;
-    border-bottom: 1px solid var(--_border, #e5e7eb);
-  }
-  .ak-md-think-content {
-    padding: 12px;
-    font-size: 13px;
-    color: var(--_muted-foreground, #6b7280);
-    line-height: 1.6;
-  }
-
   /* Strong & Em */
   .ak-md strong { font-weight: 600; }
   .ak-md em { font-style: italic; }
-
-  /* Cursor */
-  .ak-md-cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    background: currentColor;
-    margin-left: 2px;
-    vertical-align: text-bottom;
-    animation: ak-md-blink 0.8s step-end infinite;
-  }
-  @keyframes ak-md-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
 `;
 
 @customElement("ak-markdown")
@@ -248,10 +198,6 @@ export class AkMarkdown extends AkElement {
   /** Stream status: 'loading' while content is arriving, 'done' when complete */
   @property({ type: String, attribute: "stream-status" })
   streamStatus: "loading" | "done" = "done";
-
-  /** Whether to show typing cursor at end during streaming */
-  @property({ type: Boolean, attribute: "show-cursor" })
-  showCursor = true;
 
   @state()
   private _renderedHTML = "";
@@ -314,24 +260,12 @@ export class AkMarkdown extends AkElement {
     }
 
     try {
-      // Parse markdown to HTML
-      let result = marked.parse(this.content, { async: false }) as string;
-
-      // Process custom <think> blocks
-      result = processThinkBlocks(result);
-
+      // Parse markdown to HTML — pure parsing only
+      const result = marked.parse(this.content, { async: false }) as string;
       this._renderedHTML = result;
     } catch {
       this._renderedHTML = `<p>${escapeHtml(this.content)}</p>`;
     }
-  }
-
-  private get _showTypingCursor(): boolean {
-    return (
-      this.showCursor &&
-      this.streamStatus === "loading" &&
-      this.content.length > 0
-    );
   }
 
   override render() {
@@ -339,9 +273,7 @@ export class AkMarkdown extends AkElement {
 
     return html`
       <div class="ak-md ak-motion-fade-in">
-        ${unsafeHTML(this._renderedHTML)}${this._showTypingCursor
-          ? html`<span class="ak-md-cursor"></span>`
-          : nothing}
+        ${unsafeHTML(this._renderedHTML)}
       </div>
     `;
   }

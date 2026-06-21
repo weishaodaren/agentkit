@@ -3,6 +3,21 @@ import { customElement, property, query, state } from "lit/decorators.js";
 import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 
+/**
+ * antd-x Sender 对标实现
+ *
+ * antd-x 结构:
+ *   .ant-sender (root, flex col, rounded-lg border)
+ *   ├── .ant-sender-header (slot, collapsible)
+ *   ├── textarea (flex-1, no border, no outline)
+ *   └── .ant-sender-actions (flex, prefix + send/cancel)
+ *
+ * Features:
+ *   - loading 时显示取消按钮（stop icon）
+ *   - 非 loading 时显示发送按钮（send icon）
+ *   - focus 时边框变色 + ring
+ *   - Enter 发送, Shift+Enter 换行
+ */
 @customElement("ak-sender")
 export class AkSender extends AkElement {
   @property({ type: String })
@@ -25,6 +40,9 @@ export class AkSender extends AkElement {
 
   @state()
   private _internalValue = "";
+
+  @state()
+  private _focused = false;
 
   @query("textarea")
   private _textarea!: HTMLTextAreaElement;
@@ -77,7 +95,7 @@ export class AkSender extends AkElement {
 
   private _handleCancel() {
     this.dispatchEvent(
-      new CustomEvent("cancel", {
+      new CustomEvent("sender-cancel", {
         bubbles: true,
         composed: true,
       }),
@@ -98,9 +116,12 @@ export class AkSender extends AkElement {
     return html`
       <div
         class=${cn(
-          "flex flex-col rounded-xl border border-border bg-card shadow-sm",
+          "ak-sender-root flex flex-col rounded-lg border bg-card",
           "transition-all duration-200 ease-in-out",
-          "focus-within:border-primary/50 focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20",
+          this._focused
+            ? "border-primary/50 shadow-md ring-2 ring-primary/20"
+            : "border-border shadow-sm",
+          this.disabled && "opacity-60",
         )}
       >
         <!-- Header slot -->
@@ -109,23 +130,25 @@ export class AkSender extends AkElement {
         <!-- Textarea -->
         <div class="relative px-3 pt-2">
           <textarea
-            class=${cn(
-              "w-full resize-none border-0 bg-transparent text-sm text-card-foreground outline-none",
-              "placeholder:text-muted-foreground/60",
-              "disabled:cursor-not-allowed disabled:opacity-50",
-              "transition-colors duration-150",
-            )}
+            class="ak-sender-textarea w-full resize-none border-0 bg-transparent p-0 text-sm leading-6 text-card-foreground outline-none ring-0"
+            style="border: none; outline: none; box-shadow: none; appearance: none; -webkit-appearance: none;"
             placeholder=${this.placeholder}
             .value=${this.value || this._internalValue}
             ?disabled=${this.disabled}
             rows="1"
             @input=${this._handleInput}
             @keydown=${this._handleKeyDown}
+            @focus=${() => {
+              this._focused = true;
+            }}
+            @blur=${() => {
+              this._focused = false;
+            }}
           ></textarea>
         </div>
 
         <!-- Footer -->
-        <div class="flex items-center justify-between px-3 pb-2">
+        <div class="flex items-center justify-between px-3 pb-2 pt-1">
           <!-- Prefix slot -->
           <div class="flex items-center gap-1">
             <slot name="prefix"></slot>
@@ -137,54 +160,36 @@ export class AkSender extends AkElement {
 
             ${this.loading
               ? html`
+                  <!-- antd-x: stop/cancel button (rounded, red bg) -->
                   <button
-                    class=${cn(
-                      "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md",
-                      "border-0 bg-destructive text-destructive-foreground",
-                      "transition-all duration-200 ease-in-out",
-                      "hover:bg-destructive/80 hover:scale-110 active:scale-95",
-                    )}
+                    class="ak-sender-cancel inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-0 bg-[#ff4d4f] text-white transition-all duration-200 ease-in-out hover:bg-[#ff7875] hover:scale-110 active:scale-95"
                     @click=${this._handleCancel}
-                    title="取消"
+                    title="停止"
                   >
                     <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="currentColor"
                     >
-                      <rect
-                        x="3"
-                        y="3"
-                        width="8"
-                        height="8"
-                        rx="1"
-                        fill="currentColor"
-                      />
+                      <rect x="2" y="2" width="8" height="8" rx="1" />
                     </svg>
                   </button>
                 `
               : html`
+                  <!-- antd-x: send button (rounded, primary bg) -->
                   <button
                     class=${cn(
-                      "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md",
-                      "border-0 transition-all duration-200 ease-in-out",
+                      "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-0 transition-all duration-200 ease-in-out",
                       hasValue && !this.disabled
-                        ? "bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110 active:scale-95 hover:shadow-sm"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110 active:scale-95"
                         : "bg-muted text-muted-foreground cursor-not-allowed",
                     )}
                     ?disabled=${!hasValue || this.disabled}
                     @click=${this._handleSubmit}
                     title="发送"
                   >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path
                         d="M12.5 1.5L6.5 7.5M12.5 1.5L9 12.5L6.5 7.5M12.5 1.5L1.5 5L6.5 7.5"
                         stroke="currentColor"

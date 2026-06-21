@@ -333,6 +333,7 @@ export function App() {
   // Refs
   const notifRef = useRef<HTMLElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const streamingIntervals = useRef<number[]>([]);
 
   // Current conversation
   const activeConv = conversations.find((c) => c.key === activeKey);
@@ -411,14 +412,14 @@ export function App() {
         ),
       );
 
-      // Simulate streaming
+      // Simulate streaming: separate thinking and content phases
       const thinkText = MOCK_THINKING;
       const respText = MOCK_RESPONSE;
       let thinkIdx = 0;
       let respIdx = 0;
       const aId = assistantMsg.id;
 
-      // Phase 1: Thinking
+      // Store interval IDs so cancel can clear them
       const thinkInterval = setInterval(() => {
         thinkIdx += 2;
         if (thinkIdx >= thinkText.length) {
@@ -453,6 +454,7 @@ export function App() {
               );
             }
           }, 15);
+          streamingIntervals.current.push(respInterval);
         }
         updateMessages(activeKey, (msgs) =>
           msgs.map((m) =>
@@ -460,6 +462,7 @@ export function App() {
           ),
         );
       }, 15);
+      streamingIntervals.current.push(thinkInterval);
     },
     [activeKey, isRequesting, updateMessages],
   );
@@ -482,6 +485,9 @@ export function App() {
   }, []);
 
   const handleCancel = useCallback(() => {
+    // Actually abort all streaming intervals
+    streamingIntervals.current.forEach((id) => clearInterval(id));
+    streamingIntervals.current = [];
     setIsRequesting(false);
   }, []);
 
@@ -670,7 +676,7 @@ export function App() {
               <Prompts
                 title="我可以帮你："
                 items={PROMPT_ITEMS}
-                columns="1"
+                vertical
                 onItemClick={handlePromptClick}
               />
             </>
@@ -688,7 +694,7 @@ export function App() {
               // ── Assistant bubble ──
               return (
                 <div key={msg.id} style={{ marginBottom: 16 }}>
-                  {/* Thinking block */}
+                  {/* Thinking block — separate Think component */}
                   {msg.thinking && (
                     <div style={{ marginBottom: 8 }}>
                       <Think
@@ -741,109 +747,59 @@ export function App() {
           <div ref={chatEndRef} />
         </div>
 
-        {/* Sender Area — antd-x: hidden during streaming, show stop button only */}
+        {/* Sender Area — antd-x: Sender always visible, handles loading/stop internally */}
         <div style={styles.chatSend}>
-          {isRequesting ? (
-            /* During response: only show cancel/stop button */
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "8px 0",
-              }}
+          {/* Quick action buttons */}
+          <div style={styles.quickButtons}>
+            <Button
+              variant="outline"
+              onClick={() => handleSubmit("有什么新功能？")}
             >
-              <button
+              📋 更新日志
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleSubmit("有哪些组件？")}
+            >
+              📦 组件列表
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleSubmit("如何安装？")}
+            >
+              📥 安装指南
+            </Button>
+          </div>
+
+          {/* Suggestion + Sender */}
+          <div style={{ position: "relative" }}>
+            {showSuggestion && (
+              <div
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "6px 16px",
-                  borderRadius: 20,
-                  border: "1px solid #e5e7eb",
-                  background: "#fff",
-                  color: "#6b7280",
-                  fontSize: 13,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-                onClick={handleCancel}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "#ef4444";
-                  (e.currentTarget as HTMLElement).style.color = "#ef4444";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "#e5e7eb";
-                  (e.currentTarget as HTMLElement).style.color = "#6b7280";
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  right: 0,
+                  zIndex: 10,
+                  marginBottom: 4,
                 }}
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="currentColor"
-                >
-                  <rect x="2" y="2" width="8" height="8" rx="1" />
-                </svg>
-                停止生成
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Quick action buttons */}
-              <div style={styles.quickButtons}>
-                <Button
-                  variant="outline"
-                  onClick={() => handleSubmit("有什么新功能？")}
-                >
-                  📋 更新日志
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleSubmit("有哪些组件？")}
-                >
-                  📦 组件列表
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleSubmit("如何安装？")}
-                >
-                  📥 安装指南
-                </Button>
-              </div>
-
-              {/* Suggestion + Sender */}
-              <div style={{ position: "relative" }}>
-                {showSuggestion && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "100%",
-                      left: 0,
-                      right: 0,
-                      zIndex: 10,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Suggestion
-                      items={SUGGESTIONS}
-                      open={showSuggestion}
-                      filterValue={inputValue}
-                      onSelect={handleSuggestionSelect}
-                    />
-                  </div>
-                )}
-                <Sender
-                  placeholder="输入问题或使用 / 技能..."
-                  loading={isRequesting}
-                  onSubmit={handleSenderSubmit}
-                  onChange={handleSenderChange}
-                  onCancel={handleCancel}
+                <Suggestion
+                  items={SUGGESTIONS}
+                  open={showSuggestion}
+                  filterValue={inputValue}
+                  onSelect={handleSuggestionSelect}
                 />
               </div>
-            </>
-          )}
+            )}
+            <Sender
+              placeholder="输入问题或使用 / 技能..."
+              loading={isRequesting}
+              onSubmit={handleSenderSubmit}
+              onChange={handleSenderChange}
+              onCancel={handleCancel}
+            />
+          </div>
         </div>
       </div>
 

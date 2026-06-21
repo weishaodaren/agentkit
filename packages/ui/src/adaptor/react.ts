@@ -81,7 +81,7 @@ export const Sender = createComponent({
   react: React,
   events: {
     onSubmit: "submit",
-    onCancel: "cancel",
+    onCancel: "sender-cancel",
     onChange: "change",
   },
 });
