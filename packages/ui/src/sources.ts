@@ -10,6 +10,19 @@ export interface SourceItem {
   url?: string;
 }
 
+/**
+ * antd-x Sources 对标实现
+ *
+ * antd-x modes:
+ *   - expandable (default): list with expand/collapse
+ *   - inline: horizontal scrollable card carousel (Popover style)
+ *
+ * antd-x structure:
+ *   .ant-sources (root)
+ *   ├── .ant-sources-title
+ *   └── .ant-sources-list / .ant-sources-inline
+ *       └── .ant-sources-item (clickable card)
+ */
 @customElement("ak-sources")
 export class AkSources extends AkElement {
   @property({ type: Array })
@@ -17,6 +30,10 @@ export class AkSources extends AkElement {
 
   @property({ type: String })
   title = "参考来源";
+
+  /** antd-x: display mode (list = default expandable, inline = horizontal carousel) */
+  @property({ type: String })
+  mode: "list" | "inline" = "list";
 
   private _handleClick(item: SourceItem) {
     if (item.url) {
@@ -34,6 +51,49 @@ export class AkSources extends AkElement {
   override render() {
     if (this.items.length === 0) return nothing;
 
+    if (this.mode === "inline") {
+      // antd-x inline mode: horizontal scrollable cards
+      return html`
+        <div class="flex flex-col gap-2">
+          <span class="text-xs text-muted-foreground"
+            >${this.title} (${this.items.length})</span
+          >
+          <div class="flex gap-2 overflow-x-auto pb-1">
+            ${this.items.map(
+              (item, i) => html`
+                <button
+                  class=${cn(
+                    "ak-card-hover ak-motion-zoom-in flex w-[180px] shrink-0 cursor-pointer flex-col items-start gap-1 rounded-lg border border-border bg-card p-2.5 text-left",
+                  )}
+                  style="animation-delay: ${i * 40}ms;"
+                  @click=${() => this._handleClick(item)}
+                >
+                  <span
+                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary"
+                  >
+                    ${i + 1}
+                  </span>
+                  <div
+                    class="truncate text-xs font-medium text-card-foreground"
+                  >
+                    ${item.title}
+                  </div>
+                  ${item.description
+                    ? html`<div
+                        class="truncate text-[10px] text-muted-foreground"
+                      >
+                        ${item.description}
+                      </div>`
+                    : nothing}
+                </button>
+              `,
+            )}
+          </div>
+        </div>
+      `;
+    }
+
+    // Default list mode
     return html`
       <div class="flex flex-col gap-2">
         <span class="text-xs text-muted-foreground"

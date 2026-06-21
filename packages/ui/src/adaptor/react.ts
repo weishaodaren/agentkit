@@ -20,6 +20,11 @@ import {
   AkThoughtChain,
   AkSuggestion,
   AkXCard,
+  AkSenderSwitch,
+  AkXProvider,
+  AkAttachments,
+  AkMermaid,
+  AkFolder,
 } from "@/index";
 
 // Button
@@ -54,7 +59,7 @@ export const Think = createComponent({
   elementClass: AkThink,
   react: React,
   events: {
-    onToggle: "toggle",
+    onExpand: "expand",
   },
 });
 
@@ -63,7 +68,10 @@ export const Bubble = createComponent({
   tagName: "ak-bubble",
   elementClass: AkBubble,
   react: React,
-  events: {},
+  events: {
+    onTyping: "typing",
+    onTypingComplete: "typing-complete",
+  },
 });
 
 // Sender
@@ -154,5 +162,52 @@ export const XCard = createComponent({
   events: {
     onCardLoad: "card-load",
     onCardClose: "card-close",
+  },
+});
+
+// SenderSwitch
+export const SenderSwitch = createComponent({
+  tagName: "ak-sender-switch",
+  elementClass: AkSenderSwitch,
+  react: React,
+  events: {
+    onChange: "change",
+  },
+});
+
+// XProvider
+export const XProvider = createComponent({
+  tagName: "ak-x-provider",
+  elementClass: AkXProvider,
+  react: React,
+  events: {},
+});
+
+// Attachments
+export const Attachments = createComponent({
+  tagName: "ak-attachments",
+  elementClass: AkAttachments,
+  react: React,
+  events: {
+    onUpload: "upload",
+    onRemove: "remove",
+  },
+});
+
+// Mermaid
+export const Mermaid = createComponent({
+  tagName: "ak-mermaid",
+  elementClass: AkMermaid,
+  react: React,
+  events: {},
+});
+
+// Folder
+export const Folder = createComponent({
+  tagName: "ak-folder",
+  elementClass: AkFolder,
+  react: React,
+  events: {
+    onSelect: "select",
   },
 });

@@ -5,15 +5,21 @@ import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 
 /**
- * antd token mapping:
- *   columnGap: paddingSM (12px) → gap-3
- *   content paddingInline: padding (16px) → px-4
- *   content paddingBlock: paddingSM (12px) → py-3
- *   content borderRadius default: borderRadius*2 (12px) → rounded-xl
- *   content corner shape: start gets sharper top-left corner
- *   content filled: colorFillContent → bg-muted
- *   loading dots: 4px, colorPrimary, translateY ±4px, 2s
- *   typing cursor: "|" blink 0.8s
+ * antd-x Bubble 对标实现
+ *
+ * antd-x 结构：
+ *   .ant-bubble (root, flex, gap paddingSM=12px)
+ *   ├── .ant-bubble-avatar
+ *   ├── .ant-bubble-body (flex col, max-width 100%)
+ *   │   ├── .ant-bubble-header (slot)
+ *   │   ├── .ant-bubble-content (variant + shape)
+ *   │   │   └── content / slot
+ *   │   └── .ant-bubble-footer (slot, outer placement)
+ *   └── .ant-bubble-extra (slot)
+ *
+ * Variants: filled / outlined / shadow / borderless
+ * Shapes: default (12px) / round (pill) / corner (12px + sharp corner)
+ * String content: no white-space override (pre-wrap causes blank gaps)
  */
 const bubbleVariants = cva("flex gap-3", {
   variants: {
@@ -48,12 +54,30 @@ export class AkBubble extends AkElement {
   @property({ type: Number, attribute: "typing-speed" })
   typingSpeed = 25;
 
+  /** Whether content is still streaming (affects typing-complete callback) */
+  @property({ type: Boolean })
+  streaming = false;
+
+  /** Avatar image URL */
   @property({ type: String })
   avatar = "";
 
   /** Content shape variant */
   @property({ type: String })
   shape: "default" | "round" | "corner" = "default";
+
+  /** Content variant style */
+  @property({ type: String })
+  variant: "filled" | "outlined" | "shadow" | "borderless" = "filled";
+
+  /** Footer placement relative to content */
+  @property({ type: String, attribute: "footer-placement" })
+  footerPlacement:
+    | "inner-start"
+    | "inner-end"
+    | "outer-start"
+    | "outer-end"
+    | "" = "";
 
   @state()
   private _typedLength = 0;
@@ -66,6 +90,16 @@ export class AkBubble extends AkElement {
       this.content.length > 0 &&
       this._typedLength < this.content.length
     );
+  }
+
+  /** antd-x: default footer placement based on bubble placement */
+  private get _effectiveFooterPlacement() {
+    if (this.footerPlacement) return this.footerPlacement;
+    return this.placement === "start" ? "outer-start" : "outer-end";
+  }
+
+  private get _isFooterInner() {
+    return this._effectiveFooterPlacement.includes("inner");
   }
 
   override connectedCallback() {
@@ -97,9 +131,23 @@ export class AkBubble extends AkElement {
     this._typingTimer = window.setInterval(() => {
       if (this._typedLength >= this.content.length) {
         this._stopTyping();
+        this.dispatchEvent(
+          new CustomEvent("typing-complete", {
+            detail: { content: this.content },
+            bubbles: true,
+            composed: true,
+          }),
+        );
         return;
       }
       this._typedLength += 1;
+      this.dispatchEvent(
+        new CustomEvent("typing", {
+          detail: { content: this.content.slice(0, this._typedLength) },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     }, this.typingSpeed);
   }
 
@@ -115,77 +163,105 @@ export class AkBubble extends AkElement {
     return this.content.slice(0, this._typedLength);
   }
 
-  /** antd: corner shape gives one sharper corner based on placement */
+  /** antd-x: corner shape gives one sharper corner based on placement */
   private get _shapeClasses(): string {
-    if (this.shape === "round") return "rounded-[20px]";
+    if (this.shape === "round") return "ak-bubble-content-round";
     if (this.shape === "corner") {
       return this.placement === "start"
-        ? "rounded-xl rounded-tl-[2px]"
-        : "rounded-xl rounded-tr-[2px]";
+        ? "ak-bubble-content-corner ak-bubble-content-corner-start"
+        : "ak-bubble-content-corner ak-bubble-content-corner-end";
     }
-    return "rounded-xl"; // default: 12px
+    return "ak-bubble-content-default";
+  }
+
+  /** antd-x variant classes */
+  private get _variantClasses(): string {
+    return `ak-bubble-content-${this.variant}`;
   }
 
   override render() {
+    const isFooterIn = this._isFooterInner;
+    const footerOuterStart =
+      !isFooterIn && this._effectiveFooterPlacement.includes("start");
+    const footerOuterEnd =
+      !isFooterIn && this._effectiveFooterPlacement.includes("end");
+
     return html`
       <div
         class=${cn(
           bubbleVariants({ placement: this.placement }),
-          "ak-motion-slide-up",
+          "ak-motion-slide-up group",
           this.loading && "items-center",
         )}
       >
         <!-- Avatar -->
         ${this.avatar
-          ? html`<div class="shrink-0">
+          ? html`<div class="ak-bubble-avatar shrink-0">
               <img
                 src=${this.avatar}
                 alt="avatar"
-                class="h-8 w-8 rounded-full object-cover"
+                class="h-8 w-8 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-primary/20"
               />
             </div>`
           : html`<slot name="avatar"></slot>`}
 
         <!-- Body (flex column) -->
-        <div class="flex max-w-full flex-col">
+        <div class="ak-bubble-body flex max-w-full flex-col">
+          <!-- Header slot -->
+          <slot name="header"></slot>
+
           <!-- Content -->
           <div
             class=${cn(
-              "box-border max-w-full break-words px-4 py-3 text-sm leading-[1.5714] text-foreground",
+              "ak-bubble-content box-border max-w-full break-words text-sm leading-[1.5714] text-foreground transition-all duration-150",
               this._shapeClasses,
-              this.placement === "start"
-                ? "bg-muted"
-                : "bg-primary text-primary-foreground",
+              this._variantClasses,
+              this.content && typeof this.content === "string"
+                ? "ak-bubble-content-string"
+                : "",
             )}
-            style="min-height: 46px;"
           >
             ${this.loading
               ? html`
-                  <!-- antd: 4px dots, colorPrimary, translateY ±4px, 2s cycle -->
-                  <div class="flex h-8 items-center gap-1 px-0.5">
-                    <span
-                      class="inline-block h-1 w-1 rounded-full bg-primary"
-                      style="animation: ak-loading-bounce 2s linear infinite; animation-delay: 0s;"
-                    ></span>
-                    <span
-                      class="inline-block h-1 w-1 rounded-full bg-primary"
-                      style="animation: ak-loading-bounce 2s linear infinite; animation-delay: 0.2s;"
-                    ></span>
-                    <span
-                      class="inline-block h-1 w-1 rounded-full bg-primary"
-                      style="animation: ak-loading-bounce 2s linear infinite; animation-delay: 0.4s;"
-                    ></span>
+                  <!-- Loading: antd-x style dots (4px, colorPrimary, translateY ±4px, 2s) -->
+                  <div class="ak-bubble-dot">
+                    <span class="ak-bubble-dot-item"></span>
+                    <span class="ak-bubble-dot-item"></span>
+                    <span class="ak-bubble-dot-item"></span>
                   </div>
                 `
               : this.content
-                ? html`<div>
-                    ${this._visibleContent}${this._isTyping
-                      ? html`<span class="ak-cursor"></span>`
-                      : nothing}
-                  </div>`
+                ? html`
+                    ${isFooterIn
+                      ? html`<div class="ak-bubble-content-with-footer">
+                          ${this._visibleContent}${this._isTyping
+                            ? html`<span class="ak-cursor"></span>`
+                            : nothing}
+                        </div>`
+                      : html`${this._visibleContent}${this._isTyping
+                          ? html`<span class="ak-cursor"></span>`
+                          : nothing}`}
+                    ${isFooterIn ? html`<slot name="footer"></slot>` : nothing}
+                  `
                 : html`<slot></slot>`}
           </div>
+
+          <!-- Footer slot (outer placement) -->
+          ${!this.loading && !isFooterIn
+            ? html`<div
+                class=${cn(
+                  "ak-bubble-footer",
+                  footerOuterStart && "ak-bubble-footer-start",
+                  footerOuterEnd && "ak-bubble-footer-end",
+                )}
+              >
+                <slot name="footer"></slot>
+              </div>`
+            : nothing}
         </div>
+
+        <!-- Extra slot -->
+        ${!this.loading ? html`<slot name="extra"></slot>` : nothing}
       </div>
     `;
   }

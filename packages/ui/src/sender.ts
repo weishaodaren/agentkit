@@ -98,8 +98,9 @@ export class AkSender extends AkElement {
     return html`
       <div
         class=${cn(
-          "flex flex-col rounded-xl border border-border bg-card shadow-sm transition-colors",
-          "focus-within:border-ring focus-within:ring-1 focus-within:ring-ring",
+          "flex flex-col rounded-xl border border-border bg-card shadow-sm",
+          "transition-all duration-200 ease-in-out",
+          "focus-within:border-primary/50 focus-within:shadow-md focus-within:ring-2 focus-within:ring-primary/20",
         )}
       >
         <!-- Header slot -->
@@ -110,8 +111,9 @@ export class AkSender extends AkElement {
           <textarea
             class=${cn(
               "w-full resize-none border-0 bg-transparent text-sm text-card-foreground outline-none",
-              "placeholder:text-muted-foreground",
+              "placeholder:text-muted-foreground/60",
               "disabled:cursor-not-allowed disabled:opacity-50",
+              "transition-colors duration-150",
             )}
             placeholder=${this.placeholder}
             .value=${this.value || this._internalValue}
@@ -138,8 +140,9 @@ export class AkSender extends AkElement {
                   <button
                     class=${cn(
                       "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md",
-                      "border-0 bg-destructive text-destructive-foreground transition-colors",
-                      "hover:bg-destructive/90",
+                      "border-0 bg-destructive text-destructive-foreground",
+                      "transition-all duration-200 ease-in-out",
+                      "hover:bg-destructive/80 hover:scale-110 active:scale-95",
                     )}
                     @click=${this._handleCancel}
                     title="取消"
@@ -166,9 +169,9 @@ export class AkSender extends AkElement {
                   <button
                     class=${cn(
                       "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md",
-                      "border-0 transition-colors",
+                      "border-0 transition-all duration-200 ease-in-out",
                       hasValue && !this.disabled
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110 active:scale-95 hover:shadow-sm"
                         : "bg-muted text-muted-foreground cursor-not-allowed",
                     )}
                     ?disabled=${!hasValue || this.disabled}

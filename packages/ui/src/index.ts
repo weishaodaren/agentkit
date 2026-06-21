@@ -45,3 +45,13 @@ export type { SuggestionItem } from "@/suggestion";
 
 export { AkXCard } from "@/x-card";
 export type { XCardItem } from "@/x-card";
+
+export { AkSenderSwitch } from "@/sender-switch";
+export { AkXProvider } from "@/x-provider";
+export { xProviderContext, defaultXProviderConfig } from "@/x-provider";
+export type { XProviderConfig } from "@/x-provider";
+export { AkAttachments } from "@/attachments";
+export type { AttachmentFile } from "@/attachments";
+export { AkMermaid } from "@/mermaid";
+export { AkFolder } from "@/folder";
+export type { FolderItem } from "@/folder";

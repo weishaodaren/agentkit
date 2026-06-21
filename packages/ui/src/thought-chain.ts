@@ -10,8 +10,33 @@ export interface ThoughtChainItem {
   description?: string;
   status?: "pending" | "running" | "success" | "error";
   icon?: string;
+  /** Extra content slot data */
+  content?: string;
+  /** Footer slot data */
+  footer?: string;
 }
 
+/**
+ * antd-x ThoughtChain 对标实现
+ *
+ * antd-x 结构：
+ *   .ant-thought-chain (root)
+ *   └── .ant-thought-chain-item (relative flex)
+ *       ├── .ant-thought-chain-item-header (flex col, icon + connector line)
+ *       │   └── .ant-thought-chain-item-icon (status icon)
+ *       │       connector: border-inline-start on ::after
+ *       └── .ant-thought-chain-item-content-box (flex-1)
+ *           ├── .ant-thought-chain-item-title
+ *           ├── .ant-thought-chain-item-description
+ *           ├── .ant-thought-chain-item-content (slot)
+ *           └── .ant-thought-chain-item-footer (slot)
+ *
+ * Features:
+ *   - 连接线使用 border-inline-start（antd-x 风格）
+ *   - line 样式（solid/dashed/dotted）
+ *   - content/footer 插槽
+ *   - collapsible 折叠
+ */
 @customElement("ak-thought-chain")
 export class AkThoughtChain extends AkElement {
   @property({ type: Array })
@@ -27,8 +52,19 @@ export class AkThoughtChain extends AkElement {
   @property({ type: Number, attribute: "typing-speed" })
   typingSpeed = 20;
 
+  /** antd-x: line style for connector (solid/dashed/dotted) */
+  @property({ type: String, attribute: "line-style" })
+  lineStyle: "solid" | "dashed" | "dotted" = "solid";
+
+  /** antd-x: item variant (solid/outlined) */
+  @property({ type: String, attribute: "item-variant" })
+  itemVariant: "solid" | "outlined" = "solid";
+
   @state()
   private _internalCollapsed = false;
+
+  @state()
+  private _userInteracted = false;
 
   @state()
   private _typedLengths: Record<string, number> = {};
@@ -36,7 +72,8 @@ export class AkThoughtChain extends AkElement {
   private _typingTimers = new Map<string, number>();
 
   private get _isCollapsed() {
-    return this._internalCollapsed || this.collapsed;
+    if (this._userInteracted) return this._internalCollapsed;
+    return this.collapsed;
   }
 
   override connectedCallback() {
@@ -133,8 +170,9 @@ export class AkThoughtChain extends AkElement {
 
   private _toggleCollapse() {
     if (!this.collapsible) return;
+    this._userInteracted = true;
     const wasCollapsed = this._isCollapsed;
-    this._internalCollapsed = !this._internalCollapsed;
+    this._internalCollapsed = !this._isCollapsed;
     if (wasCollapsed && !this._isCollapsed) {
       this._typedLengths = {};
       this._startAllTyping();
@@ -173,14 +211,16 @@ export class AkThoughtChain extends AkElement {
         ${!this._isCollapsed
           ? this.items.map(
               (item, i) => html`
-                <!-- antd: relative, flex, alignItems baseline, gap marginSM(12px) -->
+                <!-- antd-x: item (relative flex, gap marginSM=12px) -->
                 <div
-                  class="ak-motion-slide-up relative flex gap-3"
+                  class="ak-motion-slide-up ak-thought-chain-item relative flex gap-3"
                   style="align-items: baseline; animation-delay: ${i * 60}ms;"
                 >
-                  <!-- antd: node-header flex col -->
-                  <div class="flex flex-col items-center">
-                    <!-- antd: node-icon, lineHeight 1, fontSize iconSize(14) -->
+                  <!-- antd-x: node-header (flex col, icon + connector) -->
+                  <div
+                    class="ak-thought-chain-item-header flex flex-col items-center"
+                  >
+                    <!-- antd-x: node-icon -->
                     <div class="relative leading-none">
                       <div
                         class=${cn(
@@ -193,25 +233,26 @@ export class AkThoughtChain extends AkElement {
                           ? icon(item.icon, 14)
                           : this._statusIcon(item.status ?? "pending")}
                       </div>
-                      <!-- antd: connector line via ::after, 1px solid colorFillContent -->
+                      <!-- antd-x: connector line via border-inline-start -->
                       ${i < this.items.length - 1
                         ? html`<div
-                            class="absolute left-1/2 top-full w-px -translate-x-1/2 bg-border"
-                            style="height: calc(100% + 16px);"
+                            class="absolute left-1/2 top-full w-0 -translate-x-1/2"
+                            style="height: calc(100% + 16px); border-inline-start: 1px ${this
+                              .lineStyle} var(--_border, #e5e7eb);"
                           ></div>`
                         : nothing}
                     </div>
                   </div>
 
-                  <!-- antd: node-content-box, marginBottom margin(16px) -->
-                  <div class="flex-1 pb-4">
-                    <!-- antd: node-title, fontWeight 500, flex, gap marginXS(8px) -->
+                  <!-- antd-x: node-content-box -->
+                  <div class="ak-thought-chain-item-content-box flex-1 pb-4">
+                    <!-- antd-x: node-title -->
                     <div class="flex gap-2 text-sm font-medium text-foreground">
                       ${item.title}
                     </div>
                     ${item.description
                       ? html`<div
-                          class="mt-2 text-sm leading-[1.5714] text-muted-foreground"
+                          class="ak-thought-chain-item-description mt-2 text-sm leading-[1.5714] text-muted-foreground"
                         >
                           ${this._getItemVisibleText(
                             item.key,
@@ -219,6 +260,22 @@ export class AkThoughtChain extends AkElement {
                           )}${this._isItemTyping(item.key, item.description)
                             ? html`<span class="ak-cursor"></span>`
                             : nothing}
+                        </div>`
+                      : nothing}
+                    <!-- antd-x: node-content slot -->
+                    ${item.content
+                      ? html`<div
+                          class="ak-thought-chain-item-content mt-2 text-sm text-foreground"
+                        >
+                          ${item.content}
+                        </div>`
+                      : nothing}
+                    <!-- antd-x: node-footer slot -->
+                    ${item.footer
+                      ? html`<div
+                          class="ak-thought-chain-item-footer mt-2 text-xs text-muted-foreground"
+                        >
+                          ${item.footer}
                         </div>`
                       : nothing}
                   </div>

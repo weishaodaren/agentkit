@@ -29,6 +29,19 @@ export class AkWelcome extends AkElement {
   @property({ type: String })
   description = "";
 
+  /** Icon: URL string auto-converts to <img>, otherwise use slot */
+  @property({ type: String })
+  icon = "";
+
+  /** antd-x: icon supports string URL auto-convert to img */
+  private _isIconUrl(): boolean {
+    return (
+      this.icon.startsWith("http") ||
+      this.icon.startsWith("data:") ||
+      this.icon.startsWith("/")
+    );
+  }
+
   override render() {
     return html`
       <div
@@ -38,7 +51,17 @@ export class AkWelcome extends AkElement {
         )}
       >
         <!-- Icon -->
-        <slot name="icon"></slot>
+        ${this.icon
+          ? html`<div class="shrink-0">
+              ${this._isIconUrl()
+                ? html`<img
+                    src=${this.icon}
+                    alt="icon"
+                    class="h-8 w-8 rounded-full object-cover"
+                  />`
+                : html`<span class="text-xl">${this.icon}</span>`}
+            </div>`
+          : html`<slot name="icon"></slot>`}
 
         <!-- Content -->
         <div class="flex min-w-0 flex-1 flex-col gap-1">

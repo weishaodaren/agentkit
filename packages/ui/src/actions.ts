@@ -13,6 +13,9 @@ export interface ActionsItem {
 }
 
 /**
+ * antd-x Actions 对标实现
+ *
+ * antd-x variants: borderless (default) / filled / outlined
  * antd token mapping:
  *   list gap: paddingXS (8px) → gap-2
  *   item height: controlHeightSM (24px) → h-6
@@ -20,13 +23,15 @@ export interface ActionsItem {
  *   item paddingBlock: paddingXXS (4px) → py-1
  *   item borderRadiusSM (4px) → rounded
  *   item fontSize (14px) → text-sm
- *   transition: all motionDurationMid(200ms) motionEaseInOut
- *   hover: colorBgTextHover → hover:bg-black/[0.04]
  */
 @customElement("ak-actions")
 export class AkActions extends AkElement {
   @property({ type: Array })
   items: ActionsItem[] = [];
+
+  /** antd-x variant: borderless (default) / filled / outlined */
+  @property({ type: String })
+  variant: "borderless" | "filled" | "outlined" = "borderless";
 
   private _handleClick(item: ActionsItem) {
     if (item.disabled) return;
@@ -42,18 +47,23 @@ export class AkActions extends AkElement {
   override render() {
     return html`
       <!-- antd: inline-flex, flex-row, items-center, gap paddingXS(8px) -->
-      <div class="inline-flex items-center gap-2">
+      <div
+        class=${cn(
+          "inline-flex items-center gap-2 rounded-md px-1 py-0.5",
+          this.variant === "filled" && "bg-muted",
+          this.variant === "outlined" && "border border-border",
+        )}
+      >
         ${this.items.map(
           (item) => html`
             <button
               class=${cn(
-                // antd: h controlHeightSM(24px), inline-flex, items-center, justify-center
-                // px paddingXXS+1(5px), py paddingXXS(4px), rounded borderRadiusSM(4px)
                 "inline-flex h-6 cursor-pointer items-center justify-center gap-1 rounded border-0 bg-transparent px-[5px] py-1 text-sm",
-                "transition-all duration-200",
+                "transition-all duration-200 ease-in-out",
+                "hover:scale-105 active:scale-95",
                 item.active
                   ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-black/[0.04] hover:text-foreground",
+                  : "text-muted-foreground hover:bg-black/[0.06] hover:text-foreground",
                 item.disabled && "pointer-events-none opacity-45",
               )}
               ?disabled=${item.disabled}
@@ -61,7 +71,8 @@ export class AkActions extends AkElement {
               title=${item.label}
             >
               ${item.icon
-                ? html`<span class="flex items-center"
+                ? html`<span
+                    class="flex items-center transition-transform duration-150"
                     >${icon(item.icon, 14)}</span
                   >`
                 : nothing}
