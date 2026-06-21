@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html, nothing, type PropertyValues } from "lit";
 import { customElement, property, state, query } from "lit/decorators.js";
 import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
@@ -81,15 +81,19 @@ export class AkThink extends AkElement {
     this._stopTyping();
   }
 
-  override updated(changed: Map<string, unknown>) {
-    // Handle controlled expanded change
+  override willUpdate(changed: PropertyValues) {
+    // Handle controlled expanded change — set state BEFORE render to avoid change-in-update
     if (changed.has("expanded")) {
       if (!this._userInteracted) {
         this._isExpanded = this.expanded;
         this._contentVisible = this._isExpanded;
       }
     }
+  }
+
+  override updated(changed: PropertyValues) {
     // Start typing when content arrives for the first time
+    // This is OK in updated() because _startTyping uses setInterval (async side effect)
     if (changed.has("content") && this.content && !this._typingStarted) {
       if (this._getEffectiveExpanded()) {
         this._startTyping();

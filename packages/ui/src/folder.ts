@@ -1,4 +1,4 @@
-import { html, nothing, type TemplateResult } from "lit";
+import { html, nothing, type PropertyValues, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
@@ -61,7 +61,8 @@ export class AkFolder extends AkElement {
     }
   }
 
-  override updated(changed: Map<string, unknown>) {
+  override willUpdate(changed: PropertyValues) {
+    // Sync _selectedItem BEFORE render to avoid change-in-update
     if (changed.has("activeKey") || changed.has("items")) {
       this._selectedItem = this._findItemByKey(this.items, this.activeKey);
     }

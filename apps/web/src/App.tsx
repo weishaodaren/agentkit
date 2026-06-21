@@ -292,7 +292,7 @@ const styles = {
   assistantContent: {
     padding: "12px 16px",
     borderRadius: 12,
-    background: "#f3f4f6",
+    backgroundColor: "#f3f4f6",
   } as React.CSSProperties,
   assistantFooter: {
     display: "flex",
