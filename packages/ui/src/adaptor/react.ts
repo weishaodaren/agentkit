@@ -12,6 +12,7 @@ import {
   AkThink,
   AkBubble,
   AkSender,
+  AkSenderHeader,
   AkActions,
   AkSources,
   AkFileCard,
@@ -83,6 +84,16 @@ export const Sender = createComponent({
     onSubmit: "submit",
     onCancel: "sender-cancel",
     onChange: "change",
+  },
+});
+
+// SenderHeader
+export const SenderHeader = createComponent({
+  tagName: "ak-sender-header",
+  elementClass: AkSenderHeader,
+  react: React,
+  events: {
+    onOpenChange: "open-change",
   },
 });
 

@@ -1,6 +1,5 @@
-import { html, nothing } from "lit";
+import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -42,8 +41,119 @@ export interface ConversationItem {
  *   label: flex-1, colorText, overflow-hidden, ellipsis, nowrap
  *   transition: all motionDurationMid(200ms) motionEaseInOut
  */
+const conversationsCSS: CSSResult = css`
+  .ak-conversations {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ak-padding-xxs, 4px);
+    padding: var(--ak-padding-sm, 12px);
+    height: 100%;
+    overflow-y: auto;
+  }
+  .ak-conversations-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--ak-padding-xxs, 4px) var(--ak-padding-xs, 8px);
+  }
+  .ak-conversations-title {
+    font-size: var(--ak-font-size, 14px);
+    font-weight: 500;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .ak-conversations-creation-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px var(--ak-padding-xxs, 4px);
+    border-radius: var(--ak-border-radius-sm, 4px);
+    border: none;
+    background: transparent;
+    font-size: var(--ak-font-size-sm, 12px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    cursor: pointer;
+    transition: color var(--ak-duration-mid, 200ms);
+  }
+  .ak-conversations-creation-btn:hover {
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .ak-conversations-group-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: var(--ak-padding-xxs, 4px);
+    font-size: var(--ak-font-size-sm, 12px);
+    font-weight: 500;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-conversations-group {
+    margin-bottom: var(--ak-margin-xxs, 4px);
+  }
+  .ak-conversations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ak-conversations-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-xs, 8px);
+    height: var(--ak-control-height-lg, 40px);
+    min-height: var(--ak-control-height-lg, 40px);
+    padding: 0 var(--ak-padding-sm, 12px);
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    cursor: pointer;
+    transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+    width: 100%;
+  }
+  .ak-conversations-item:hover {
+    background: var(--ak-color-bg-text-hover, rgba(0, 0, 0, 0.04));
+  }
+  .ak-conversations-item:active {
+    background: var(--ak-color-bg-text-active, rgba(0, 0, 0, 0.06));
+  }
+  .ak-conversations-item-active {
+    background: var(--ak-color-bg-text-hover, rgba(0, 0, 0, 0.04));
+  }
+  .ak-conversations-item-disabled {
+    pointer-events: none;
+    opacity: 0.45;
+  }
+  .ak-conversations-item-indicator {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 20px;
+    border-radius: 2px;
+    background: var(--ak-color-primary, #1677ff);
+    transform: translateY(-50%);
+    transition: all var(--ak-duration-mid, 200ms);
+  }
+  .ak-conversations-item-icon {
+    flex-shrink: 0;
+    font-size: var(--ak-font-size, 14px);
+    transition: color 150ms;
+  }
+  .ak-conversations-item-label {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 150ms;
+  }
+`;
+
 @customElement("ak-conversations")
 export class AkConversations extends AkElement {
+  static override styles = [conversationsCSS];
   @property({ type: Array })
   items: ConversationItem[] = [];
 
@@ -102,21 +212,19 @@ export class AkConversations extends AkElement {
 
   override render() {
     return html`
-      <div
-        class="flex h-full flex-col gap-1 overflow-y-auto p-3 scrollbar-thin"
-      >
+      <div class="ak-conversations">
         ${this.title || this.creation
-          ? html`<div class="flex items-center justify-between px-1 pb-2">
+          ? html`<div class="ak-conversations-header">
               ${this.title
-                ? html`<span class="text-sm font-medium text-foreground"
+                ? html`<span class="ak-conversations-title"
                     >${this.title}</span
                   >`
                 : nothing}
-              <div class="flex items-center gap-1">
+              <div style="display:flex;align-items:center;gap:4px;">
                 <slot name="extra"></slot>
                 ${this.creation
                   ? html`<button
-                      class="inline-flex cursor-pointer items-center gap-1 rounded-md border-0 bg-transparent px-1.5 py-0.5 text-xs text-muted-foreground hover:text-foreground"
+                      class="ak-conversations-creation-btn"
                       @click=${this._handleCreation}
                     >
                       ${icon("plus", 12)} ${this.creationLabel}
@@ -127,18 +235,15 @@ export class AkConversations extends AkElement {
           : nothing}
         ${this.groupable
           ? html`
-              <!-- Grouped view -->
               ${Array.from(this._groupedItems.entries()).map(
                 ([group, items]) => html`
-                  <div class="mb-1">
+                  <div class="ak-conversations-group">
                     ${group
-                      ? html`<div
-                          class="flex items-center gap-1 px-1 py-1 text-xs font-medium text-muted-foreground"
-                        >
+                      ? html`<div class="ak-conversations-group-label">
                           ${group}
                         </div>`
                       : nothing}
-                    <div class="flex flex-col gap-0.5">
+                    <div class="ak-conversations-list">
                       ${items.map((item) => this._renderItem(item))}
                     </div>
                   </div>
@@ -146,8 +251,7 @@ export class AkConversations extends AkElement {
               )}
             `
           : html`
-              <!-- Flat view -->
-              <div class="flex flex-col gap-0.5">
+              <div class="ak-conversations-list">
                 ${this.items.map((item) => this._renderItem(item))}
               </div>
             `}
@@ -156,39 +260,26 @@ export class AkConversations extends AkElement {
   }
 
   private _renderItem(item: ConversationItem) {
+    const isActive = item.active || item.key === this.activeKey;
     return html`
       <button
-        class=${cn(
-          "relative flex h-10 min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg border-0 bg-transparent px-3 text-left",
-          "transition-all duration-200 ease-in-out",
-          item.disabled
-            ? "pointer-events-none opacity-45"
-            : item.active || item.key === this.activeKey
-              ? "bg-accent text-accent-foreground"
-              : "text-foreground hover:bg-accent/50 active:bg-accent/70",
-        )}
+        class="ak-conversations-item ${isActive
+          ? "ak-conversations-item-active"
+          : ""} ${item.disabled ? "ak-conversations-item-disabled" : ""}"
         ?disabled=${item.disabled}
         @click=${() => this._handleClick(item)}
       >
-        <!-- Active indicator bar -->
-        ${item.active || item.key === this.activeKey
-          ? html`<span
-              class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary transition-all duration-200"
-            ></span>`
+        ${isActive
+          ? html`<span class="ak-conversations-item-indicator"></span>`
           : nothing}
         ${item.icon
-          ? html`<span class="shrink-0 text-sm transition-colors duration-150"
+          ? html`<span class="ak-conversations-item-icon"
               >${icon(item.icon, 14)}</span
             >`
-          : html`<span class="shrink-0 text-sm"
+          : html`<span class="ak-conversations-item-icon"
               >${icon("message-circle", 14)}</span
             >`}
-
-        <div
-          class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm transition-colors duration-150"
-        >
-          ${item.label}
-        </div>
+        <div class="ak-conversations-item-label">${item.label}</div>
       </button>
     `;
   }

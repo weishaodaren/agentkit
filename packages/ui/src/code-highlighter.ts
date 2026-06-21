@@ -1,18 +1,17 @@
-import { html } from "lit";
+import { css, html, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import hljs from "highlight.js/lib/core";
 import typescript from "highlight.js/lib/languages/typescript";
 import javascript from "highlight.js/lib/languages/javascript";
 import python from "highlight.js/lib/languages/python";
-import css from "highlight.js/lib/languages/css";
+import cssLang from "highlight.js/lib/languages/css";
 import xml from "highlight.js/lib/languages/xml";
 import json from "highlight.js/lib/languages/json";
 import bash from "highlight.js/lib/languages/bash";
 import sql from "highlight.js/lib/languages/sql";
 import yaml from "highlight.js/lib/languages/yaml";
 import markdown from "highlight.js/lib/languages/markdown";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -23,7 +22,7 @@ hljs.registerLanguage("javascript", javascript);
 hljs.registerLanguage("js", javascript);
 hljs.registerLanguage("python", python);
 hljs.registerLanguage("py", python);
-hljs.registerLanguage("css", css);
+hljs.registerLanguage("css", cssLang);
 hljs.registerLanguage("html", xml);
 hljs.registerLanguage("xml", xml);
 hljs.registerLanguage("json", json);
@@ -57,8 +56,69 @@ const hljsThemeCSS = `
   .hljs-deletion { color: #ffdcd7; background: #67060c; }
 `;
 
+const codeHighlighterCSS: CSSResult = css`
+  .ak-code-highlighter {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: var(--ak-line-width, 1px) solid rgba(255, 255, 255, 0.1);
+    background: #0d1117;
+  }
+  .ak-code-highlighter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ak-padding-xxs, 4px) var(--ak-padding, 16px);
+    border-bottom: var(--ak-line-width, 1px) solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .ak-code-highlighter-lang {
+    font-size: var(--ak-font-size-sm, 12px);
+    color: rgba(255, 255, 255, 0.45);
+  }
+  .ak-code-highlighter-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px var(--ak-padding-xs, 8px);
+    border-radius: var(--ak-border-radius-sm, 4px);
+    border: none;
+    background: transparent;
+    font-size: var(--ak-font-size-sm, 12px);
+    color: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    transition: color var(--ak-duration-mid, 200ms);
+  }
+  .ak-code-highlighter-copy:hover {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .ak-code-highlighter-copy-copied {
+    color: #52c41a;
+  }
+  .ak-code-highlighter-pre {
+    overflow-x: auto;
+    padding: var(--ak-padding, 16px);
+    font-size: var(--ak-font-size, 14px);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .ak-code-highlighter-line {
+    display: flex;
+  }
+  .ak-code-highlighter-line-num {
+    display: inline-block;
+    width: 24px;
+    margin-right: var(--ak-padding, 16px);
+    text-align: right;
+    color: rgba(255, 255, 255, 0.25);
+    user-select: none;
+    flex-shrink: 0;
+  }
+`;
+
 @customElement("ak-code-highlighter")
 export class AkCodeHighlighter extends AkElement {
+  static override styles = [codeHighlighterCSS];
   @property({ type: String })
   code = "";
 
@@ -147,45 +207,32 @@ export class AkCodeHighlighter extends AkElement {
 
   override render() {
     return html`
-      <div
-        class="ak-motion-zoom-in relative overflow-hidden rounded-lg border border-border bg-[#0d1117]"
-      >
-        <!-- Header -->
-        <div
-          class="flex items-center justify-between border-b border-white/10 bg-white/5 px-4 py-1.5"
-        >
-          <span class="text-xs text-muted-foreground"
+      <div class="ak-code-highlighter">
+        <div class="ak-code-highlighter-header">
+          <span class="ak-code-highlighter-lang"
             >${this.language || "text"}</span
           >
           <button
-            class=${cn(
-              "ak-btn-interactive inline-flex cursor-pointer items-center gap-1 rounded border-0 bg-transparent px-2 py-0.5 text-xs",
-              this._copied
-                ? "text-green-400"
-                : "text-gray-400 hover:text-gray-200",
-            )}
+            class="ak-code-highlighter-copy ${this._copied
+              ? "ak-code-highlighter-copy-copied"
+              : ""}"
             @click=${this._handleCopy}
           >
             ${this._copied
-              ? html`<span class="flex items-center gap-1"
+              ? html`<span style="display:flex;align-items:center;gap:4px;"
                   >${icon("check", 14)} 已复制</span
                 >`
-              : html`<span class="flex items-center gap-1"
+              : html`<span style="display:flex;align-items:center;gap:4px;"
                   >${icon("copy", 14)} 复制</span
                 >`}
           </button>
         </div>
-
-        <!-- Code -->
-        <pre
-          class="overflow-x-auto p-4 text-sm leading-6"
-        ><code class="hljs">${this.showLineNumbers
+        <pre class="ak-code-highlighter-pre"><code class="hljs">${this
+          .showLineNumbers
           ? this._highlightedLines().map(
               (line, i) =>
-                html`<div class="flex">
-                  <span
-                    class="mr-4 inline-block w-6 shrink-0 select-none text-right text-gray-600"
-                    >${i + 1}</span
+                html`<div class="ak-code-highlighter-line">
+                  <span class="ak-code-highlighter-line-num">${i + 1}</span
                   ><span>${unsafeHTML(line)}</span>
                 </div>`,
             )

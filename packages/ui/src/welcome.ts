@@ -1,27 +1,61 @@
-import { html } from "lit";
+import { css, html, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 
-const welcomeVariants = cva("flex gap-4", {
-  variants: {
-    variant: {
-      filled: "rounded-lg bg-muted px-4 py-3",
-      borderless: "",
-    },
-  },
-  defaultVariants: {
-    variant: "filled",
-  },
-});
-
-type WelcomeVariants = VariantProps<typeof welcomeVariants>;
+const welcomeCSS: CSSResult = css`
+  .ak-welcome {
+    display: flex;
+    gap: var(--ak-padding, 16px);
+  }
+  .ak-welcome-filled {
+    border-radius: var(--ak-border-radius-md, 8px);
+    background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
+    padding: var(--ak-padding-sm, 12px) var(--ak-padding, 16px);
+  }
+  .ak-welcome-borderless {
+    /* no background or border */
+  }
+  .ak-welcome-icon {
+    flex-shrink: 0;
+  }
+  .ak-welcome-icon img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .ak-welcome-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+  }
+  .ak-welcome-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ak-padding-xs, 8px);
+  }
+  .ak-welcome-title {
+    margin: 0;
+    font-size: var(--ak-font-size-lg, 16px);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    flex: 1;
+  }
+  .ak-welcome-description {
+    margin: 0;
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+`;
 
 @customElement("ak-welcome")
 export class AkWelcome extends AkElement {
+  static override styles = [welcomeCSS];
   @property({ type: String })
-  variant: WelcomeVariants["variant"] = "filled";
+  variant: "filled" | "borderless" = "filled";
 
   @property({ type: String })
   title = "";
@@ -44,44 +78,29 @@ export class AkWelcome extends AkElement {
 
   override render() {
     return html`
-      <div
-        class=${cn(
-          welcomeVariants({ variant: this.variant }),
-          "ak-motion-fade-in",
-        )}
-      >
+      <div class="ak-welcome ak-welcome-${this.variant} ak-motion-fade-in">
         <!-- Icon -->
         ${this.icon
-          ? html`<div class="shrink-0">
+          ? html`<div class="ak-welcome-icon">
               ${this._isIconUrl()
-                ? html`<img
-                    src=${this.icon}
-                    alt="icon"
-                    class="h-8 w-8 rounded-full object-cover"
-                  />`
-                : html`<span class="text-xl">${this.icon}</span>`}
+                ? html`<img src=${this.icon} alt="icon" />`
+                : html`<span style="font-size: 20px;">${this.icon}</span>`}
             </div>`
           : html`<slot name="icon"></slot>`}
 
-        <!-- Content -->
-        <div class="flex min-w-0 flex-1 flex-col gap-1">
+        <!-- Body -->
+        <div class="ak-welcome-body">
           <!-- Title Row -->
-          <div class="flex items-start gap-2">
+          <div class="ak-welcome-title-row">
             ${this.title
-              ? html`<h4
-                  class="m-0 flex-1 text-base font-semibold leading-6 text-foreground"
-                >
-                  ${this.title}
-                </h4>`
+              ? html`<h4 class="ak-welcome-title">${this.title}</h4>`
               : html`<slot name="title"></slot>`}
             <slot name="extra"></slot>
           </div>
 
           <!-- Description -->
           ${this.description
-            ? html`<p class="m-0 text-sm text-muted-foreground">
-                ${this.description}
-              </p>`
+            ? html`<p class="ak-welcome-description">${this.description}</p>`
             : html`<slot name="description"></slot>`}
         </div>
       </div>

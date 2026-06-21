@@ -1,6 +1,5 @@
-import { html, nothing } from "lit";
+import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -17,8 +16,100 @@ interface ToastItem extends NotificationOptions {
   visible: boolean;
 }
 
+const notificationCSS: CSSResult = css`
+  .ak-notification {
+    position: fixed;
+    z-index: var(--ak-z-index-notification, 1010);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ak-padding-xs, 8px);
+  }
+  .ak-notification-top-right {
+    top: 16px;
+    right: 16px;
+  }
+  .ak-notification-top-left {
+    top: 16px;
+    left: 16px;
+  }
+  .ak-notification-bottom-right {
+    bottom: 16px;
+    right: 16px;
+  }
+  .ak-notification-bottom-left {
+    bottom: 16px;
+    left: 16px;
+  }
+  .ak-notification-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ak-padding-sm, 12px);
+    width: 320px;
+    padding: var(--ak-padding, 16px);
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: var(--ak-line-width, 1px) solid var(--ak-color-border, #d9d9d9);
+    background: var(--ak-color-bg-elevated, #fff);
+    box-shadow: var(--ak-box-shadow, 0 6px 16px rgba(0, 0, 0, 0.08));
+    transition: all var(--ak-duration-slow, 300ms) var(--ak-ease-in-out);
+  }
+  .ak-notification-toast-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ak-notification-toast-hidden {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .ak-notification-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+  .ak-notification-icon-info {
+    color: var(--ak-color-info, #1677ff);
+  }
+  .ak-notification-icon-success {
+    color: var(--ak-color-success, #52c41a);
+  }
+  .ak-notification-icon-warning {
+    color: var(--ak-color-warning, #faad14);
+  }
+  .ak-notification-icon-error {
+    color: var(--ak-color-error, #ff4d4f);
+  }
+  .ak-notification-body {
+    min-width: 0;
+    flex: 1;
+  }
+  .ak-notification-title {
+    font-size: var(--ak-font-size, 14px);
+    font-weight: 500;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .ak-notification-description {
+    margin-top: 4px;
+    font-size: var(--ak-font-size-sm, 12px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-notification-close {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    transition: color var(--ak-duration-mid, 200ms);
+    padding: 0;
+  }
+  .ak-notification-close:hover {
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+`;
+
 @customElement("ak-notification")
 export class AkNotification extends AkElement {
+  static override styles = [notificationCSS];
   @property({ type: String })
   placement: "top-right" | "top-left" | "bottom-right" | "bottom-left" =
     "top-right";
@@ -66,13 +157,17 @@ export class AkNotification extends AkElement {
   }
 
   private get _placementClasses() {
+    return `ak-notification-${this.placement}`;
+  }
+
+  private _typeIconClass(type: string) {
     const map: Record<string, string> = {
-      "top-right": "top-4 right-4",
-      "top-left": "top-4 left-4",
-      "bottom-right": "bottom-4 right-4",
-      "bottom-left": "bottom-4 left-4",
+      info: "ak-notification-icon-info",
+      success: "ak-notification-icon-success",
+      warning: "ak-notification-icon-warning",
+      error: "ak-notification-icon-error",
     };
-    return map[this.placement];
+    return map[type] ?? map.info;
   }
 
   private _typeIcon(type: string) {
@@ -89,34 +184,31 @@ export class AkNotification extends AkElement {
     if (this._toasts.length === 0) return nothing;
 
     return html`
-      <div
-        class=${cn("fixed z-50 flex flex-col gap-2", this._placementClasses)}
-      >
+      <div class="ak-notification ${this._placementClasses}">
         ${this._toasts.map(
           (toast) => html`
             <div
-              class=${cn(
-                "ak-motion-enter-right flex w-80 items-start gap-3 rounded-lg border border-border bg-card p-4 shadow-lg transition-all duration-300",
-                toast.visible
-                  ? "translate-y-0 opacity-100"
-                  : "-translate-y-2 opacity-0",
-              )}
+              class="ak-notification-toast ${toast.visible
+                ? "ak-notification-toast-visible"
+                : "ak-notification-toast-hidden"}"
             >
-              <span class="shrink-0 text-base">
+              <span
+                class="ak-notification-icon ${this._typeIconClass(
+                  toast.type ?? "info",
+                )}"
+              >
                 ${this._typeIcon(toast.type ?? "info")}
               </span>
-              <div class="min-w-0 flex-1">
-                <div class="text-sm font-medium text-card-foreground">
-                  ${toast.title}
-                </div>
+              <div class="ak-notification-body">
+                <div class="ak-notification-title">${toast.title}</div>
                 ${toast.description
-                  ? html`<div class="mt-1 text-xs text-muted-foreground">
+                  ? html`<div class="ak-notification-description">
                       ${toast.description}
                     </div>`
                   : nothing}
               </div>
               <button
-                class="ak-btn-interactive shrink-0 cursor-pointer border-0 bg-transparent text-muted-foreground hover:text-foreground"
+                class="ak-notification-close"
                 @click=${() => this.close(toast.id)}
               >
                 ${icon("x", 14)}

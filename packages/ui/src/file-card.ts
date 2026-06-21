@@ -1,6 +1,5 @@
-import { html, nothing } from "lit";
+import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -69,8 +68,113 @@ function getFileIcon(name: string, type?: string): string {
  * antd-x types: IMAGE / VIDEO / AUDIO / FILE
  * antd-x features: 13 preset file icons, mask hover overlay
  */
+const fileCardCSS: CSSResult = css`
+  .ak-file-card {
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-sm, 12px);
+    padding: var(--ak-padding-xs, 8px) var(--ak-padding-sm, 12px);
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: var(--ak-line-width, 1px) solid var(--ak-color-border, #d9d9d9);
+    background: var(--ak-color-bg-container, #fff);
+    transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+  .ak-file-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+  .ak-file-card-error {
+    border-color: var(--ak-color-error, #ff4d4f);
+  }
+  .ak-file-card-thumb {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ak-file-card-thumb img {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--ak-border-radius-sm, 4px);
+    object-fit: cover;
+  }
+  .ak-file-card-mask {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--ak-border-radius-sm, 4px);
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity var(--ak-duration-mid, 200ms);
+  }
+  .ak-file-card:hover .ak-file-card-mask {
+    opacity: 1;
+  }
+  .ak-file-card-mask span {
+    font-size: var(--ak-font-size-sm, 12px);
+    color: #fff;
+  }
+  .ak-file-card-icon {
+    flex-shrink: 0;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-file-card-body {
+    min-width: 0;
+    flex: 1;
+  }
+  .ak-file-card-name {
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ak-file-card-meta {
+    font-size: var(--ak-font-size-sm, 12px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-file-card-progress {
+    margin-top: 4px;
+    height: 4px;
+    width: 100%;
+    border-radius: 2px;
+    background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
+    overflow: hidden;
+  }
+  .ak-file-card-progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--ak-color-primary, #1677ff);
+    transition: width var(--ak-duration-mid, 200ms);
+  }
+  .ak-file-card-error-text {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ak-color-error, #ff4d4f);
+  }
+  .ak-file-card-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border-radius: var(--ak-border-radius-sm, 4px);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    transition: all var(--ak-duration-mid, 200ms);
+  }
+  .ak-file-card-remove:hover {
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+`;
+
 @customElement("ak-file-card")
 export class AkFileCard extends AkElement {
+  static override styles = [fileCardCSS];
   @property({ type: String })
   name = "";
 
@@ -112,48 +216,35 @@ export class AkFileCard extends AkElement {
   override render() {
     return html`
       <div
-        class=${cn(
-          "ak-motion-slide-up ak-card-hover group flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2",
-          this.status === "error" && "border-destructive",
-        )}
+        class="ak-file-card ${this.status === "error"
+          ? "ak-file-card-error"
+          : ""}"
       >
         <!-- Icon / Thumbnail -->
         ${this.thumb && (this.type === "image" || this.type === "video")
-          ? html`<div class="relative shrink-0">
-              <img
-                src=${this.thumb}
-                alt=${this.name}
-                class="h-10 w-10 rounded object-cover"
-              />
+          ? html`<div class="ak-file-card-thumb">
+              <img src=${this.thumb} alt=${this.name} />
               ${this.mask
-                ? html`<div
-                    class="ak-file-card-mask absolute inset-0 flex items-center justify-center rounded bg-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                  >
-                    <span class="text-xs text-white">查看</span>
-                  </div>`
+                ? html`<div class="ak-file-card-mask"><span>查看</span></div>`
                 : nothing}
             </div>`
-          : html`<span class="shrink-0 text-muted-foreground"
+          : html`<span class="ak-file-card-icon"
               >${icon(getFileIcon(this.name, this.type), 18)}</span
             >`}
 
         <!-- Info -->
-        <div class="min-w-0 flex-1">
-          <div class="truncate text-sm text-card-foreground">${this.name}</div>
-          <div class="text-xs text-muted-foreground">
+        <div class="ak-file-card-body">
+          <div class="ak-file-card-name">${this.name}</div>
+          <div class="ak-file-card-meta">
             ${this.status === "uploading"
-              ? html`
+              ? html`<div class="ak-file-card-progress">
                   <div
-                    class="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted"
-                  >
-                    <div
-                      class="h-full rounded-full bg-primary transition-all"
-                      style="width: ${this.progress}%"
-                    ></div>
-                  </div>
-                `
+                    class="ak-file-card-progress-bar"
+                    style="width: ${this.progress}%"
+                  ></div>
+                </div>`
               : this.status === "error"
-                ? html`<span class="flex items-center gap-1 text-destructive"
+                ? html`<span class="ak-file-card-error-text"
                     >${icon("circle-x", 12)} 上传失败</span
                   >`
                 : formatFileSize(this.size)}
@@ -162,14 +253,12 @@ export class AkFileCard extends AkElement {
 
         <!-- Remove -->
         ${this.removable
-          ? html`
-              <button
-                class="ak-btn-interactive flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent text-muted-foreground hover:text-foreground"
-                @click=${this._handleRemove}
-              >
-                ${icon("x", 14)}
-              </button>
-            `
+          ? html`<button
+              class="ak-file-card-remove"
+              @click=${this._handleRemove}
+            >
+              ${icon("x", 14)}
+            </button>`
           : nothing}
       </div>
     `;

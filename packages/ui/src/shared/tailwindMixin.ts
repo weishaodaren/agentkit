@@ -1,6 +1,7 @@
 import { adoptStyles, type LitElement, unsafeCSS } from "lit";
 import tailwindCss from "@/styles/tailwind.global.css?inline";
 import { motionCSS } from "@/shared/motion";
+import { tokenCSS } from "@/shared/tokens";
 
 declare global {
   export type LitMixin<T = unknown> = new (...args: any[]) => T & LitElement;
@@ -32,6 +33,7 @@ export const TW = <T extends LitMixin>(superClass: T): T =>
   class extends superClass {
     connectedCallback() {
       super.connectedCallback();
-      if (this.shadowRoot) adoptStyles(this.shadowRoot, [tailwind, motionCSS]);
+      if (this.shadowRoot)
+        adoptStyles(this.shadowRoot, [tokenCSS, tailwind, motionCSS]);
     }
   };

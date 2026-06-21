@@ -1,22 +1,89 @@
-import { html, nothing, type PropertyValues } from "lit";
+import { css, html, nothing, type PropertyValues, type CSSResult } from "lit";
 import { customElement, property, state, query } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
+import { icon } from "@/shared/icons";
 
 /**
- * antd-x Think 对标实现
+ * antd-x Think 1:1 实现
  *
- * antd-x 结构：
- *   .ant-think-status-wrapper: fit-content 横向 flex (icon + title + DownOutlined)
- *   .ant-think-content: 左侧时间线边框，marginTop marginSM，CSSMotion 折叠动画
+ * Structure:
+ *   .ak-think (root, block)
+ *   ├── .ak-think-status-wrapper (fit-content flex row, clickable)
+ *   │   ├── .ak-think-status-icon (sparkles / loader)
+ *   │   ├── .ak-think-status-text
+ *   │   └── .ak-think-status-down-icon (chevron-down, rotates 180)
+ *   └── .ak-think-content (left border timeline, collapsible)
  *
- * 折叠行为：
- *   - 内容始终在 DOM 中，通过 height + overflow hidden 过渡隐藏/显示
- *   - 折叠/展开不重新触发打字动画
- *   - motionAppear: false（初始渲染不播放动画）
+ * Collapse behavior:
+ *   - Content always in DOM, height + overflow transition
+ *   - Collapse/expand does NOT re-trigger typing
+ *   - motionAppear: false
  */
+
+const thinkCSS: CSSResult = css`
+  .ak-think {
+    display: block;
+  }
+  .ak-think-status-wrapper {
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    gap: var(--ak-padding-xs, 8px);
+    align-items: center;
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    line-height: var(--ak-line-height, 1.5714);
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+    transition: color var(--ak-duration-mid, 200ms);
+  }
+  .ak-think-status-wrapper:hover {
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .ak-think-status-icon {
+    font-size: var(--ak-font-size-heading-5, 16px);
+    display: flex;
+    align-items: center;
+  }
+  .ak-think-status-text {
+    line-height: var(--ak-line-height, 1.5714);
+    font-size: var(--ak-font-size, 14px);
+  }
+  .ak-think-status-down-icon {
+    font-size: var(--ak-font-size-sm, 12px);
+    display: inline-flex;
+    align-items: center;
+    transition: transform var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+  @keyframes ak-think-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+  .ak-think-motion-blink {
+    animation: ak-think-blink 1.2s step-end infinite;
+  }
+  .ak-think-content {
+    margin-top: var(--ak-margin-sm, 12px);
+    width: 100%;
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
+    padding-inline-start: var(--ak-padding-sm, 12px);
+    border-inline-start: var(--ak-line-width-bold, 2px) solid
+      var(--ak-color-border, #d9d9d9);
+    transition:
+      height var(--ak-duration-mid, 200ms) var(--ak-ease-in-out),
+      opacity var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+`;
+
 @customElement("ak-think")
 export class AkThink extends AkElement {
+  static override styles = [thinkCSS];
   @property({ type: String })
   title = "";
 
@@ -30,6 +97,10 @@ export class AkThink extends AkElement {
 
   @property({ type: Boolean })
   loading = false;
+
+  /** Custom icon name (lucide). Default: sparkles, loading: loader */
+  @property({ type: String })
+  icon = "";
 
   /** Whether the title text should blink (streaming indicator) */
   @property({ type: Boolean })
@@ -209,82 +280,34 @@ export class AkThink extends AkElement {
   override render() {
     const isExpanded = this._getEffectiveExpanded();
     const isTyping = this._getIsTyping();
+    const iconName = this.loading ? "loader" : this.icon || "sparkles";
 
     return html`
       <div class="ak-think">
-        <!-- Status bar (clickable) — antd-x: status-wrapper -->
+        <!-- Status bar (clickable) -->
         <div class="ak-think-status-wrapper" @click=${this._toggle}>
-          <!-- Icon — antd-x: status-icon -->
-          <div class="ak-think-status-icon">
-            ${this.loading
-              ? html`<svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 3a5 5 0 1 0 5 5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  >
-                    <animateTransform
-                      attributeName="transform"
-                      type="rotate"
-                      from="0 8 8"
-                      to="360 8 8"
-                      dur="0.8s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
-                </svg>`
-              : html`<svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 1024 1024"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M847.936 168.448c65.088 65.664 46.144 198.528-36.224 337.536 88.128 143.04 109.824 281.408 43.008 348.8-66.56 67.072-202.688 45.696-343.808-41.984-141.12 87.68-277.248 109.056-343.808 41.984-66.816-67.392-45.056-205.76 43.008-348.8-82.368-139.008-101.248-271.872-36.16-337.536 65.408-65.92 198.336-46.336 336.96 37.76l9.728-5.76c135.104-79.232 263.36-96.448 327.296-32zM249.088 565.568l-2.24 4.16a536.704 536.704 0 0 0-38.272 85.696c-28.928 85.888-16.128 134.144 3.584 153.984 19.712 19.776 67.52 32.768 152.704 3.584a531.84 531.84 0 0 0 87.616-40.064c-35.84-26.816-71.488-57.664-105.792-92.288a950.4 950.4 0 0 1-97.6-115.072z m523.648 0.064l-2.56 3.584c-27.392 37.76-59.2 75.328-94.976 111.424a951.744 951.744 0 0 1-105.856 92.288c30.336 17.088 59.904 30.528 87.68 40.064 85.12 29.184 132.992 16.192 152.64-3.584 19.712-19.84 32.576-68.096 3.584-153.984a541.824 541.824 0 0 0-40.512-89.792z m-261.76-283.2l-17.664 12.416c-36.352 26.24-72.96 57.472-108.416 93.184a878.208 878.208 0 0 0-99.008 118.656c28.8 42.88 64.128 86.528 105.792 128.512a874.24 874.24 0 0 0 119.232 100.928 875.84 875.84 0 0 0 119.232-100.928 871.232 871.232 0 0 0 105.728-128.448 868.224 868.224 0 0 0-98.944-118.72 867.136 867.136 0 0 0-126.016-105.6z m3.2 105.472a11.52 11.52 0 0 1 7.808 7.808l7.232 24.512c10.432 35.2 37.888 62.72 73.088 73.152l24.192 7.168a11.52 11.52 0 0 1 0.064 22.144l-24.704 7.424A108.288 108.288 0 0 0 529.28 603.008l-7.296 24.576a11.52 11.52 0 0 1-22.144 0l-7.296-24.576a108.288 108.288 0 0 0-72.576-72.96l-24.704-7.36a11.52 11.52 0 0 1 0-22.144l24.32-7.168c35.136-10.432 62.592-37.952 73.024-73.152l7.232-24.512a11.52 11.52 0 0 1 14.336-7.808z m136.064-177.664a522.496 522.496 0 0 0-79.872 35.776c37.76 27.84 75.456 60.16 111.552 96.64a956.16 956.16 0 0 1 89.856 104.32c14.656-27.392 26.24-54.016 34.688-79.168 28.928-85.888 16.064-134.08-3.52-153.984-19.712-19.776-67.52-32.768-152.704-3.584z m-431.36 3.584c-19.584 19.84-32.512 68.096-3.52 153.984 8.512 25.152 20.096 51.776 34.688 79.168 26.24-35.392 56.32-70.528 89.856-104.32a948.224 948.224 0 0 1 111.616-96.64 514.816 514.816 0 0 0-79.936-35.776c-85.12-29.184-132.928-16.192-152.64 3.584z"
-                  />
-                </svg>`}
-          </div>
+          <!-- Icon -->
+          <div class="ak-think-status-icon">${icon(iconName, 16)}</div>
 
-          <!-- Title text — antd-x: status-text -->
+          <!-- Title text -->
           <div
-            class=${cn(
-              "ak-think-status-text",
-              this.blink && "ak-think-motion-blink",
-            )}
+            class="ak-think-status-text ${this.blink
+              ? "ak-think-motion-blink"
+              : ""}"
           >
             ${this.title || (this.loading ? "思考中..." : "思考过程")}
           </div>
 
-          <!-- Down arrow — antd-x: status-down-icon (DownOutlined with rotate) -->
+          <!-- Down arrow (chevron-down, rotates 180 when expanded) -->
           <span
             class="ak-think-status-down-icon"
-            style="transform: rotate(${isExpanded
-              ? 180
-              : 0}deg); transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);"
+            style="transform: rotate(${isExpanded ? 180 : 0}deg);"
           >
-            <svg
-              width="12"
-              height="12"
-              viewBox="64 64 896 896"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-              />
-            </svg>
+            ${icon("chevron-down", 12)}
           </span>
         </div>
 
-        <!-- Content area — antd-x: CSSMotion wrapper, content always in DOM -->
+        <!-- Content area (collapsible, always in DOM) -->
         <div class="ak-think-content" style=${this._contentStyle}>
           ${this.content
             ? html`${this.content.slice(0, this._typedLength)}${isTyping

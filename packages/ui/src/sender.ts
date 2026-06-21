@@ -1,25 +1,140 @@
-import { html, nothing } from "lit";
+import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
+import { icon } from "@/shared/icons";
 
 /**
- * antd-x Sender 对标实现
+ * antd-x Sender 1:1 实现
  *
- * antd-x 结构:
- *   .ant-sender (root, flex col, rounded-lg border)
- *   ├── .ant-sender-header (slot, collapsible)
- *   ├── textarea (flex-1, no border, no outline)
- *   └── .ant-sender-actions (flex, prefix + send/cancel)
+ * Structure:
+ *   .ak-sender (root, flex col, rounded border)
+ *   ├── slot[name=header]  (collapsible Sender.Header)
+ *   ├── textarea (auto-resize, no border)
+ *   └── .ak-sender-actions (flex, prefix + suffix + send/cancel)
  *
  * Features:
- *   - loading 时显示取消按钮（stop icon）
- *   - 非 loading 时显示发送按钮（send icon）
- *   - focus 时边框变色 + ring
- *   - Enter 发送, Shift+Enter 换行
+ *   - Enter to send, Shift+Enter for newline
+ *   - Auto-resize textarea
+ *   - Loading state shows cancel button
+ *   - Slots: header, prefix, suffix, footer
  */
+
+const senderCSS: CSSResult = css`
+  .ak-sender {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--ak-border-radius-lg, 12px);
+    border: var(--ak-line-width, 1px) solid var(--ak-color-border, #d9d9d9);
+    background: var(--ak-color-bg-container, #fff);
+    transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+  .ak-sender-focused {
+    border-color: color-mix(
+      in srgb,
+      var(--ak-color-primary, #1677ff) 50%,
+      transparent
+    );
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--ak-color-primary, #1677ff) 20%, transparent);
+  }
+  .ak-sender-disabled {
+    opacity: 0.6;
+  }
+  .ak-sender-textarea-wrap {
+    position: relative;
+    padding: var(--ak-padding-sm, 12px) var(--ak-padding, 16px) 0;
+  }
+  .ak-sender-textarea {
+    width: 100%;
+    resize: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: var(--ak-font-size, 14px);
+    line-height: 1.5;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    outline: none;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: inherit;
+  }
+  .ak-sender-textarea::placeholder {
+    color: var(--ak-color-text-quaternary, rgba(0, 0, 0, 0.25));
+  }
+  .ak-sender-textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .ak-sender-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ak-padding-xs, 8px) var(--ak-padding, 16px)
+      var(--ak-padding-sm, 12px);
+  }
+  .ak-sender-actions-left,
+  .ak-sender-actions-right {
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-xxs, 4px);
+  }
+  /* Send button */
+  .ak-sender-send-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+  .ak-sender-send-btn-active {
+    background: var(--ak-color-primary, #1677ff);
+    color: #fff;
+  }
+  .ak-sender-send-btn-active:hover {
+    background: var(--ak-color-primary-hover, #4096ff);
+    transform: scale(1.1);
+  }
+  .ak-sender-send-btn-active:active {
+    transform: scale(0.95);
+  }
+  .ak-sender-send-btn-inactive {
+    background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
+    color: var(--ak-color-text-quaternary, rgba(0, 0, 0, 0.25));
+    cursor: not-allowed;
+  }
+  /* Cancel button */
+  .ak-sender-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--ak-color-error, #ff4d4f);
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+  .ak-sender-cancel-btn:hover {
+    background: #ff7875;
+    transform: scale(1.1);
+  }
+  .ak-sender-cancel-btn:active {
+    transform: scale(0.95);
+  }
+`;
+
 @customElement("ak-sender")
 export class AkSender extends AkElement {
+  static override styles = [senderCSS];
+
   @property({ type: String })
   value = "";
 
@@ -105,7 +220,7 @@ export class AkSender extends AkElement {
   private _autoResize() {
     if (!this._textarea) return;
     this._textarea.style.height = "auto";
-    const lineHeight = 24;
+    const lineHeight = 21;
     const maxHeight = lineHeight * this.maxRows;
     this._textarea.style.height = `${Math.min(this._textarea.scrollHeight, maxHeight)}px`;
   }
@@ -115,23 +230,18 @@ export class AkSender extends AkElement {
 
     return html`
       <div
-        class=${cn(
-          "ak-sender-root flex flex-col rounded-lg border bg-card",
-          "transition-all duration-200 ease-in-out",
-          this._focused
-            ? "border-primary/50 shadow-md ring-2 ring-primary/20"
-            : "border-border shadow-sm",
-          this.disabled && "opacity-60",
-        )}
+        class="ak-sender ${this._focused ? "ak-sender-focused" : ""} ${this
+          .disabled
+          ? "ak-sender-disabled"
+          : ""}"
       >
         <!-- Header slot -->
         <slot name="header"></slot>
 
         <!-- Textarea -->
-        <div class="relative px-3 pt-2">
+        <div class="ak-sender-textarea-wrap">
           <textarea
-            class="ak-sender-textarea w-full resize-none border-0 bg-transparent p-0 text-sm leading-6 text-card-foreground outline-none ring-0"
-            style="border: none; outline: none; box-shadow: none; appearance: none; -webkit-appearance: none;"
+            class="ak-sender-textarea"
             placeholder=${this.placeholder}
             .value=${this.value || this._internalValue}
             ?disabled=${this.disabled}
@@ -147,57 +257,37 @@ export class AkSender extends AkElement {
           ></textarea>
         </div>
 
-        <!-- Footer -->
-        <div class="flex items-center justify-between px-3 pb-2 pt-1">
-          <!-- Prefix slot -->
-          <div class="flex items-center gap-1">
+        <!-- Actions -->
+        <div class="ak-sender-actions">
+          <!-- Left: prefix -->
+          <div class="ak-sender-actions-left">
             <slot name="prefix"></slot>
           </div>
 
-          <!-- Actions -->
-          <div class="flex items-center gap-1">
+          <!-- Right: suffix + send/cancel -->
+          <div class="ak-sender-actions-right">
             <slot name="suffix"></slot>
 
             ${this.loading
               ? html`
-                  <!-- antd-x: stop/cancel button (rounded, red bg) -->
                   <button
-                    class="ak-sender-cancel inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-0 bg-[#ff4d4f] text-white transition-all duration-200 ease-in-out hover:bg-[#ff7875] hover:scale-110 active:scale-95"
+                    class="ak-sender-cancel-btn"
                     @click=${this._handleCancel}
                     title="停止"
                   >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="currentColor"
-                    >
-                      <rect x="2" y="2" width="8" height="8" rx="1" />
-                    </svg>
+                    ${icon("square", 12)}
                   </button>
                 `
               : html`
-                  <!-- antd-x: send button (rounded, primary bg) -->
                   <button
-                    class=${cn(
-                      "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-0 transition-all duration-200 ease-in-out",
-                      hasValue && !this.disabled
-                        ? "bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-110 active:scale-95"
-                        : "bg-muted text-muted-foreground cursor-not-allowed",
-                    )}
+                    class="ak-sender-send-btn ${hasValue && !this.disabled
+                      ? "ak-sender-send-btn-active"
+                      : "ak-sender-send-btn-inactive"}"
                     ?disabled=${!hasValue || this.disabled}
                     @click=${this._handleSubmit}
                     title="发送"
                   >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path
-                        d="M12.5 1.5L6.5 7.5M12.5 1.5L9 12.5L6.5 7.5M12.5 1.5L1.5 5L6.5 7.5"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
+                    ${icon("send-horizontal", 14)}
                   </button>
                 `}
           </div>
@@ -210,8 +300,90 @@ export class AkSender extends AkElement {
   }
 }
 
+/**
+ * Sender.Header — collapsible panel above the textarea.
+ * antd-x: Sender.Header with title, open, onOpenChange.
+ */
+@customElement("ak-sender-header")
+export class AkSenderHeader extends AkElement {
+  static override styles = [
+    css`
+      .ak-sender-header {
+        border-bottom: var(--ak-line-width, 1px) solid
+          var(--ak-color-border-secondary, #f0f0f0);
+      }
+      .ak-sender-header-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--ak-padding-xs, 8px) var(--ak-padding, 16px);
+        cursor: pointer;
+        user-select: none;
+        font-size: var(--ak-font-size-sm, 12px);
+        color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+      }
+      .ak-sender-header-toggle:hover {
+        color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+      }
+      .ak-sender-header-content {
+        overflow: hidden;
+        transition: max-height var(--ak-duration-mid, 200ms)
+          var(--ak-ease-in-out);
+      }
+      .ak-sender-header-open {
+        max-height: 400px;
+      }
+      .ak-sender-header-closed {
+        max-height: 0;
+      }
+    `,
+  ];
+
+  @property({ type: String })
+  title = "";
+
+  @property({ type: Boolean, reflect: true })
+  open = false;
+
+  private _toggle() {
+    this.open = !this.open;
+    this.dispatchEvent(
+      new CustomEvent("open-change", {
+        detail: { open: this.open },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  override render() {
+    return html`
+      <div class="ak-sender-header">
+        <div class="ak-sender-header-toggle" @click=${this._toggle}>
+          <span>${this.title}</span>
+          <span
+            style="transform: rotate(${this.open
+              ? 180
+              : 0}deg); transition: transform 0.2s;"
+          >
+            ${icon("chevron-down", 12)}
+          </span>
+        </div>
+        <div
+          class="ak-sender-header-content ${this.open
+            ? "ak-sender-header-open"
+            : "ak-sender-header-closed"}"
+        >
+          <slot></slot>
+        </div>
+      </div>
+    `;
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     "ak-sender": AkSender;
+    "ak-sender-header": AkSenderHeader;
   }
 }

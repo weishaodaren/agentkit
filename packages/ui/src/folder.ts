@@ -1,6 +1,12 @@
-import { html, nothing, type PropertyValues, type TemplateResult } from "lit";
+import {
+  css,
+  html,
+  nothing,
+  type PropertyValues,
+  type TemplateResult,
+  type CSSResult,
+} from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -26,8 +32,107 @@ export interface FolderItem {
  *   - File preview panel (right side)
  *   - File/folder icons based on type and extension
  */
+const folderCSS: CSSResult = css`
+  .ak-folder {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: var(--ak-line-width, 1px) solid var(--ak-color-border, #d9d9d9);
+  }
+  .ak-folder-tree {
+    overflow-y: auto;
+    border-right: var(--ak-line-width, 1px) solid
+      var(--ak-color-border, #d9d9d9);
+    background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
+    padding: var(--ak-padding-xs, 8px);
+  }
+  .ak-folder-tree-item {
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-xxs, 4px);
+    padding: var(--ak-padding-xxs, 4px) var(--ak-padding-xxs, 4px);
+    border-radius: var(--ak-border-radius-sm, 4px);
+    border: none;
+    background: transparent;
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    transition: background var(--ak-duration-mid, 200ms);
+  }
+  .ak-folder-tree-item:hover {
+    background: var(--ak-color-bg-text-hover, rgba(0, 0, 0, 0.04));
+  }
+  .ak-folder-tree-item-active {
+    background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
+  }
+  .ak-folder-tree-item-icon {
+    flex-shrink: 0;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-folder-tree-item-chevron {
+    flex-shrink: 0;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    transition: transform var(--ak-duration-mid, 200ms);
+  }
+  .ak-folder-tree-item-chevron-expanded {
+    transform: rotate(90deg);
+  }
+  .ak-folder-tree-item-name {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ak-folder-preview {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+  .ak-folder-preview-header {
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-xs, 8px);
+    padding: var(--ak-padding-xs, 8px) var(--ak-padding, 16px);
+    border-bottom: var(--ak-line-width, 1px) solid
+      var(--ak-color-border, #d9d9d9);
+  }
+  .ak-folder-preview-header-icon {
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-folder-preview-header-name {
+    font-size: var(--ak-font-size, 14px);
+    font-weight: 500;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .ak-folder-preview-content {
+    flex: 1;
+    overflow: auto;
+    padding: var(--ak-padding, 16px);
+  }
+  .ak-folder-preview-content pre {
+    font-size: var(--ak-font-size, 14px);
+    line-height: 1.5;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    margin: 0;
+  }
+  .ak-folder-preview-empty {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+`;
+
 @customElement("ak-folder")
 export class AkFolder extends AkElement {
+  static override styles = [folderCSS];
   @property({ type: Array })
   items: FolderItem[] = [];
 
@@ -147,34 +252,27 @@ export class AkFolder extends AkElement {
       (item) => html`
         <div>
           <button
-            class=${cn(
-              "flex w-full cursor-pointer items-center gap-1.5 rounded-md border-0 bg-transparent py-1 pl-2 pr-1 text-left text-sm transition-colors",
-              item.key === this.activeKey
-                ? "bg-accent text-accent-foreground"
-                : "text-foreground hover:bg-accent/50",
-            )}
+            class="ak-folder-tree-item ${item.key === this.activeKey
+              ? "ak-folder-tree-item-active"
+              : ""}"
             style="padding-left: ${depth * 16 + 8}px;"
             @click=${() => this._selectItem(item)}
           >
             ${item.type === "folder"
               ? html`<span
-                  class="shrink-0 text-muted-foreground transition-transform duration-150 ${this._expandedKeys.has(
+                  class="ak-folder-tree-item-chevron ${this._expandedKeys.has(
                     item.key,
                   )
-                    ? "rotate-90"
+                    ? "ak-folder-tree-item-chevron-expanded"
                     : ""}"
                 >
                   ${icon("chevron-right", 12)}
                 </span>`
-              : html`<span class="w-3 shrink-0"></span>`}
-            <span class="shrink-0 text-muted-foreground">
+              : html`<span style="width:12px;flex-shrink:0;"></span>`}
+            <span class="ak-folder-tree-item-icon">
               ${icon(this._getFileIcon(item), 14)}
             </span>
-            <span
-              class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
-            >
-              ${item.name}
-            </span>
+            <span class="ak-folder-tree-item-name">${item.name}</span>
           </button>
           ${item.type === "folder" &&
           this._expandedKeys.has(item.key) &&
@@ -188,12 +286,10 @@ export class AkFolder extends AkElement {
 
   override render() {
     return html`
-      <div
-        class="ak-folder flex h-full overflow-hidden rounded-lg border border-border"
-      >
+      <div class="ak-folder">
         <!-- Tree panel -->
         <div
-          class="overflow-y-auto border-r border-border bg-muted/20 p-2 scrollbar-thin"
+          class="ak-folder-tree"
           style="width: ${this.treeWidth}px; min-width: ${this.treeWidth}px;"
         >
           ${this._renderTree(this.items)}
@@ -202,36 +298,32 @@ export class AkFolder extends AkElement {
         <!-- Preview panel -->
         ${this.preview
           ? html`
-              <div class="flex min-w-0 flex-1 flex-col">
+              <div class="ak-folder-preview">
                 ${this._selectedItem
                   ? html`
-                      <!-- File header -->
-                      <div
-                        class="flex items-center gap-2 border-b border-border px-4 py-2"
-                      >
-                        <span class="text-muted-foreground">
-                          ${icon(this._getFileIcon(this._selectedItem), 14)}
-                        </span>
-                        <span class="text-sm font-medium text-foreground">
-                          ${this._selectedItem.name}
-                        </span>
+                      <div class="ak-folder-preview-header">
+                        <span class="ak-folder-preview-header-icon"
+                          >${icon(
+                            this._getFileIcon(this._selectedItem),
+                            14,
+                          )}</span
+                        >
+                        <span class="ak-folder-preview-header-name"
+                          >${this._selectedItem.name}</span
+                        >
                       </div>
-                      <!-- File content -->
-                      <div class="flex-1 overflow-auto p-4">
+                      <div class="ak-folder-preview-content">
                         <slot name="preview">
                           ${this._selectedItem.content
-                            ? html`<pre
-                                class="text-sm leading-6 text-card-foreground"
-                              ><code>${this._selectedItem.content}</code></pre>`
-                            : html`<div class="text-sm text-muted-foreground">
+                            ? html`<pre><code>${this._selectedItem
+                                .content}</code></pre>`
+                            : html`<div class="ak-folder-preview-empty">
                                 无预览
                               </div>`}
                         </slot>
                       </div>
                     `
-                  : html`<div
-                      class="flex flex-1 items-center justify-center text-sm text-muted-foreground"
-                    >
+                  : html`<div class="ak-folder-preview-empty">
                       选择文件以预览
                     </div>`}
               </div>

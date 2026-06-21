@@ -22,6 +22,7 @@ export { AkThink } from "@/think";
 export { AkBubble } from "@/bubble";
 
 export { AkSender } from "@/sender";
+export { AkSenderHeader } from "@/sender";
 
 export { AkActions } from "@/actions";
 export type { ActionsItem } from "@/actions";
@@ -55,3 +56,7 @@ export type { AttachmentFile } from "@/attachments";
 export { AkMermaid } from "@/mermaid";
 export { AkFolder } from "@/folder";
 export type { FolderItem } from "@/folder";
+
+// Locale
+export { zhCN, enUS } from "@/locale";
+export type { Locale } from "@/locale";

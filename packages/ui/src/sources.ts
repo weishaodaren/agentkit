@@ -1,6 +1,5 @@
-import { html, nothing } from "lit";
+import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 
 export interface SourceItem {
@@ -23,8 +22,88 @@ export interface SourceItem {
  *   └── .ant-sources-list / .ant-sources-inline
  *       └── .ant-sources-item (clickable card)
  */
+const sourcesCSS: CSSResult = css`
+  .ak-sources {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ak-padding-xs, 8px);
+  }
+  .ak-sources-title {
+    font-size: var(--ak-font-size-sm, 12px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-sources-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ak-padding-xs, 8px);
+  }
+  .ak-sources-inline {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: var(--ak-padding-xxs, 4px);
+  }
+  .ak-sources-item {
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-xs, 8px);
+    padding: var(--ak-padding-xs, 8px) var(--ak-padding-sm, 12px);
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: var(--ak-line-width, 1px) solid var(--ak-color-border, #d9d9d9);
+    background: var(--ak-color-bg-container, #fff);
+    cursor: pointer;
+    text-align: left;
+    max-width: 200px;
+    transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+  }
+  .ak-sources-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+  .ak-sources-inline .ak-sources-item {
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 180px;
+    padding: 10px;
+  }
+  .ak-sources-item-index {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--ak-color-primary-bg, #e6f4ff);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ak-color-primary, #1677ff);
+    flex-shrink: 0;
+  }
+  .ak-sources-item-title {
+    font-size: var(--ak-font-size-sm, 12px);
+    font-weight: 500;
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ak-sources-item-desc {
+    font-size: 10px;
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ak-sources-item-body {
+    min-width: 0;
+    flex: 1;
+  }
+`;
+
 @customElement("ak-sources")
 export class AkSources extends AkElement {
+  static override styles = [sourcesCSS];
   @property({ type: Array })
   items: SourceItem[] = [];
 
@@ -52,36 +131,22 @@ export class AkSources extends AkElement {
     if (this.items.length === 0) return nothing;
 
     if (this.mode === "inline") {
-      // antd-x inline mode: horizontal scrollable cards
       return html`
-        <div class="flex flex-col gap-2">
-          <span class="text-xs text-muted-foreground"
+        <div class="ak-sources">
+          <span class="ak-sources-title"
             >${this.title} (${this.items.length})</span
           >
-          <div class="flex gap-2 overflow-x-auto pb-1">
+          <div class="ak-sources-list ak-sources-inline">
             ${this.items.map(
               (item, i) => html`
                 <button
-                  class=${cn(
-                    "ak-card-hover ak-motion-zoom-in flex w-[180px] shrink-0 cursor-pointer flex-col items-start gap-1 rounded-lg border border-border bg-card p-2.5 text-left",
-                  )}
-                  style="animation-delay: ${i * 40}ms;"
+                  class="ak-sources-item"
                   @click=${() => this._handleClick(item)}
                 >
-                  <span
-                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary"
-                  >
-                    ${i + 1}
-                  </span>
-                  <div
-                    class="truncate text-xs font-medium text-card-foreground"
-                  >
-                    ${item.title}
-                  </div>
+                  <span class="ak-sources-item-index">${i + 1}</span>
+                  <div class="ak-sources-item-title">${item.title}</div>
                   ${item.description
-                    ? html`<div
-                        class="truncate text-[10px] text-muted-foreground"
-                      >
+                    ? html`<div class="ak-sources-item-desc">
                         ${item.description}
                       </div>`
                     : nothing}
@@ -95,36 +160,22 @@ export class AkSources extends AkElement {
 
     // Default list mode
     return html`
-      <div class="flex flex-col gap-2">
-        <span class="text-xs text-muted-foreground"
+      <div class="ak-sources">
+        <span class="ak-sources-title"
           >${this.title} (${this.items.length})</span
         >
-        <div class="flex flex-wrap gap-2">
+        <div class="ak-sources-list">
           ${this.items.map(
             (item, i) => html`
               <button
-                class=${cn(
-                  "ak-card-hover ak-motion-zoom-in flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left",
-                  "max-w-[200px]",
-                )}
-                style="animation-delay: ${i * 60}ms;"
+                class="ak-sources-item"
                 @click=${() => this._handleClick(item)}
               >
-                <span
-                  class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary"
-                >
-                  ${i + 1}
-                </span>
-                <div class="min-w-0 flex-1">
-                  <div
-                    class="truncate text-xs font-medium text-card-foreground"
-                  >
-                    ${item.title}
-                  </div>
+                <span class="ak-sources-item-index">${i + 1}</span>
+                <div class="ak-sources-item-body">
+                  <div class="ak-sources-item-title">${item.title}</div>
                   ${item.description
-                    ? html`<div
-                        class="truncate text-[10px] text-muted-foreground"
-                      >
+                    ? html`<div class="ak-sources-item-desc">
                         ${item.description}
                       </div>`
                     : nothing}

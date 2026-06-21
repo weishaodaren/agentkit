@@ -1,6 +1,5 @@
-import { html, nothing } from "lit";
+import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { cn } from "@/shared/cn";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -25,8 +24,104 @@ export interface AttachmentFile {
  *   - accept filter
  *   - multiple selection
  */
+const attachmentsCSS: CSSResult = css`
+  .ak-attachments {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ak-padding-xs, 8px);
+  }
+  .ak-attachments-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--ak-padding-lg, 24px) var(--ak-padding, 16px);
+    border-radius: var(--ak-border-radius-md, 8px);
+    border: var(--ak-line-width-bold, 2px) dashed
+      var(--ak-color-border, #d9d9d9);
+    cursor: pointer;
+    transition: all var(--ak-duration-mid, 200ms);
+  }
+  .ak-attachments-dropzone:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--ak-color-primary, #1677ff) 50%,
+      transparent
+    );
+  }
+  .ak-attachments-dropzone-active {
+    border-color: var(--ak-color-primary, #1677ff);
+    background: var(--ak-color-primary-bg, #e6f4ff);
+  }
+  .ak-attachments-dropzone-icon {
+    margin-bottom: var(--ak-padding-xs, 8px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-attachments-dropzone-text {
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-attachments-input {
+    display: none;
+  }
+  .ak-attachments-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ak-padding-xxs, 4px);
+  }
+  .ak-attachments-file {
+    display: flex;
+    align-items: center;
+    gap: var(--ak-padding-xs, 8px);
+    padding: var(--ak-padding-xxs, 4px) var(--ak-padding-sm, 12px);
+    border-radius: var(--ak-border-radius-sm, 4px);
+    border: var(--ak-line-width, 1px) solid var(--ak-color-border, #d9d9d9);
+    background: var(--ak-color-bg-container, #fff);
+  }
+  .ak-attachments-file-icon {
+    flex-shrink: 0;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+  }
+  .ak-attachments-file-name {
+    min-width: 0;
+    flex: 1;
+    font-size: var(--ak-font-size, 14px);
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ak-attachments-file-status {
+    font-size: var(--ak-font-size-sm, 12px);
+  }
+  .ak-attachments-file-status-uploading {
+    color: var(--ak-color-primary, #1677ff);
+  }
+  .ak-attachments-file-status-error {
+    color: var(--ak-color-error, #ff4d4f);
+  }
+  .ak-attachments-file-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: var(--ak-border-radius-sm, 4px);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    transition: color var(--ak-duration-mid, 200ms);
+  }
+  .ak-attachments-file-remove:hover {
+    color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
+  }
+`;
+
 @customElement("ak-attachments")
 export class AkAttachments extends AkElement {
+  static override styles = [attachmentsCSS];
   @property({ type: Array })
   files: AttachmentFile[] = [];
 
@@ -110,17 +205,13 @@ export class AkAttachments extends AkElement {
     const canUpload = this.maxCount === 0 || this.files.length < this.maxCount;
 
     return html`
-      <div class="ak-attachments flex flex-col gap-2">
-        <!-- Upload area -->
+      <div class="ak-attachments">
         ${canUpload
           ? html`
               <div
-                class=${cn(
-                  "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-6 transition-colors duration-200",
-                  this._dragOver
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50",
-                )}
+                class="ak-attachments-dropzone ${this._dragOver
+                  ? "ak-attachments-dropzone-active"
+                  : ""}"
                 @dragover=${this._handleDragOver}
                 @dragleave=${this._handleDragLeave}
                 @drop=${this._handleDrop}
@@ -131,15 +222,15 @@ export class AkAttachments extends AkElement {
                   input?.click();
                 }}
               >
-                <span class="mb-2 text-muted-foreground">
-                  ${icon("upload", 20)}
-                </span>
-                <span class="text-sm text-muted-foreground">
-                  ${this.placeholder}
-                </span>
+                <span class="ak-attachments-dropzone-icon"
+                  >${icon("upload", 20)}</span
+                >
+                <span class="ak-attachments-dropzone-text"
+                  >${this.placeholder}</span
+                >
                 <input
                   type="file"
-                  class="hidden"
+                  class="ak-attachments-input"
                   accept=${this.accept}
                   ?multiple=${this.multiple}
                   @change=${this._handleFileInput}
@@ -147,36 +238,30 @@ export class AkAttachments extends AkElement {
               </div>
             `
           : nothing}
-
-        <!-- File list -->
         ${this.files.length > 0
           ? html`
-              <div class="flex flex-col gap-1">
+              <div class="ak-attachments-file-list">
                 ${this.files.map(
                   (file, i) => html`
-                    <div
-                      class="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5"
-                    >
-                      <span class="shrink-0 text-muted-foreground">
-                        ${icon("file", 14)}
-                      </span>
-                      <span
-                        class="min-w-0 flex-1 truncate text-sm text-card-foreground"
+                    <div class="ak-attachments-file">
+                      <span class="ak-attachments-file-icon"
+                        >${icon("file", 14)}</span
                       >
-                        ${file.name}
-                      </span>
+                      <span class="ak-attachments-file-name">${file.name}</span>
                       ${file.status === "uploading"
-                        ? html`<span class="text-xs text-primary"
+                        ? html`<span
+                            class="ak-attachments-file-status ak-attachments-file-status-uploading"
                             >${file.progress ?? 0}%</span
                           >`
                         : nothing}
                       ${file.status === "error"
-                        ? html`<span class="text-xs text-destructive"
+                        ? html`<span
+                            class="ak-attachments-file-status ak-attachments-file-status-error"
                             >失败</span
                           >`
                         : nothing}
                       <button
-                        class="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent text-muted-foreground hover:text-foreground"
+                        class="ak-attachments-file-remove"
                         @click=${() => this._handleRemove(i)}
                       >
                         ${icon("x", 12)}
