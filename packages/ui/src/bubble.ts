@@ -1,5 +1,6 @@
 import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -273,8 +274,6 @@ export class AkBubble extends AkElement {
   @state()
   private _typedLength = 0;
 
-  private _typingTimer = 0;
-
   private get _isTyping(): boolean {
     return (
       this.typing &&
@@ -292,63 +291,57 @@ export class AkBubble extends AkElement {
     return this._effectiveFooterPlacement.includes("inner");
   }
 
-  override connectedCallback() {
-    super.connectedCallback();
-    if (this.typing && this.content) {
-      this._startTyping();
-    }
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    this._stopTyping();
-  }
-
-  override updated(changed: Map<string, unknown>) {
-    if (changed.has("content") || changed.has("typing")) {
-      if (this.typing && this.content) {
-        requestAnimationFrame(() => {
-          this._typedLength = 0;
-          this._startTyping();
-        });
-      }
-    }
-  }
-
-  private _startTyping() {
-    this._stopTyping();
-    this._typedLength = 0;
-    this._typingTimer = window.setInterval(() => {
-      if (this._typedLength >= this.content.length) {
-        this._stopTyping();
-        if (!this.streaming) {
-          this.dispatchEvent(
-            new CustomEvent("typing-complete", {
-              detail: { content: this.content },
-              bubbles: true,
-              composed: true,
-            }),
-          );
-        }
+  /**
+   * Typing animation task — progressively reveals content character by character.
+   * When content/typing/typingSpeed changes, the previous task is automatically
+   * aborted via AbortSignal (no manual clearInterval needed).
+   * On disconnect, the task is automatically cleaned up.
+   */
+  private _typingTask = new Task<[string, boolean, number], void>(this, {
+    task: async ([content, typing, speed], { signal }) => {
+      if (!typing || !content || speed <= 0) {
+        this._typedLength = content?.length ?? 0;
         return;
       }
-      this._typedLength += 1;
-      this.dispatchEvent(
-        new CustomEvent("typing", {
-          detail: { content: this.content.slice(0, this._typedLength) },
-          bubbles: true,
-          composed: true,
-        }),
-      );
-    }, this.typingSpeed);
-  }
-
-  private _stopTyping() {
-    if (this._typingTimer) {
-      clearInterval(this._typingTimer);
-      this._typingTimer = 0;
-    }
-  }
+      this._typedLength = 0;
+      for (let i = 0; i < content.length; i++) {
+        await new Promise<void>((resolve, reject) => {
+          const timer = setTimeout(resolve, speed);
+          signal.addEventListener(
+            "abort",
+            () => {
+              clearTimeout(timer);
+              reject(new DOMException("Aborted", "AbortError"));
+            },
+            { once: true },
+          );
+        });
+        this._typedLength = i + 1;
+        this.dispatchEvent(
+          new CustomEvent("typing", {
+            detail: { content: content.slice(0, this._typedLength) },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      }
+      if (!this.streaming) {
+        this.dispatchEvent(
+          new CustomEvent("typing-complete", {
+            detail: { content: this.content },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      }
+    },
+    args: () =>
+      [this.content, this.typing, this.typingSpeed] as [
+        string,
+        boolean,
+        number,
+      ],
+  });
 
   private get _visibleContent(): string {
     if (!this.typing) return this.content;

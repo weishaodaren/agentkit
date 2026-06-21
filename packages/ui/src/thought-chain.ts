@@ -1,5 +1,6 @@
 import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -172,72 +173,61 @@ export class AkThoughtChain extends AkElement {
   @state()
   private _typedLengths: Record<string, number> = {};
 
-  private _typingTimers = new Map<string, number>();
-
   private get _isCollapsed() {
     if (this._userInteracted) return this._internalCollapsed;
     return this.collapsed;
   }
 
-  override connectedCallback() {
-    super.connectedCallback();
-    if (!this._isCollapsed) {
-      this._startAllTyping();
-    }
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    this._stopAllTyping();
-  }
-
-  override updated(changed: Map<string, unknown>) {
-    if (changed.has("items")) {
-      this._stopAllTyping();
-      // Defer state change to avoid triggering update during update cycle
-      requestAnimationFrame(() => {
+  /**
+   * Typing animation task — types all item descriptions in parallel.
+   * When items/speed/collapsed change, the previous task is automatically
+   * aborted via AbortSignal. On disconnect, cleanup is automatic.
+   */
+  private _typingTask = new Task<[ThoughtChainItem[], number, boolean], void>(
+    this,
+    {
+      task: async ([items, speed, collapsed], { signal }) => {
+        if (collapsed || speed <= 0) return;
+        // Reset and start typing all items in parallel
         this._typedLengths = {};
-        if (!this._isCollapsed) {
-          this._startAllTyping();
-        }
-      });
-    }
-  }
+        const descs = items.filter((it) => it.description);
+        await Promise.allSettled(
+          descs.map((it) =>
+            this._typeItem(it.key, it.description!, speed, signal),
+          ),
+        );
+      },
+      args: () =>
+        [this.items, this.typingSpeed, this._isCollapsed] as [
+          ThoughtChainItem[],
+          number,
+          boolean,
+        ],
+    },
+  );
 
-  private _startAllTyping() {
-    if (this.typingSpeed <= 0) return;
-    for (const item of this.items) {
-      if (item.description) {
-        this._startTyping(item.key, item.description);
-      }
-    }
-  }
-
-  private _startTyping(key: string, text: string) {
-    this._stopTyping(key);
+  /** Type a single item's description, updating _typedLengths progressively */
+  private async _typeItem(
+    key: string,
+    text: string,
+    speed: number,
+    signal: AbortSignal,
+  ) {
     this._typedLengths = { ...this._typedLengths, [key]: 0 };
-    const timer = window.setInterval(() => {
-      const current = this._typedLengths[key] ?? 0;
-      if (current >= text.length) {
-        this._stopTyping(key);
-        return;
-      }
-      this._typedLengths = { ...this._typedLengths, [key]: current + 1 };
-    }, this.typingSpeed);
-    this._typingTimers.set(key, timer);
-  }
-
-  private _stopTyping(key: string) {
-    const timer = this._typingTimers.get(key);
-    if (timer) {
-      clearInterval(timer);
-      this._typingTimers.delete(key);
+    for (let i = 0; i < text.length; i++) {
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(resolve, speed);
+        signal.addEventListener(
+          "abort",
+          () => {
+            clearTimeout(timer);
+            reject(new DOMException("Aborted", "AbortError"));
+          },
+          { once: true },
+        );
+      });
+      this._typedLengths = { ...this._typedLengths, [key]: i + 1 };
     }
-  }
-
-  private _stopAllTyping() {
-    this._typingTimers.forEach((timer) => clearInterval(timer));
-    this._typingTimers.clear();
   }
 
   private _isItemTyping(key: string, text: string): boolean {
@@ -274,12 +264,8 @@ export class AkThoughtChain extends AkElement {
   private _toggleCollapse() {
     if (!this.collapsible) return;
     this._userInteracted = true;
-    const wasCollapsed = this._isCollapsed;
     this._internalCollapsed = !this._isCollapsed;
-    if (wasCollapsed && !this._isCollapsed) {
-      this._typedLengths = {};
-      this._startAllTyping();
-    }
+    // Task auto-restarts when _isCollapsed changes via args
     this.dispatchEvent(
       new CustomEvent("toggle", {
         detail: { collapsed: this._isCollapsed },

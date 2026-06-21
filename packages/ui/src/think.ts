@@ -1,5 +1,6 @@
 import { css, html, nothing, type PropertyValues, type CSSResult } from "lit";
 import { customElement, property, state, query } from "lit/decorators.js";
+import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -134,22 +135,45 @@ export class AkThink extends AkElement {
   @query(".ak-think-content")
   private _contentEl!: HTMLElement;
 
-  private _typingTimer = 0;
-  private _typingStarted = false;
   private _animating = false;
+
+  /**
+   * Typing animation task — progressively reveals content.
+   * Only runs when expanded; continues from current position (supports streaming).
+   * Automatically cancelled on disconnect or when args change.
+   */
+  private _typingTask = new Task<[string, number, boolean], void>(this, {
+    task: async ([content, speed, expanded], { signal }) => {
+      if (!content || speed <= 0 || !expanded) return;
+      // Already fully typed — don't restart
+      if (this._typedLength >= content.length) return;
+      for (let i = this._typedLength; i < content.length; i++) {
+        await new Promise<void>((resolve, reject) => {
+          const timer = setTimeout(resolve, speed);
+          signal.addEventListener(
+            "abort",
+            () => {
+              clearTimeout(timer);
+              reject(new DOMException("Aborted", "AbortError"));
+            },
+            { once: true },
+          );
+        });
+        this._typedLength = i + 1;
+      }
+    },
+    args: () =>
+      [this.content, this.typingSpeed, this._getEffectiveExpanded()] as [
+        string,
+        number,
+        boolean,
+      ],
+  });
 
   override connectedCallback() {
     super.connectedCallback();
     this._isExpanded = this.defaultExpanded;
     this._contentVisible = this._isExpanded;
-    if (this.content && this._isExpanded) {
-      this._startTyping();
-    }
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    this._stopTyping();
   }
 
   override willUpdate(changed: PropertyValues) {
@@ -163,16 +187,6 @@ export class AkThink extends AkElement {
     }
   }
 
-  override updated(changed: PropertyValues) {
-    // Start typing when content arrives for the first time
-    // This is OK in updated() because _startTyping uses setInterval (async side effect)
-    if (changed.has("content") && this.content && !this._typingStarted) {
-      if (this._getEffectiveExpanded()) {
-        this._startTyping();
-      }
-    }
-  }
-
   private _getEffectiveExpanded(): boolean {
     if (this._userInteracted) return this._isExpanded;
     return this.expanded ?? this.defaultExpanded;
@@ -180,26 +194,6 @@ export class AkThink extends AkElement {
 
   private _getIsTyping(): boolean {
     return this.content.length > 0 && this._typedLength < this.content.length;
-  }
-
-  private _startTyping() {
-    if (this._typingStarted) return;
-    this._typingStarted = true;
-    this._typedLength = 0;
-    this._typingTimer = window.setInterval(() => {
-      if (this._typedLength >= this.content.length) {
-        this._stopTyping();
-        return;
-      }
-      this._typedLength += 1;
-    }, this.typingSpeed);
-  }
-
-  private _stopTyping() {
-    if (this._typingTimer) {
-      clearInterval(this._typingTimer);
-      this._typingTimer = 0;
-    }
   }
 
   /**

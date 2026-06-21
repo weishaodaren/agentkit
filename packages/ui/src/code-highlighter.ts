@@ -1,6 +1,7 @@
 import { css, html, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { Task } from "@lit/task";
 import hljs from "highlight.js/lib/core";
 import typescript from "highlight.js/lib/languages/typescript";
 import javascript from "highlight.js/lib/languages/javascript";
@@ -131,6 +132,33 @@ export class AkCodeHighlighter extends AkElement {
   @state()
   private _copied = false;
 
+  /** Incremented each time copy is clicked — drives the reset task */
+  @state()
+  private _copyCount = 0;
+
+  /**
+   * Copy state reset task — after 2 seconds, clears the "copied" indicator.
+   * If copy is clicked again before 2s, the previous task is auto-aborted.
+   */
+  private _copyResetTask = new Task<[number], void>(this, {
+    task: async ([count], { signal }) => {
+      if (count === 0) return;
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(resolve, 2000);
+        signal.addEventListener(
+          "abort",
+          () => {
+            clearTimeout(timer);
+            reject(new DOMException("Aborted", "AbortError"));
+          },
+          { once: true },
+        );
+      });
+      this._copied = false;
+    },
+    args: () => [this._copyCount] as [number],
+  });
+
   /** Lazily inject the hljs theme stylesheet into Shadow DOM */
   private _hljsInjected = false;
 
@@ -193,6 +221,7 @@ export class AkCodeHighlighter extends AkElement {
       document.body.removeChild(textarea);
     }
     this._copied = true;
+    this._copyCount++;
     this.dispatchEvent(
       new CustomEvent("copy", {
         detail: { code: this.code },
@@ -200,9 +229,6 @@ export class AkCodeHighlighter extends AkElement {
         composed: true,
       }),
     );
-    setTimeout(() => {
-      this._copied = false;
-    }, 2000);
   }
 
   override render() {

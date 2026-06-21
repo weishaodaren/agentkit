@@ -1,6 +1,7 @@
 import { css, html, nothing, type CSSResult } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -105,73 +106,37 @@ export class AkMermaid extends AkElement {
   @property({ type: String })
   theme: "default" | "dark" | "forest" | "neutral" = "default";
 
-  @state()
-  private _svgContent = "";
-
-  @state()
-  private _loading = true;
-
-  @state()
-  private _error = "";
-
-  private _renderId = 0;
-
-  override connectedCallback() {
-    super.connectedCallback();
-    if (this.code) {
-      this._renderDiagram();
-    }
-  }
-
-  override updated(changed: Map<string, unknown>) {
-    if (changed.has("code") || changed.has("theme")) {
-      this._renderDiagram();
-    }
-  }
-
-  private async _renderDiagram() {
-    if (!this.code) return;
-
-    this._loading = true;
-    this._error = "";
-    const renderId = ++this._renderId;
-
-    try {
-      // Try to use globally available mermaid
+  /**
+   * Async rendering task — automatically manages loading/error/complete states.
+   * When code or theme changes, the previous render is automatically cancelled
+   * (no more _renderId race condition).
+   */
+  private _renderTask = new Task<[string, string], string>(this, {
+    task: async ([code, theme]) => {
+      if (!code) return "";
       const mermaid = (window as any).mermaid;
       if (!mermaid) {
-        this._error = "mermaid library not loaded";
-        this._loading = false;
-        return;
+        throw new Error("mermaid library not loaded");
       }
-
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: this.theme,
-      });
-
-      const { svg } = await mermaid.render(`mermaid-${renderId}`, this.code);
-
-      // Check if this render is still the latest
-      if (renderId === this._renderId) {
-        this._svgContent = svg;
-        this._loading = false;
-      }
-    } catch (err) {
-      if (renderId === this._renderId) {
-        this._error = String(err);
-        this._loading = false;
-      }
-    }
-  }
+      mermaid.initialize({ startOnLoad: false, theme });
+      const { svg } = await mermaid.render(
+        `mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        code,
+      );
+      return svg as string;
+    },
+    args: () => [this.code, this.theme] as [string, string],
+    initialValue: "",
+  });
 
   private _toggleView() {
     this.view = this.view === "image" ? "code" : "image";
   }
 
   private _downloadSvg() {
-    if (!this._svgContent) return;
-    const blob = new Blob([this._svgContent], { type: "image/svg+xml" });
+    const svg = this._renderTask.value;
+    if (!svg) return;
+    const blob = new Blob([svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -181,6 +146,8 @@ export class AkMermaid extends AkElement {
   }
 
   override render() {
+    const svg = this._renderTask.value;
+
     return html`
       <div class="ak-mermaid">
         <!-- Toolbar -->
@@ -207,7 +174,7 @@ export class AkMermaid extends AkElement {
               ${icon("code", 12)} 代码
             </button>
           </div>
-          ${this.view === "image" && this._svgContent
+          ${this.view === "image" && svg
             ? html`<button
                 class="ak-mermaid-toolbar-btn"
                 @click=${this._downloadSvg}
@@ -219,23 +186,24 @@ export class AkMermaid extends AkElement {
 
         <!-- Content -->
         <div class="ak-mermaid-content">
-          ${this._loading
-            ? html`<div class="ak-mermaid-loading">渲染中...</div>`
-            : this._error
-              ? html`<div class="ak-mermaid-error">${this._error}</div>`
-              : this.view === "image"
-                ? html`<div class="ak-mermaid-output">
-                    ${this._svgContent ? this._unsafeSvg() : nothing}
-                  </div>`
-                : html`<pre class="ak-mermaid-code"><code>${this
-                    .code}</code></pre>`}
+          ${this._renderTask.render({
+            pending: () =>
+              html`<div class="ak-mermaid-loading">渲染中...</div>`,
+            complete: (result) =>
+              result
+                ? this.view === "image"
+                  ? html`<div class="ak-mermaid-output">
+                      ${unsafeHTML(result)}
+                    </div>`
+                  : html`<pre class="ak-mermaid-code"><code>${this
+                      .code}</code></pre>`
+                : nothing,
+            error: (err) =>
+              html`<div class="ak-mermaid-error">${String(err)}</div>`,
+          })}
         </div>
       </div>
     `;
-  }
-
-  private _unsafeSvg() {
-    return html`${unsafeHTML(this._svgContent)}`;
   }
 }
 
