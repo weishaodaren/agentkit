@@ -120,6 +120,9 @@ importers:
       '@lit-labs/motion':
         specifier: ^1.1.0
         version: 1.1.0
+      '@lit-labs/observers':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@lit-labs/signals':
         specifier: ^0.3.0
         version: 0.3.0
@@ -132,6 +135,9 @@ importers:
       '@lit/react':
         specifier: ^1.0.8
         version: 1.0.8(@types/react@19.2.17)
+      '@lit/task':
+        specifier: ^1.0.3
+        version: 1.0.3
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -455,6 +461,9 @@ packages:
   '@lit-labs/motion@1.1.0':
     resolution: {integrity: sha512-ZIVr97dCfOCXWwHczsZ/46BCia+uEjZ15sDTo2cY9L61sWWjngvV80CXn2NPjcb/cl7LJpPJXhFOLYNlXKzKJA==}
 
+  '@lit-labs/observers@2.1.0':
+    resolution: {integrity: sha512-oeQ2tvi/ygq7S+VgnXIInMKHHFPFqvIV9j2zBzpCwl33cWviT2ltuxNpbd11etwtUVsM8woKQzfVnrc80PKhKA==}
+
   '@lit-labs/signals@0.3.0':
     resolution: {integrity: sha512-PfB5FLtorVfkhwTWXOPNT/rvrVdSDY8siwPyR17ztrViRbMqxy1TQBcHqJoA4303QT8yXPGxYtGKJGj7fEfEwg==}
 
@@ -474,6 +483,9 @@ packages:
 
   '@lit/reactive-element@2.1.2':
     resolution: {integrity: sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A==}
+
+  '@lit/task@1.0.3':
+    resolution: {integrity: sha512-1gJGJl8WON+2j0y9xfcD+XsS1rvcy3XDgsIhcdUW++yTR8ESjZW6o7dn8M8a4SZM8NnJe6ynS2cKWwsbfLOurg==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -2614,6 +2626,10 @@ snapshots:
       lit: 3.3.3
       wobble: 1.5.1
 
+  '@lit-labs/observers@2.1.0':
+    dependencies:
+      '@lit/reactive-element': 2.1.2
+
   '@lit-labs/signals@0.3.0':
     dependencies:
       lit: 3.3.3
@@ -2637,6 +2653,10 @@ snapshots:
   '@lit/reactive-element@2.1.2':
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.6.0
+
+  '@lit/task@1.0.3':
+    dependencies:
+      '@lit/reactive-element': 2.1.2
 
   '@manypkg/find-root@1.1.0':
     dependencies:

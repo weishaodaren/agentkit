@@ -87,9 +87,9 @@ export class AkThink extends AkElement {
   @property({ type: String })
   title = "";
 
-  /** Whether the content area is visible (controlled) */
+  /** Whether the content area is visible (controlled). undefined = uncontrolled, use defaultExpanded. */
   @property({ type: Boolean, reflect: true })
-  expanded = false;
+  expanded: boolean | undefined = undefined;
 
   /** Initial expanded state (uncontrolled) */
   @property({ type: Boolean, attribute: "default-expanded" })
@@ -154,7 +154,8 @@ export class AkThink extends AkElement {
 
   override willUpdate(changed: PropertyValues) {
     // Handle controlled expanded change — set state BEFORE render to avoid change-in-update
-    if (changed.has("expanded")) {
+    // Only apply when expanded is explicitly set (not undefined)
+    if (changed.has("expanded") && this.expanded !== undefined) {
       if (!this._userInteracted) {
         this._isExpanded = this.expanded;
         this._contentVisible = this._isExpanded;
@@ -174,7 +175,7 @@ export class AkThink extends AkElement {
 
   private _getEffectiveExpanded(): boolean {
     if (this._userInteracted) return this._isExpanded;
-    return this.expanded || this.defaultExpanded;
+    return this.expanded ?? this.defaultExpanded;
   }
 
   private _getIsTyping(): boolean {
@@ -271,7 +272,7 @@ export class AkThink extends AkElement {
     if (this._animHeight !== null) {
       return `height: ${this._animHeight}; overflow: hidden; transition: height 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1); opacity: ${this._contentVisible ? 1 : 0};`;
     }
-    if (!this._isExpanded) {
+    if (!this._getEffectiveExpanded()) {
       return "height: 0px; overflow: hidden; opacity: 0;";
     }
     return "";

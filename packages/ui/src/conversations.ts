@@ -1,7 +1,13 @@
 import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import "@lit-labs/virtualizer";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
+
+/** Flattened item for virtualized rendering (group header or conversation item) */
+type FlatItem =
+  | { type: "header"; label: string }
+  | { type: "item"; item: ConversationItem };
 
 export interface ConversationItem {
   key: string;
@@ -48,7 +54,13 @@ const conversationsCSS: CSSResult = css`
     gap: var(--ak-padding-xxs, 4px);
     padding: var(--ak-padding-sm, 12px);
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
+  }
+  lit-virtualizer {
+    display: block;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
   }
   .ak-conversations-header {
     display: flex;
@@ -210,6 +222,33 @@ export class AkConversations extends AkElement {
     return groups;
   }
 
+  /** Flatten items (with group headers) for virtualized rendering */
+  private get _flatItems(): FlatItem[] {
+    const result: FlatItem[] = [];
+    if (this.groupable) {
+      for (const [group, items] of this._groupedItems.entries()) {
+        if (group) result.push({ type: "header", label: group });
+        for (const item of items) result.push({ type: "item", item });
+      }
+    } else {
+      for (const item of this.items) result.push({ type: "item", item });
+    }
+    return result;
+  }
+
+  private _flatKey(flat: FlatItem): string {
+    return flat.type === "header" ? `h-${flat.label}` : `i-${flat.item.key}`;
+  }
+
+  private _renderFlatItem(flat: FlatItem) {
+    if (flat.type === "header") {
+      return html`<div class="ak-conversations-group-label">
+        ${flat.label}
+      </div>`;
+    }
+    return this._renderItem(flat.item);
+  }
+
   override render() {
     return html`
       <div class="ak-conversations">
@@ -233,28 +272,12 @@ export class AkConversations extends AkElement {
               </div>
             </div>`
           : nothing}
-        ${this.groupable
-          ? html`
-              ${Array.from(this._groupedItems.entries()).map(
-                ([group, items]) => html`
-                  <div class="ak-conversations-group">
-                    ${group
-                      ? html`<div class="ak-conversations-group-label">
-                          ${group}
-                        </div>`
-                      : nothing}
-                    <div class="ak-conversations-list">
-                      ${items.map((item) => this._renderItem(item))}
-                    </div>
-                  </div>
-                `,
-              )}
-            `
-          : html`
-              <div class="ak-conversations-list">
-                ${this.items.map((item) => this._renderItem(item))}
-              </div>
-            `}
+        <lit-virtualizer
+          .items=${this._flatItems}
+          .keyFunction=${((f: any) => this._flatKey(f)) as any}
+          .renderItem=${((f: any) => this._renderFlatItem(f)) as any}
+          .scroller=${true}
+        ></lit-virtualizer>
       </div>
     `;
   }

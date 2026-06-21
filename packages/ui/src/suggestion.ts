@@ -96,11 +96,13 @@ export class AkSuggestion extends AkElement {
 
   private get _filteredItems() {
     if (!this.filterValue) return this.items;
-    const lower = this.filterValue.toLowerCase();
+    // Strip leading "/" trigger character before filtering
+    const filter = this.filterValue.replace(/^\//, "").trim().toLowerCase();
+    if (!filter) return this.items;
     return this.items.filter(
       (item) =>
-        item.label.toLowerCase().includes(lower) ||
-        item.value.toLowerCase().includes(lower),
+        item.label.toLowerCase().includes(filter) ||
+        item.value.toLowerCase().includes(filter),
     );
   }
 

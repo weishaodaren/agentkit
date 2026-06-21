@@ -1,4 +1,4 @@
-import { adoptStyles, type LitElement, unsafeCSS } from "lit";
+import { adoptStyles, type LitElement, type CSSResult, unsafeCSS } from "lit";
 import tailwindCss from "@/styles/tailwind.global.css?inline";
 import { motionCSS } from "@/shared/motion";
 import { tokenCSS } from "@/shared/tokens";
@@ -29,11 +29,24 @@ if (
   document.adoptedStyleSheets.push(propertiesSheet);
 }
 
+/** Recursively flatten CSSResultGroup into a flat array of CSSResultOrNative. */
+const flatStyles = (styles: unknown): unknown[] =>
+  Array.isArray(styles) ? styles.flatMap(flatStyles) : [styles];
+
 export const TW = <T extends LitMixin>(superClass: T): T =>
   class extends superClass {
     connectedCallback() {
       super.connectedCallback();
-      if (this.shadowRoot)
-        adoptStyles(this.shadowRoot, [tokenCSS, tailwind, motionCSS]);
+      if (this.shadowRoot) {
+        // Must include the component's own static styles, otherwise
+        // adoptStyles replaces adoptedStyleSheets and loses them.
+        const ownStyles = (this.constructor as typeof LitElement).styles ?? [];
+        adoptStyles(this.shadowRoot, [
+          tokenCSS,
+          ...flatStyles(ownStyles),
+          tailwind,
+          motionCSS,
+        ] as CSSResult[]);
+      }
     }
   };

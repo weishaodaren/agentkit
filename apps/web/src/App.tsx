@@ -5,11 +5,13 @@ import {
   Prompts,
   Bubble,
   Sender,
+  SenderHeader,
   Actions,
   Conversations,
   Suggestion,
   Button,
   Notification,
+  Attachments,
 } from "@agentkit/ui/adaptor/react";
 import { Markdown } from "@agentkit/ui/adaptor/react-plugins";
 import type {
@@ -18,6 +20,7 @@ import type {
   ConversationItem,
   SuggestionItem,
   NotificationOptions,
+  AttachmentFile,
 } from "@agentkit/ui";
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -29,36 +32,33 @@ interface ChatMessage {
   status: "loading" | "streaming" | "done" | "error";
 }
 
-interface Conversation {
-  key: string;
-  label: string;
-  messages: ChatMessage[];
-}
-
 // ─── Static Data ─────────────────────────────────────────────────
-const SUGGESTIONS: SuggestionItem[] = [
-  { key: "sg1", label: "/help 获取帮助", value: "/help" },
-  { key: "sg2", label: "/clear 清空对话", value: "/clear" },
-  { key: "sg3", label: "/settings 设置", value: "/settings" },
-  { key: "sg4", label: "/theme 切换主题", value: "/theme" },
+const DEFAULT_CONVERSATIONS: ConversationItem[] = [
+  { key: "5", label: "新的对话", group: "今天" },
+  { key: "4", label: "AgentKit UI 有哪些升级？", group: "今天" },
+  { key: "3", label: "新的 AGI 混合界面范式", group: "今天" },
+  { key: "2", label: "如何快速安装和导入组件？", group: "昨天" },
+  { key: "1", label: "什么是 AgentKit UI？", group: "昨天" },
 ];
 
-const PROMPT_ITEMS: PromptsItem[] = [
+const MOCK_SUGGESTIONS: SuggestionItem[] = [
+  { key: "report", label: "写一份报告", value: "report" },
+  { key: "draw", label: "画一幅画", value: "draw" },
   {
-    key: "p1",
-    label: "什么是 AgentKit UI？",
-    description: "了解组件库的核心设计理念",
+    key: "knowledge",
+    label: "查阅一些知识",
+    value: "knowledge",
+    children: [
+      { key: "react", label: "关于 React", value: "react" },
+      { key: "antd", label: "关于 Ant Design", value: "antd" },
+    ],
   },
-  {
-    key: "p2",
-    label: "如何集成到 React 项目？",
-    description: "快速上手指南",
-  },
-  {
-    key: "p3",
-    label: "支持哪些组件？",
-    description: "查看完整的组件列表",
-  },
+];
+
+const PROMPT_QUESTIONS = [
+  "AgentKit UI 有哪些升级？",
+  "AgentKit UI 有哪些组件？",
+  "如何快速安装和导入组件？",
 ];
 
 const MOCK_RESPONSE = `## AgentKit UI 组件库
@@ -103,47 +103,32 @@ const MOCK_THINKING = `用户询问关于 AgentKit UI 组件库的信息。我�
 3. 提供快速上手的代码示例
 4. 说明插件化分包策略`;
 
-const DEFAULT_CONVERSATIONS: Conversation[] = [
-  { key: "c1", label: "新的对话", messages: [] },
-  {
-    key: "c2",
-    label: "AgentKit UI 入门指南",
-    messages: [
-      {
-        id: "m1",
-        role: "user",
-        content: "什么是 AgentKit UI？",
-        status: "done",
-      },
-      {
-        id: "m2",
-        role: "assistant",
-        content: MOCK_RESPONSE,
-        thinking: MOCK_THINKING,
-        status: "done",
-      },
-    ],
+// History messages keyed by conversation
+const HISTORY_MESSAGES: Record<string, { user: string; assistant: string }> = {
+  "5": {
+    user: "你好，开始新的对话",
+    assistant: "你好！我是 AgentKit AI，很高兴为你服务。有什么我可以帮你的吗？",
   },
-  {
-    key: "c3",
-    label: "React 集成方案讨论",
-    messages: [
-      {
-        id: "m3",
-        role: "user",
-        content: "如何在 React 项目中使用？",
-        status: "done",
-      },
-      {
-        id: "m4",
-        role: "assistant",
-        content:
-          "通过 `@agentkit/ui/adaptor/react` 适配器，可以直接在 React 中使用所有组件。\n\n```tsx\nimport { Bubble, Sender } from '@agentkit/ui/adaptor/react';\nimport { Markdown } from '@agentkit/ui/adaptor/react-plugins';\n```",
-        status: "done",
-      },
-    ],
+  "4": {
+    user: "AgentKit UI 有哪些升级？",
+    assistant:
+      "AgentKit UI 近期升级了以下方面：\n\n1. **CSS-in-JS 样式系统** — 全面采用 CSS Custom Properties\n2. **Lucide 图标** — 统一使用 lucide-static 图标库\n3. **Locale 国际化** — 支持中英文语言包\n4. **Sender.Header** — 新增可折叠面板子组件",
   },
-];
+  "3": {
+    user: "什么是 AGI 混合界面范式？",
+    assistant:
+      "AGI 混合界面是一种融合了传统 GUI 和 AI 对话界面的新型交互范式，结合了结构化操作和自然语言交互的优势。",
+  },
+  "2": {
+    user: "如何快速安装和导入组件？",
+    assistant:
+      "通过 npm 或 pnpm 安装：\n\n```bash\npnpm add @agentkit/ui\n```\n\n然后在 React 中导入：\n\n```tsx\nimport { Bubble, Sender } from '@agentkit/ui/adaptor/react';\nimport { Markdown } from '@agentkit/ui/adaptor/react-plugins';\n```",
+  },
+  "1": {
+    user: "什么是 AgentKit UI？",
+    assistant: MOCK_RESPONSE,
+  },
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────
 let msgIdCounter = 100;
@@ -158,9 +143,22 @@ function notify(
   if (ref.current) (ref.current as any).open(opts);
 }
 
+function getHistoryMessages(key: string): ChatMessage[] {
+  const h = HISTORY_MESSAGES[key];
+  if (!h) return [];
+  return [
+    { id: `${key}-u`, role: "user", content: h.user, status: "done" },
+    {
+      id: `${key}-a`,
+      role: "assistant",
+      content: h.assistant,
+      status: "done",
+    },
+  ];
+}
+
 // ─── CSS-in-JS Styles ──────────────────────────────────────────
 const styles = {
-  // Layout
   wrapper: {
     width: "100%",
     height: "100vh",
@@ -210,12 +208,20 @@ const styles = {
   } as React.CSSProperties,
   workareaBody: {
     flex: 1,
-    padding: 16,
     background: "#fff",
     borderRadius: 8,
-    margin: 16,
-    overflow: "auto",
     minHeight: 0,
+    overflow: "auto",
+  } as React.CSSProperties,
+  bodyContent: {
+    overflow: "auto",
+    height: "100%",
+    padding: "16px 10px 16px 16px",
+  } as React.CSSProperties,
+  bodyText: {
+    color: "#374151",
+    padding: 8,
+    lineHeight: 1.7,
   } as React.CSSProperties,
 
   // Right copilot panel
@@ -274,11 +280,10 @@ const styles = {
     padding: 16,
     flexShrink: 0,
   } as React.CSSProperties,
-  quickButtons: {
+  quickBtnRow: {
     display: "flex",
-    gap: 8,
-    marginBottom: 12,
-    flexWrap: "wrap",
+    gap: 12,
+    alignItems: "center",
   } as React.CSSProperties,
 
   // Message styles
@@ -306,14 +311,14 @@ const styles = {
     top: 52,
     right: 0,
     width: 300,
-    maxHeight: 500,
+    maxHeight: 600,
     overflowY: "auto",
     background: "#fff",
     border: "1px solid #e5e7eb",
     borderRadius: 8,
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
     zIndex: 100,
-    padding: "8px 0",
+    padding: 0,
   } as React.CSSProperties,
 };
 
@@ -321,23 +326,25 @@ const styles = {
 export function App() {
   // ── State ──
   const [copilotOpen, setCopilotOpen] = useState(true);
-  const [conversations, setConversations] = useState<Conversation[]>(
+  const [conversations, setConversations] = useState<ConversationItem[]>(
     DEFAULT_CONVERSATIONS,
   );
-  const [activeKey, setActiveKey] = useState("c1");
+  const [activeKey, setActiveKey] = useState("5");
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    getHistoryMessages("5"),
+  );
   const [inputValue, setInputValue] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [showConvPopover, setShowConvPopover] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
+  const [attachmentsOpen, setAttachmentsOpen] = useState(false);
+  const [files, setFiles] = useState<AttachmentFile[]>([]);
+  const [liked, setLiked] = useState(false);
 
   // Refs
   const notifRef = useRef<HTMLElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const streamingIntervals = useRef<number[]>([]);
-
-  // Current conversation
-  const activeConv = conversations.find((c) => c.key === activeKey);
-  const messages = activeConv?.messages ?? [];
 
   // Auto-scroll
   useEffect(() => {
@@ -345,39 +352,33 @@ export function App() {
   }, [messages]);
 
   // ── Conversation management ──
-  const addConversation = useCallback(() => {
-    if (messages.length === 0) return; // Don't add empty conversation
-    const key = `c${Date.now()}`;
-    setConversations((prev) => [
-      { key, label: "新的对话", messages: [] },
-      ...prev,
-    ]);
-    setActiveKey(key);
-    setShowConvPopover(false);
-  }, [messages.length]);
-
   const switchConversation = useCallback(
     (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const key = detail?.key as string;
       if (key && key !== activeKey) {
         setActiveKey(key);
+        setMessages(getHistoryMessages(key));
         setShowConvPopover(false);
       }
     },
     [activeKey],
   );
 
-  const updateMessages = useCallback(
-    (key: string, updater: (msgs: ChatMessage[]) => ChatMessage[]) => {
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.key === key ? { ...c, messages: updater(c.messages) } : c,
-        ),
-      );
-    },
-    [],
-  );
+  const addConversation = useCallback(() => {
+    if (messages.length === 0) {
+      notify(notifRef, { title: "已经是新对话了", type: "info" });
+      return;
+    }
+    const key = `c${Date.now()}`;
+    setConversations((prev) => [
+      { key, label: "新的对话", group: "今天" },
+      ...prev,
+    ]);
+    setActiveKey(key);
+    setMessages([]);
+    setShowConvPopover(false);
+  }, [messages.length]);
 
   // ── Send message ──
   const handleSubmit = useCallback(
@@ -398,7 +399,7 @@ export function App() {
         status: "loading",
       };
 
-      updateMessages(activeKey, (msgs) => [...msgs, userMsg, assistantMsg]);
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
       setIsRequesting(true);
       setInputValue("");
       setShowSuggestion(false);
@@ -412,28 +413,26 @@ export function App() {
         ),
       );
 
-      // Simulate streaming: separate thinking and content phases
+      // Simulate streaming: thinking → response phases
       const thinkText = MOCK_THINKING;
       const respText = MOCK_RESPONSE;
       let thinkIdx = 0;
       let respIdx = 0;
       const aId = assistantMsg.id;
 
-      // Store interval IDs so cancel can clear them
       const thinkInterval = setInterval(() => {
         thinkIdx += 2;
         if (thinkIdx >= thinkText.length) {
           thinkIdx = thinkText.length;
           clearInterval(thinkInterval);
 
-          // Phase 2: Response
           const respInterval = setInterval(() => {
             respIdx += 3;
             if (respIdx >= respText.length) {
               respIdx = respText.length;
               clearInterval(respInterval);
-              updateMessages(activeKey, (msgs) =>
-                msgs.map((m) =>
+              setMessages((prev) =>
+                prev.map((m) =>
                   m.id === aId
                     ? { ...m, content: respText, status: "done" }
                     : m,
@@ -441,8 +440,8 @@ export function App() {
               );
               setIsRequesting(false);
             } else {
-              updateMessages(activeKey, (msgs) =>
-                msgs.map((m) =>
+              setMessages((prev) =>
+                prev.map((m) =>
                   m.id === aId
                     ? {
                         ...m,
@@ -456,15 +455,15 @@ export function App() {
           }, 15);
           streamingIntervals.current.push(respInterval);
         }
-        updateMessages(activeKey, (msgs) =>
-          msgs.map((m) =>
+        setMessages((prev) =>
+          prev.map((m) =>
             m.id === aId ? { ...m, thinking: thinkText.slice(0, thinkIdx) } : m,
           ),
         );
       }, 15);
       streamingIntervals.current.push(thinkInterval);
     },
-    [activeKey, isRequesting, updateMessages],
+    [activeKey, isRequesting],
   );
 
   // ── Event handlers ──
@@ -485,7 +484,6 @@ export function App() {
   }, []);
 
   const handleCancel = useCallback(() => {
-    // Actually abort all streaming intervals
     streamingIntervals.current.forEach((id) => clearInterval(id));
     streamingIntervals.current = [];
     setIsRequesting(false);
@@ -495,61 +493,62 @@ export function App() {
     (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const value = detail?.value as string;
-      if (value === "/clear") {
-        updateMessages(activeKey, () => []);
-        notify(notifRef, { title: "对话已清空", type: "info" });
-      } else if (value === "/help") {
-        handleSubmit("如何使用 AgentKit UI？");
+      if (value === "report") {
+        handleSubmit("帮我写一份项目报告");
+      } else if (value === "draw") {
+        handleSubmit("画一幅关于 AI 的插画");
       } else {
-        setInputValue(value);
+        setInputValue(`[${value}]: `);
       }
       setShowSuggestion(false);
     },
-    [activeKey, handleSubmit, updateMessages],
+    [handleSubmit],
   );
 
   const handlePromptClick = useCallback(
     (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const item = detail?.item as PromptsItem;
-      if (item) handleSubmit(item.label);
+      if (item) handleSubmit(item.description || item.label);
     },
     [handleSubmit],
   );
 
-  // ── Actions on assistant messages ──
-  const [liked, setLiked] = useState(false);
+  const handleUpload = useCallback((e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    const uploaded = detail?.files as AttachmentFile[];
+    if (uploaded) setFiles((prev) => [...prev, ...uploaded]);
+  }, []);
 
-  const makeActionItems = (msgId: string): ActionsItem[] => [
+  const handleRemoveFile = useCallback((e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    const idx = detail?.index as number;
+    if (typeof idx === "number")
+      setFiles((prev) => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  // ── Actions on assistant messages ──
+  const makeActionItems = (): ActionsItem[] => [
     { key: "reload", label: "", icon: "refresh-cw" },
     { key: "copy", label: "", icon: "copy" },
-    {
-      key: "like",
-      label: "",
-      icon: liked ? "heart" : "heart",
-      active: liked,
-    },
+    { key: "like", label: "", icon: "heart", active: liked },
     { key: "dislike", label: "", icon: "thumbs-down" },
   ];
 
   const handleActionClick = useCallback((e: Event) => {
     const detail = (e as CustomEvent).detail;
     const key = detail?.key as string;
-    if (key === "copy") {
+    if (key === "copy")
       notify(notifRef, { title: "已复制到剪贴板", type: "success" });
-    } else if (key === "like") {
-      setLiked((v) => !v);
-    } else if (key === "reload") {
+    else if (key === "like") setLiked((v) => !v);
+    else if (key === "reload")
       notify(notifRef, { title: "重新生成中...", type: "info" });
-    }
   }, []);
 
-  // ── Conversation items ──
-  const convItems: ConversationItem[] = conversations.map((c) => ({
-    key: c.key,
-    label: c.key === activeKey ? `[当前] ${c.label}` : c.label,
-    icon: "message-circle",
-  }));
+  // ── Conversation items for popover ──
+  const convItems: ConversationItem[] = conversations.map((c) =>
+    c.key === activeKey ? { ...c, label: `[当前] ${c.label}` } : c,
+  );
 
   // ═══════════════════════════════════════════════════════════════
   // Render
@@ -558,7 +557,6 @@ export function App() {
     <div style={styles.wrapper}>
       {/* ═══ Left Workarea ═══ */}
       <div style={styles.workarea}>
-        {/* Workarea Header */}
         <div style={styles.workareaHeader}>
           <div style={styles.headerTitle}>
             <img
@@ -586,32 +584,46 @@ export function App() {
           )}
         </div>
 
-        {/* Workarea Body */}
-        <div style={styles.workareaBody}>
-          <div style={{ padding: 8, color: "#374151", lineHeight: 1.7 }}>
-            <h4 style={{ marginBottom: 8 }}>什么是 RICH 设计范式？</h4>
-            <p style={{ marginBottom: 12 }}>
-              RICH 是一种 AI 界面设计范式，类似于 WIMP 范式之于图形用户界面。
-              ACM SIGCHI 2005 定义了人机交互的核心问题可分为三个层次：
-            </p>
-            <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-              <li>
-                <strong>界面范式层</strong>
-                ：定义人机交互界面的设计要素，引导设计师关注核心问题。
-              </li>
-              <li>
-                <strong>用户模型层</strong>
-                ：构建界面体验评价模型，衡量界面体验质量。
-              </li>
-              <li>
-                <strong>软件框架层</strong>
-                ：人机界面的底层支撑算法和数据结构。
-              </li>
-            </ul>
-            <p>
-              界面范式是新生交互技术诞生时，设计师最需要关注和定义的方面。
-              它定义了设计师应该关注的设计要素，并据此判断什么是好的设计以及如何实现。
-            </p>
+        <div
+          style={{
+            ...styles.workareaBody,
+            margin: copilotOpen ? 16 : "16px 48px",
+          }}
+        >
+          <div style={styles.bodyContent}>
+            <img
+              src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*48RLR41kwHIAAAAAAAAAAAAADgCCAQ/fmt.webp"
+              alt="banner"
+              style={{ width: "100%", borderRadius: 8 }}
+            />
+            <div style={styles.bodyText}>
+              <h4 style={{ marginBottom: 8 }}>什么是 RICH 设计范式？</h4>
+              <p style={{ marginBottom: 12 }}>
+                RICH 是一种 AI 界面设计范式，类似于 WIMP 范式之于图形用户界面。
+              </p>
+              <p style={{ marginBottom: 12 }}>
+                ACM SIGCHI 2005
+                （人机交互顶级会议）定义了人机交互的核心问题可分为三个层次：
+              </p>
+              <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
+                <li>
+                  <strong>界面范式层</strong>
+                  ：定义人机交互界面的设计要素，引导设计师关注核心问题。
+                </li>
+                <li>
+                  <strong>用户模型层</strong>
+                  ：构建界面体验评价模型，衡量界面体验质量。
+                </li>
+                <li>
+                  <strong>软件框架层</strong>
+                  ：人机界面的底层支撑算法和数据结构。
+                </li>
+              </ul>
+              <p>
+                界面范式是新生交互技术诞生时，设计师最需要关注和定义的方面。
+                它定义了设计师应该关注的设计要素，并据此判断什么是好的设计以及如何实现。
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -622,7 +634,6 @@ export function App() {
         <div style={styles.chatHeader}>
           <span style={styles.chatHeaderTitle}>✨ AI Copilot</span>
           <div style={{ display: "flex", gap: 2 }}>
-            {/* New conversation */}
             <button
               style={styles.headerBtn}
               onClick={addConversation}
@@ -630,7 +641,6 @@ export function App() {
             >
               ＋
             </button>
-            {/* Conversation list popover */}
             <div style={{ position: "relative" }}>
               <button
                 style={styles.headerBtn}
@@ -644,12 +654,12 @@ export function App() {
                   <Conversations
                     items={convItems}
                     activeKey={activeKey}
+                    groupable
                     onConversationClick={switchConversation}
                   />
                 </div>
               )}
             </div>
-            {/* Close copilot */}
             <button
               style={styles.headerBtn}
               onClick={() => setCopilotOpen(false)}
@@ -664,7 +674,6 @@ export function App() {
         <div style={styles.chatList}>
           {messages.length === 0 ? (
             <>
-              {/* Welcome */}
               <div style={styles.chatWelcome}>
                 <Welcome
                   title="👋 你好，我是 AgentKit AI"
@@ -672,10 +681,13 @@ export function App() {
                   variant="borderless"
                 />
               </div>
-              {/* Prompts */}
               <Prompts
                 title="我可以帮你："
-                items={PROMPT_ITEMS}
+                items={PROMPT_QUESTIONS.map((q) => ({
+                  key: q,
+                  label: q,
+                  description: q,
+                }))}
                 vertical
                 onItemClick={handlePromptClick}
               />
@@ -683,7 +695,6 @@ export function App() {
           ) : (
             messages.map((msg) => {
               if (msg.role === "user") {
-                // ── User bubble ──
                 return (
                   <div key={msg.id} style={{ marginBottom: 12 }}>
                     <Bubble placement="end" content={msg.content} />
@@ -691,10 +702,9 @@ export function App() {
                 );
               }
 
-              // ── Assistant bubble ──
               return (
                 <div key={msg.id} style={{ marginBottom: 16 }}>
-                  {/* Thinking block — separate Think component */}
+                  {/* Thinking block */}
                   {msg.thinking && (
                     <div style={{ marginBottom: 8 }}>
                       <Think
@@ -731,11 +741,11 @@ export function App() {
                     <Bubble placement="start" loading />
                   ) : null}
 
-                  {/* Actions footer on completed messages */}
+                  {/* Actions footer */}
                   {msg.status === "done" && msg.content && (
                     <div style={styles.assistantFooter}>
                       <Actions
-                        items={makeActionItems(msg.id)}
+                        items={makeActionItems()}
                         onActionClick={handleActionClick}
                       />
                     </div>
@@ -747,28 +757,23 @@ export function App() {
           <div ref={chatEndRef} />
         </div>
 
-        {/* Sender Area — antd-x: Sender always visible, handles loading/stop internally */}
+        {/* Sender Area */}
         <div style={styles.chatSend}>
           {/* Quick action buttons */}
-          <div style={styles.quickButtons}>
+          <div style={{ ...styles.quickBtnRow, marginBottom: 12 }}>
             <Button
               variant="outline"
-              onClick={() => handleSubmit("有什么新功能？")}
+              onClick={() => handleSubmit("AgentKit UI 有哪些升级？")}
             >
-              📋 更新日志
+              📋 升级内容
             </Button>
             <Button
               variant="outline"
-              onClick={() => handleSubmit("有哪些组件？")}
+              onClick={() => handleSubmit("AgentKit UI 有哪些组件？")}
             >
               📦 组件列表
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleSubmit("如何安装？")}
-            >
-              📥 安装指南
-            </Button>
+            <Button variant="outline">⊞ 更多</Button>
           </div>
 
           {/* Suggestion + Sender */}
@@ -785,7 +790,7 @@ export function App() {
                 }}
               >
                 <Suggestion
-                  items={SUGGESTIONS}
+                  items={MOCK_SUGGESTIONS}
                   open={showSuggestion}
                   filterValue={inputValue}
                   onSelect={handleSuggestionSelect}
@@ -795,10 +800,46 @@ export function App() {
             <Sender
               placeholder="输入问题或使用 / 技能..."
               loading={isRequesting}
+              value={inputValue}
               onSubmit={handleSenderSubmit}
               onChange={handleSenderChange}
               onCancel={handleCancel}
-            />
+            >
+              {/* Header: Attachments panel */}
+              <SenderHeader
+                slot="header"
+                title="上传文件"
+                open={attachmentsOpen}
+                onOpenChange={(e: Event) => {
+                  const detail = (e as CustomEvent).detail;
+                  setAttachmentsOpen(detail?.open ?? false);
+                }}
+              >
+                <Attachments
+                  files={files}
+                  placeholder="拖拽文件到此处，或点击上传"
+                  onUpload={handleUpload}
+                  onRemove={handleRemoveFile}
+                />
+              </SenderHeader>
+
+              {/* Prefix: paperclip toggle */}
+              <button
+                slot="prefix"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 18,
+                  color: "#6b7280",
+                  padding: "2px 4px",
+                }}
+                onClick={() => setAttachmentsOpen((v) => !v)}
+                title="附件"
+              >
+                📎
+              </button>
+            </Sender>
           </div>
         </div>
       </div>

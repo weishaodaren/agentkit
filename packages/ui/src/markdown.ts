@@ -1,7 +1,8 @@
 import { html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { marked } from "marked";
+import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
 
 /**
@@ -199,11 +200,38 @@ export class AkMarkdown extends AkElement {
   @property({ type: String, attribute: "stream-status" })
   streamStatus: "loading" | "done" = "done";
 
-  @state()
-  private _renderedHTML = "";
+  /**
+   * Async parsing task with built-in debounce.
+   * During 'loading' status, debounces 50ms for smooth streaming updates.
+   * On 'done', parses immediately for the final result.
+   * Previous result is kept via initialValue until the new one is ready.
+   */
+  private _parseTask = new Task<[string, string], string>(this, {
+    task: async ([content, status], { signal }) => {
+      const delay = status === "loading" ? 50 : 0;
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(resolve, delay);
+        signal.addEventListener(
+          "abort",
+          () => {
+            clearTimeout(timer);
+            reject(new DOMException("Aborted", "AbortError"));
+          },
+          { once: true },
+        );
+      });
 
-  private _parseTimer = 0;
-  private _lastContent = "";
+      if (!content) return "";
+
+      try {
+        return marked.parse(content, { async: false }) as string;
+      } catch {
+        return `<p>${escapeHtml(content)}</p>`;
+      }
+    },
+    args: () => [this.content, this.streamStatus] as [string, string],
+    initialValue: "",
+  });
 
   override connectedCallback() {
     super.connectedCallback();
@@ -216,66 +244,23 @@ export class AkMarkdown extends AkElement {
         sheet,
       ];
     }
-    this._parseMarkdown();
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    if (this._parseTimer) {
-      clearTimeout(this._parseTimer);
-    }
-  }
-
-  override updated(changed: Map<string, unknown>) {
-    if (changed.has("content") || changed.has("streamStatus")) {
-      this._scheduleParse();
-    }
-  }
-
-  /**
-   * Debounce parsing to avoid excessive re-renders during streaming.
-   * During 'loading' status, we parse every 50ms for smooth updates.
-   * On 'done', we parse immediately for the final result.
-   */
-  private _scheduleParse() {
-    if (this.content === this._lastContent && this.streamStatus === "done") {
-      return;
-    }
-
-    if (this._parseTimer) {
-      clearTimeout(this._parseTimer);
-    }
-
-    const delay = this.streamStatus === "loading" ? 50 : 0;
-    this._parseTimer = window.setTimeout(() => {
-      this._parseMarkdown();
-    }, delay);
-  }
-
-  private _parseMarkdown() {
-    this._lastContent = this.content;
-    if (!this.content) {
-      this._renderedHTML = "";
-      return;
-    }
-
-    try {
-      // Parse markdown to HTML — pure parsing only
-      const result = marked.parse(this.content, { async: false }) as string;
-      this._renderedHTML = result;
-    } catch {
-      this._renderedHTML = `<p>${escapeHtml(this.content)}</p>`;
-    }
   }
 
   override render() {
     if (!this.content) return nothing;
 
-    return html`
-      <div class="ak-md ak-motion-fade-in">
-        ${unsafeHTML(this._renderedHTML)}
-      </div>
-    `;
+    return this._parseTask.render({
+      pending: () => {
+        const prev = this._parseTask.value;
+        return prev
+          ? html`<div class="ak-md">${unsafeHTML(prev)}</div>`
+          : html`<div class="ak-md"></div>`;
+      },
+      complete: (result) =>
+        html`<div class="ak-md ak-motion-fade-in">${unsafeHTML(result)}</div>`,
+      error: () =>
+        html`<div class="ak-md"><p>${escapeHtml(this.content)}</p></div>`,
+    });
   }
 }
 

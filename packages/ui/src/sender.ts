@@ -1,5 +1,6 @@
 import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
+import { ResizeController } from "@lit-labs/observers/resize-controller.js";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
@@ -20,6 +21,9 @@ import { icon } from "@/shared/icons";
  */
 
 const senderCSS: CSSResult = css`
+  :host {
+    display: block;
+  }
   .ak-sender {
     display: flex;
     flex-direction: column;
@@ -161,6 +165,25 @@ export class AkSender extends AkElement {
 
   @query("textarea")
   private _textarea!: HTMLTextAreaElement;
+
+  /**
+   * ResizeController observes the host element for width changes.
+   * When the panel width changes (e.g., copilot open/close, window resize),
+   * the textarea content wraps differently and needs height re-measurement.
+   */
+  private _resizeController = new ResizeController(this, {
+    callback: (entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      if (this._lastHostWidth !== undefined && this._lastHostWidth !== width) {
+        this._autoResize();
+      }
+      this._lastHostWidth = width;
+      return width;
+    },
+    skipInitial: true,
+  });
+
+  private _lastHostWidth?: number;
 
   private get _currentValue() {
     return this.value || this._internalValue;
