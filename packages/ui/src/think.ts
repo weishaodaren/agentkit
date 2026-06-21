@@ -139,15 +139,20 @@ export class AkThink extends AkElement {
 
   /**
    * Typing animation task — progressively reveals content.
-   * Only runs when expanded; continues from current position (supports streaming).
-   * Automatically cancelled on disconnect or when args change.
+   *
+   * Key design: `content` is intentionally NOT in args. This prevents the task
+   * from being aborted on every streaming chunk (which would stall progress
+   * since each abort resets the setTimeout wait). Instead, the while-loop
+   * continuously tracks `this.content` as it grows during streaming.
+   *
+   * The task only restarts when `typingSpeed` or `expanded` changes.
+   * Automatically cancelled on disconnect via AbortSignal.
    */
-  private _typingTask = new Task<[string, number, boolean], void>(this, {
-    task: async ([content, speed, expanded], { signal }) => {
-      if (!content || speed <= 0 || !expanded) return;
-      // Already fully typed — don't restart
-      if (this._typedLength >= content.length) return;
-      for (let i = this._typedLength; i < content.length; i++) {
+  private _typingTask = new Task<[number, boolean], void>(this, {
+    task: async ([speed, expanded], { signal }) => {
+      if (speed <= 0 || !expanded) return;
+      // While-loop tracks content growth for streaming support
+      while (this._typedLength < this.content.length) {
         await new Promise<void>((resolve, reject) => {
           const timer = setTimeout(resolve, speed);
           signal.addEventListener(
@@ -159,15 +164,14 @@ export class AkThink extends AkElement {
             { once: true },
           );
         });
-        this._typedLength = i + 1;
+        // Content may have grown during the wait; advance by one char
+        if (this._typedLength < this.content.length) {
+          this._typedLength++;
+        }
       }
     },
     args: () =>
-      [this.content, this.typingSpeed, this._getEffectiveExpanded()] as [
-        string,
-        number,
-        boolean,
-      ],
+      [this.typingSpeed, this._getEffectiveExpanded()] as [number, boolean],
   });
 
   override connectedCallback() {

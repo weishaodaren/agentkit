@@ -180,41 +180,40 @@ export class AkThoughtChain extends AkElement {
 
   /**
    * Typing animation task — types all item descriptions in parallel.
-   * When items/speed/collapsed change, the previous task is automatically
-   * aborted via AbortSignal. On disconnect, cleanup is automatic.
+   *
+   * Key design: `items` is intentionally NOT in args. This prevents the task
+   * from being aborted on every streaming chunk (which would reset all typing
+   * progress). Instead, each _typeItem while-loop continuously tracks the
+   * item's description as it grows during streaming.
+   *
+   * The task only restarts when `typingSpeed` or `collapsed` changes.
+   * On disconnect, cleanup is automatic via AbortSignal.
    */
-  private _typingTask = new Task<[ThoughtChainItem[], number, boolean], void>(
-    this,
-    {
-      task: async ([items, speed, collapsed], { signal }) => {
-        if (collapsed || speed <= 0) return;
-        // Reset and start typing all items in parallel
-        this._typedLengths = {};
-        const descs = items.filter((it) => it.description);
-        await Promise.allSettled(
-          descs.map((it) =>
-            this._typeItem(it.key, it.description!, speed, signal),
-          ),
-        );
-      },
-      args: () =>
-        [this.items, this.typingSpeed, this._isCollapsed] as [
-          ThoughtChainItem[],
-          number,
-          boolean,
-        ],
+  private _typingTask = new Task<[number, boolean], void>(this, {
+    task: async ([speed, collapsed], { signal }) => {
+      if (collapsed || speed <= 0) return;
+      // Reset and start typing all current items in parallel
+      this._typedLengths = {};
+      const descs = this.items.filter((it) => it.description);
+      await Promise.allSettled(
+        descs.map((it) => this._typeItem(it.key, speed, signal)),
+      );
     },
-  );
+    args: () => [this.typingSpeed, this._isCollapsed] as [number, boolean],
+  });
 
-  /** Type a single item's description, updating _typedLengths progressively */
-  private async _typeItem(
-    key: string,
-    text: string,
-    speed: number,
-    signal: AbortSignal,
-  ) {
+  /**
+   * Type a single item's description, updating _typedLengths progressively.
+   * Uses a while-loop to track description growth for streaming support.
+   */
+  private async _typeItem(key: string, speed: number, signal: AbortSignal) {
     this._typedLengths = { ...this._typedLengths, [key]: 0 };
-    for (let i = 0; i < text.length; i++) {
+    while (true) {
+      // Re-read description each iteration to track streaming growth
+      const item = this.items.find((it) => it.key === key);
+      const text = item?.description ?? "";
+      const typed = this._typedLengths[key] ?? 0;
+      if (typed >= text.length) break;
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(resolve, speed);
         signal.addEventListener(
@@ -226,7 +225,16 @@ export class AkThoughtChain extends AkElement {
           { once: true },
         );
       });
-      this._typedLengths = { ...this._typedLengths, [key]: i + 1 };
+      // Description may have grown during the wait; advance by one char
+      const currentTyped = this._typedLengths[key] ?? 0;
+      const currentText =
+        this.items.find((it) => it.key === key)?.description ?? "";
+      if (currentTyped < currentText.length) {
+        this._typedLengths = {
+          ...this._typedLengths,
+          [key]: currentTyped + 1,
+        };
+      }
     }
   }
 

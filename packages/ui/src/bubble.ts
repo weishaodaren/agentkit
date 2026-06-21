@@ -293,18 +293,23 @@ export class AkBubble extends AkElement {
 
   /**
    * Typing animation task — progressively reveals content character by character.
-   * When content/typing/typingSpeed changes, the previous task is automatically
-   * aborted via AbortSignal (no manual clearInterval needed).
-   * On disconnect, the task is automatically cleaned up.
+   *
+   * Key design: `content` is intentionally NOT in args. This prevents the task
+   * from being aborted on every streaming chunk (which would reset progress).
+   * Instead, the while-loop continuously tracks `this.content` as it grows.
+   *
+   * The task only restarts when `typing` or `typingSpeed` changes.
+   * On disconnect, the task is automatically cleaned up via AbortSignal.
    */
-  private _typingTask = new Task<[string, boolean, number], void>(this, {
-    task: async ([content, typing, speed], { signal }) => {
-      if (!typing || !content || speed <= 0) {
-        this._typedLength = content?.length ?? 0;
+  private _typingTask = new Task<[boolean, number], void>(this, {
+    task: async ([typing, speed], { signal }) => {
+      if (!typing || speed <= 0) {
+        this._typedLength = this.content.length;
         return;
       }
       this._typedLength = 0;
-      for (let i = 0; i < content.length; i++) {
+      // While-loop tracks content growth for streaming support
+      while (this._typedLength < this.content.length) {
         await new Promise<void>((resolve, reject) => {
           const timer = setTimeout(resolve, speed);
           signal.addEventListener(
@@ -316,14 +321,17 @@ export class AkBubble extends AkElement {
             { once: true },
           );
         });
-        this._typedLength = i + 1;
-        this.dispatchEvent(
-          new CustomEvent("typing", {
-            detail: { content: content.slice(0, this._typedLength) },
-            bubbles: true,
-            composed: true,
-          }),
-        );
+        // Content may have grown during the wait; advance by one char
+        if (this._typedLength < this.content.length) {
+          this._typedLength++;
+          this.dispatchEvent(
+            new CustomEvent("typing", {
+              detail: { content: this.content.slice(0, this._typedLength) },
+              bubbles: true,
+              composed: true,
+            }),
+          );
+        }
       }
       if (!this.streaming) {
         this.dispatchEvent(
@@ -335,12 +343,7 @@ export class AkBubble extends AkElement {
         );
       }
     },
-    args: () =>
-      [this.content, this.typing, this.typingSpeed] as [
-        string,
-        boolean,
-        number,
-      ],
+    args: () => [this.typing, this.typingSpeed] as [boolean, number],
   });
 
   private get _visibleContent(): string {
