@@ -169,7 +169,7 @@ importers:
       lit-html:
         specifier: ^3.3.3
         version: 3.3.3
-      lucide-static:
+      lucide:
         specifier: ^1.21.0
         version: 1.21.0
       marked:
@@ -2284,8 +2284,8 @@ packages:
     resolution: {integrity: sha512-RPimw/7aMdv2oqRrxKwvZXcPfwBrn/JZ2xYcY9Hus/6LaS3VOAKVWKWgNLCFSiOm1ESXinjsDlidVU7JlnCN2A==}
     engines: {node: 20 || >=22}
 
-  lucide-static@1.21.0:
-    resolution: {integrity: sha512-6248z2/4sEyKkYAPPUYxOPiB2RCfMmLdMHuoOhsTFnoD40ixAoHmTVhOPux8ADa1NTBmzpEKF7WNePm+Ms503Q==}
+  lucide@1.21.0:
+    resolution: {integrity: sha512-m8g+tPjt1am9YBygKb36o2JOu5xOg7usbz0EORvPjn6MacIVy7desH1SNnV1ziMFHRGMGCcF5r1Jj80TxF2UTw==}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -4780,7 +4780,7 @@ snapshots:
 
   lru-cache@11.5.1: {}
 
-  lucide-static@1.21.0: {}
+  lucide@1.21.0: {}
 
   magic-string@0.30.21:
     dependencies:

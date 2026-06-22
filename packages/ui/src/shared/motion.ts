@@ -215,22 +215,7 @@ export const motionCSS: CSSResult = unsafeCSS(`
     transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   }
 
-  .ak-think-motion-blink {
-    animation: ak-think-blink 1.2s step-end infinite;
-  }
-  @keyframes ak-think-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  /* antd-x: .ant-think-content — left border timeline style */
-  .ak-think-content {
-    margin-top: 12px;
-    width: 100%;
-    color: var(--_muted-foreground, #6b7280);
-    padding-inline-start: 12px;
-    border-inline-start: 2px solid var(--_border, #e5e7eb);
-  }
+  /* Think blink & content styles are now in think.ts (gradient sweep animation) */
 
   /* ── Bubble component ────────────────────────── */
 

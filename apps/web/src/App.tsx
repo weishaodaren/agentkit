@@ -708,6 +708,7 @@ export function App() {
                   {msg.thinking && (
                     <div style={{ marginBottom: 8 }}>
                       <Think
+                        blink
                         title={
                           msg.status === "done" ? "思考完成" : "深度思考中..."
                         }

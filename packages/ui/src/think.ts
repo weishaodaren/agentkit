@@ -12,7 +12,7 @@ import { icon } from "@/shared/icons";
  *   ├── .ak-think-status-wrapper (fit-content flex row, clickable)
  *   │   ├── .ak-think-status-icon (sparkles / loader)
  *   │   ├── .ak-think-status-text
- *   │   └── .ak-think-status-down-icon (chevron-down, rotates 180)
+ *   │   └── .ak-think-status-down-icon (chevron-right, rotates 90)
  *   └── .ak-think-content (left border timeline, collapsible)
  *
  * Collapse behavior:
@@ -47,6 +47,18 @@ const thinkCSS: CSSResult = css`
     display: flex;
     align-items: center;
   }
+  /* antd-x LoadingOutlined: spinning animation */
+  @keyframes ak-think-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .ak-think-status-icon-loading svg {
+    animation: ak-think-spin 1s linear infinite;
+  }
   .ak-think-status-text {
     line-height: var(--ak-line-height, 1.5714);
     font-size: var(--ak-font-size, 14px);
@@ -57,17 +69,42 @@ const thinkCSS: CSSResult = css`
     align-items: center;
     transition: transform var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
   }
+  /* antd-x blink: gradient highlight sweeps across text */
   @keyframes ak-think-blink {
-    0%,
-    100% {
-      opacity: 1;
+    0% {
+      background-position-x: -200%;
+      background-position-y: 100%;
+    }
+    25% {
+      background-position-x: -100%;
+      background-position-y: 100%;
     }
     50% {
-      opacity: 0.3;
+      background-position-x: 0%;
+      background-position-y: 100%;
+    }
+    75% {
+      background-position-x: 100%;
+      background-position-y: 100%;
+    }
+    100% {
+      background-position-x: 200%;
+      background-position-y: 100%;
     }
   }
   .ak-think-motion-blink {
-    animation: ak-think-blink 1.2s step-end infinite;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--ak-color-text, rgba(0, 0, 0, 0.88)),
+      transparent
+    );
+    background-size: 50%;
+    background-repeat: no-repeat;
+    animation: ak-think-blink 1s linear infinite forwards;
   }
   .ak-think-content {
     margin-top: var(--ak-margin-sm, 12px);
@@ -286,7 +323,13 @@ export class AkThink extends AkElement {
         <!-- Status bar (clickable) -->
         <div class="ak-think-status-wrapper" @click=${this._toggle}>
           <!-- Icon -->
-          <div class="ak-think-status-icon">${icon(iconName, 16)}</div>
+          <div
+            class="ak-think-status-icon ${this.loading
+              ? "ak-think-status-icon-loading"
+              : ""}"
+          >
+            ${icon(iconName, 16)}
+          </div>
 
           <!-- Title text -->
           <div
@@ -297,12 +340,12 @@ export class AkThink extends AkElement {
             ${this.title || (this.loading ? "思考中..." : "思考过程")}
           </div>
 
-          <!-- Down arrow (chevron-down, rotates 180 when expanded) -->
+          <!-- Arrow (chevron-right, rotates 90° when expanded) -->
           <span
             class="ak-think-status-down-icon"
-            style="transform: rotate(${isExpanded ? 180 : 0}deg);"
+            style="transform: rotate(${isExpanded ? 90 : 0}deg);"
           >
-            ${icon("chevron-down", 12)}
+            ${icon("chevron-right", 12)}
           </span>
         </div>
 
