@@ -18,9 +18,7 @@ description: 文件附件上传组件，支持拖拽和点击上传
 
 ### 基础用法
 
-```html
-<ak-attachments placeholder="拖拽文件到此处，或点击上传"></ak-attachments>
-```
+<preview path="./demos/attachments-basic.vue" title="基础用法" description="支持拖拽和点击上传文件"></preview>
 
 ### 限制文件类型
 

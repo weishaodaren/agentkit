@@ -18,16 +18,7 @@ description: 提示集组件，引导用户快速开始对话
 
 ### 基础用法
 
-```html
-<ak-prompts
-  title="我可以帮你："
-  .items='${JSON.stringify([
-    { key: "1", label: "写一份报告", description: "帮我写一份项目报告" },
-    { key: "2", label: "翻译文本", description: "将中文翻译为英文" },
-    { key: "3", label: "解释概念", description: "解释量子计算的基本原理" }
-  ])}'
-></ak-prompts>
-```
+<preview path="./demos/prompts-basic.vue" title="基础用法" description="展示提示集组件，支持标题、描述和图标"></preview>
 
 ### 垂直布局
 

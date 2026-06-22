@@ -19,26 +19,15 @@ description: 展示大模型深度思考过程
 
 ### 基础用法
 
-```html
-<ak-think
-  title="思考过程"
-  content="用户询问了关于 AgentKit UI 的信息，我需要介绍其核心特性和使用方式..."
-></ak-think>
-```
+<preview path="./demos/think-basic.vue" title="基础用法" description="展示 Think 组件的基本用法，包含标题和思考内容"></preview>
 
 ### 加载状态
 
-```html
-<ak-think title="深度思考中..." loading></ak-think>
-```
+<preview path="./demos/think-loading.vue" title="加载状态与闪烁" description="loading + blink 组合使用，标题产生闪烁动画效果"></preview>
 
-### 标题闪烁
+### 折叠/展开
 
-配合流式输出，`blink` 属性使标题文本产生闪烁动画效果：
-
-```html
-<ak-think title="思考中..." blink loading></ak-think>
-```
+<preview path="./demos/think-collapse.vue" title="折叠控制" description="支持 default-expanded 控制默认折叠状态，点击标题栏可展开/折叠"></preview>
 
 ### 折叠/展开
 

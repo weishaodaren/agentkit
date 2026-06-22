@@ -18,16 +18,7 @@ description: 快捷指令建议列表，支持模糊搜索过滤
 
 ### 基础用法
 
-```html
-<ak-suggestion
-  open
-  .items='${JSON.stringify([
-    { key: "report", label: "写一份报告", value: "report" },
-    { key: "translate", label: "翻译文本", value: "translate" },
-    { key: "summarize", label: "总结内容", value: "summarize" }
-  ])}'
-></ak-suggestion>
-```
+<preview path="./demos/suggestion-basic.vue" title="基础用法" description="快捷指令建议列表，支持模糊搜索过滤"></preview>
 
 ### 带过滤
 

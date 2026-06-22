@@ -18,14 +18,7 @@ description: 来源引用列表，展示参考来源信息
 
 ### 基础用法
 
-```html
-<ak-sources
-  .items='${JSON.stringify([
-    { key: "1", title: "AgentKit 文档", url: "https://example.com/docs" },
-    { key: "2", title: "Lit 官方指南", url: "https://lit.dev/docs" }
-  ])}'
-></ak-sources>
-```
+<preview path="./demos/sources-basic.vue" title="基础用法" description="展示来源引用列表"></preview>
 
 ### 自定义标题
 

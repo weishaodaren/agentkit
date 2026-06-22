@@ -17,18 +17,11 @@ description: 通用按钮组件
 
 ### 基础用法
 
-```html
-<ak-button>默认按钮</ak-button>
-```
+<preview path="./demos/button-basic.vue" title="基础用法" description="默认按钮样式"></preview>
 
 ### 变体
 
-```html
-<ak-button variant="default">默认</ak-button>
-<ak-button variant="outline">描边</ak-button>
-<ak-button variant="ghost">幽灵</ak-button>
-<ak-button variant="destructive">危险</ak-button>
-```
+<preview path="./demos/button-variant.vue" title="样式变体" description="支持 default、outline、ghost、destructive 四种变体和禁用状态"></preview>
 
 ### 尺寸
 

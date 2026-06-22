@@ -19,30 +19,11 @@ description: 聊天气泡组件，用于展示对话消息
 
 ### 基础用法
 
-```html
-<ak-bubble content="Hello, World!" placement="start"></ak-bubble>
-<ak-bubble content="你好！" placement="end"></ak-bubble>
-```
+<preview path="./demos/bubble-basic.vue" title="基础用法" description="展示基本的消息气泡用法，支持 start/end 两种位置"></preview>
 
 ### 样式变体
 
-```html
-<!-- 填充（默认） -->
-<ak-bubble content="filled" variant="filled" placement="start"></ak-bubble>
-
-<!-- 描边 -->
-<ak-bubble content="outlined" variant="outlined" placement="start"></ak-bubble>
-
-<!-- 阴影 -->
-<ak-bubble content="shadow" variant="shadow" placement="start"></ak-bubble>
-
-<!-- 无边框 -->
-<ak-bubble
-  content="borderless"
-  variant="borderless"
-  placement="start"
-></ak-bubble>
-```
+<preview path="./demos/bubble-variant.vue" title="样式变体" description="Bubble 支持 filled、outlined、shadow、borderless 四种样式变体"></preview>
 
 ### 形状
 
@@ -59,9 +40,7 @@ description: 聊天气泡组件，用于展示对话消息
 
 ### 加载状态
 
-```html
-<ak-bubble loading placement="start"></ak-bubble>
-```
+<preview path="./demos/bubble-loading.vue" title="加载状态" description="展示加载中的气泡样式，常用于等待 AI 回复"></preview>
 
 ### 打字动画
 

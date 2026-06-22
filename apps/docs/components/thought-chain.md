@@ -18,15 +18,7 @@ description: 展示推理步骤的思维链组件
 
 ### 基础用法
 
-```html
-<ak-thought-chain
-  .items='${JSON.stringify([
-    { key: "1", title: "理解问题", description: "用户需要...", status: "success" },
-    { key: "2", title: "分析数据", description: "根据上下文...", status: "running" },
-    { key: "3", title: "生成方案", description: "建议采用...", status: "pending" }
-  ])}'
-></ak-thought-chain>
-```
+<preview path="./demos/thought-chain-basic.vue" title="基础用法" description="展示 AI 推理步骤，支持 success/running/pending/error 状态"></preview>
 
 ### 可折叠
 

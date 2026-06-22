@@ -18,22 +18,7 @@ description: 代码语法高亮显示组件，支持行号和复制功能
 
 ### 基础用法
 
-```html
-<ak-code-highlighter
-  language="typescript"
-  code="const greeting: string = 'Hello, World!';&#10;console.log(greeting);"
-></ak-code-highlighter>
-```
-
-### 显示行号
-
-```html
-<ak-code-highlighter
-  language="python"
-  show-line-numbers
-  code="def hello():&#10;    print('Hello')&#10;&#10;hello()"
-></ak-code-highlighter>
-```
+<preview path="./demos/code-highlighter-basic.vue" title="基础用法" description="TypeScript 代码高亮，带行号显示和复制按钮"></preview>
 
 ### 支持的语言
 

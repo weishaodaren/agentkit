@@ -18,20 +18,7 @@ description: 全局通知提示组件，支持多种类型和位置
 
 ### 基础用法
 
-Notification 采用命令式 API，通过调用 `open()` 方法触发通知：
-
-```html
-<ak-notification id="notif" placement="top-right"></ak-notification>
-
-<script>
-  const notif = document.getElementById("notif");
-  notif.open({
-    title: "操作成功",
-    description: "文件已保存到服务器",
-    type: "success",
-  });
-</script>
-```
+<preview path="./demos/notification-basic.vue" title="基础用法" description="支持 info、success、warning、error 四种通知类型"></preview>
 
 ### 通知类型
 

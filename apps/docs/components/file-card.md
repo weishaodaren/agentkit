@@ -19,9 +19,7 @@ description: 文件预览卡片，显示文件名、大小、状态和进度
 
 ### 基础用法
 
-```html
-<ak-file-card name="report.pdf" size="1048576" status="done"></ak-file-card>
-```
+<preview path="./demos/file-card-basic.vue" title="基础用法" description="展示文件卡片，包含文件名、大小、状态和可移除操作"></preview>
 
 ### 上传中
 

@@ -19,15 +19,11 @@ description: 消息发送输入框，支持多行输入和自动调整高度
 
 ### 基础用法
 
-```html
-<ak-sender placeholder="输入消息..."></ak-sender>
-```
+<preview path="./demos/sender-basic.vue" title="基础用法" description="基本的消息发送输入框"></preview>
 
 ### 加载状态
 
-```html
-<ak-sender loading placeholder="AI 正在回复..."></ak-sender>
-```
+<preview path="./demos/sender-loading.vue" title="加载状态" description="loading 状态下的发送框，显示取消按钮"></preview>
 
 ### 发送方式
 

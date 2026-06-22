@@ -9,7 +9,9 @@
     "preview": "vitepress preview"
   },
   "dependencies": {
-    "@agentkit/ui": "workspace:*"
+    "@agentkit/ui": "workspace:*",
+    "@vitepress-demo-preview/component": "^2.6.2",
+    "@vitepress-demo-preview/plugin": "^1.4.1"
   },
   "devDependencies": {
     "vitepress": "^2.0.0-alpha.17"

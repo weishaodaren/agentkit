@@ -18,17 +18,7 @@ description: 文件树组件，支持展开/折叠和文件预览
 
 ### 基础用法
 
-```html
-<ak-folder
-  .items='${JSON.stringify([
-    { key: "src", label: "src", children: [
-      { key: "index.ts", label: "index.ts" },
-      { key: "app.tsx", label: "App.tsx" }
-    ]},
-    { key: "package.json", label: "package.json" }
-  ])}'
-></ak-folder>
-```
+<preview path="./demos/folder-basic.vue" title="基础用法" description="文件树组件，支持嵌套目录和文件选中"></preview>
 
 ### 选中文件
 

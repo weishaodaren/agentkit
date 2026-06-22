@@ -18,12 +18,7 @@ description: 欢迎信息组件，引导用户开始对话
 
 ### 基础用法
 
-```html
-<ak-welcome
-  title="你好，我是 AgentKit AI"
-  description="基于 Lit + Tailwind CSS v4 构建的 AI 组件库。有什么我可以帮你的吗？"
-></ak-welcome>
-```
+<preview path="./demos/welcome-basic.vue" title="基础用法" description="展示欢迎信息，引导用户开始对话"></preview>
 
 ### 带图标
 

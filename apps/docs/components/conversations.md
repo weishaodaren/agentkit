@@ -19,30 +19,7 @@ description: 会话列表组件，支持分组、虚拟滚动和键盘导航
 
 ### 基础用法
 
-```html
-<ak-conversations
-  active-key="1"
-  .items='${JSON.stringify([
-    { key: "1", label: "什么是 AgentKit?" },
-    { key: "2", label: "如何安装组件?" },
-    { key: "3", label: "支持哪些框架?" }
-  ])}'
-></ak-conversations>
-```
-
-### 分组模式
-
-```html
-<ak-conversations
-  groupable
-  active-key="3"
-  .items='${JSON.stringify([
-    { key: "1", label: "对话 A", group: "今天" },
-    { key: "2", label: "对话 B", group: "今天" },
-    { key: "3", label: "对话 C", group: "昨天" }
-  ])}'
-></ak-conversations>
-```
+<preview path="./demos/conversations-basic.vue" title="基础用法" description="支持分组的会话列表，使用虚拟滚动渲染"></preview>
 
 ### 新建对话按钮
 

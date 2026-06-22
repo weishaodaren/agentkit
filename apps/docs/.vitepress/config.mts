@@ -1,9 +1,28 @@
 import { defineConfig } from "vitepress";
+import {
+  containerPreview,
+  componentPreview,
+} from "@vitepress-demo-preview/plugin";
 
 export default defineConfig({
   title: "AgentKit UI",
   description: "AI 对话界面 Web Components 组件库",
   lang: "zh-CN",
+
+  markdown: {
+    config(md) {
+      md.use(containerPreview, { clientOnly: true });
+      md.use(componentPreview, { clientOnly: true });
+    },
+  },
+
+  vue: {
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => tag.startsWith("ak-"),
+      },
+    },
+  },
 
   themeConfig: {
     logo: "https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original",

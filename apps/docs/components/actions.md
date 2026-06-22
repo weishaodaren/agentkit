@@ -18,16 +18,7 @@ description: 操作按钮列表，用于消息反馈（复制、点赞等）
 
 ### 基础用法
 
-```html
-<ak-actions
-  .items='${JSON.stringify([
-    { key: "reload", label: "", icon: "refresh-cw" },
-    { key: "copy", label: "", icon: "copy" },
-    { key: "like", label: "", icon: "heart" },
-    { key: "dislike", label: "", icon: "thumbs-down" }
-  ])}'
-></ak-actions>
-```
+<preview path="./demos/actions-basic.vue" title="基础用法" description="展示消息操作按钮列表，包含刷新、复制、点赞、踩"></preview>
 
 ### 样式变体
 
