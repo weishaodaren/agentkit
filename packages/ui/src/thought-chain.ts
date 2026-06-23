@@ -8,141 +8,295 @@ export interface ThoughtChainItem {
   key: string;
   title: string;
   description?: string;
-  status?: "pending" | "running" | "success" | "error";
+  status?: "pending" | "loading" | "running" | "success" | "error" | "abort";
   icon?: string;
-  /** Extra content slot data */
+  /** Extra content slot data (collapsible when item.collapsible = true) */
   content?: string;
   /** Footer slot data */
   footer?: string;
+  /** Per-item collapsible (antd-x: collapsible) */
+  collapsible?: boolean;
+  /** Per-item blink — gradient sweep on title (antd-x: blink) */
+  blink?: boolean;
 }
 
 /**
- * antd-x ThoughtChain 对标实现
+ * antd-x ThoughtChain 1:1 实现
  *
- * antd-x 结构：
- *   .ant-thought-chain (root)
- *   └── .ant-thought-chain-item (relative flex)
- *       ├── .ant-thought-chain-item-header (flex col, icon + connector line)
- *       │   └── .ant-thought-chain-item-icon (status icon)
- *       │       connector: border-inline-start on ::after
- *       └── .ant-thought-chain-item-content-box (flex-1)
- *           ├── .ant-thought-chain-item-title
- *           ├── .ant-thought-chain-item-description
- *           ├── .ant-thought-chain-item-content (slot)
- *           └── .ant-thought-chain-item-footer (slot)
+ * antd-x Structure (Node.tsx):
+ *   .ant-thought-chain-box (root, flex column)
+ *   └── .ant-thought-chain-node (relative, flex, baseline, gap: marginSM)
+ *       ├── .ant-thought-chain-node-icon (Status wrapper, ::after = connector)
+ *       │   └── status icon / custom icon / index number
+ *       └── .ant-thought-chain-node-box
+ *           ├── .ant-thought-chain-node-header (flex col)
+ *           │   ├── .ant-thought-chain-node-title (flex, gap: marginXS, fontWeight: 500)
+ *           │   │   ├── title text
+ *           │   │   └── .ant-thought-chain-node-collapse-icon (rotates 90deg)
+ *           │   └── .ant-thought-chain-node-description (colorTextDescription)
+ *           ├── .ant-thought-chain-node-content (collapsible: height + opacity)
+ *           │   └── .ant-thought-chain-node-content-box
+ *           └── .ant-thought-chain-node-footer
  *
- * Features:
- *   - 连接线使用 border-inline-start（antd-x 风格）
- *   - line 样式（solid/dashed/dotted）
- *   - content/footer 插槽
- *   - collapsible 折叠
+ * Visual matching:
+ *   - Connector: ::after pseudo-element on icon (hidden on last node)
+ *   - Icons: bare status icons (NO background circle), index number as default
+ *   - Loading: spinning LoaderCircle (antd-x: LoadingOutlined with spin)
+ *   - Blink: gradient sweep on title (same as Think component)
+ *   - Collapse: CSSMotion height + opacity transition
  */
 const thoughtChainCSS: CSSResult = css`
+  /* ── Root container ───────────────────────────── */
   .ak-thought-chain {
     display: flex;
     flex-direction: column;
   }
+
+  /* ── Global toggle (backward compat) ──────────── */
   .ak-thought-chain-toggle {
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-bottom: var(--ak-padding-xs, 8px);
+    margin-bottom: 8px;
     padding: 0;
     border: none;
     background: transparent;
-    font-size: var(--ak-font-size-sm, 12px);
-    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    font-size: 12px;
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
     cursor: pointer;
-    transition: color var(--ak-duration-mid, 200ms);
+    transition: color 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
   }
   .ak-thought-chain-toggle:hover {
     color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
   }
   .ak-thought-chain-toggle-icon {
     display: inline-flex;
-    transition: transform var(--ak-duration-mid, 200ms);
+    transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
   }
   .ak-thought-chain-toggle-icon-expanded {
     transform: rotate(90deg);
   }
-  .ak-thought-chain-item {
-    display: flex;
-    gap: var(--ak-padding-sm, 12px);
-    align-items: baseline;
-  }
-  .ak-thought-chain-item-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .ak-thought-chain-item-icon-wrap {
+
+  /* ── Node (ant-thought-chain-node) ────────────── */
+  .ak-thought-chain-node {
     position: relative;
-    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
   }
-  .ak-thought-chain-item-icon {
+
+  /* ── Icon / Status wrapper ────────────────────── */
+  .ak-thought-chain-node-icon {
+    line-height: 1;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    font-size: 14px;
-    transition: all var(--ak-duration-mid, 200ms);
   }
+  /* Connector line via ::after — positioned relative to .ak-thought-chain-node */
+  .ak-thought-chain-node-icon::after {
+    content: "";
+    position: absolute;
+    height: calc(100% - 14px * 1.5714);
+    border-inline-start: 1px solid rgba(0, 0, 0, 0.06);
+    inset-inline-start: calc((14px - 1px) / 2);
+    top: calc(14px * 1.5714);
+  }
+  /* Line style variants */
+  .ak-thought-chain-node-icon-dashed::after {
+    border-inline-start-style: dashed;
+  }
+  .ak-thought-chain-node-icon-dotted::after {
+    border-inline-start-style: dotted;
+  }
+  .ak-thought-chain-node-icon-none::after {
+    display: none;
+  }
+  /* Hide connector on last node (antd-x: :last-of-type) */
+  .ak-thought-chain
+    > .ak-thought-chain-node:last-of-type
+    > .ak-thought-chain-node-icon::after {
+    display: none;
+  }
+
+  /* Status colors (antd-x: .ant-thought-chain-status-*) */
   .ak-thought-chain-status-pending {
-    background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
-    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.45));
   }
-  .ak-thought-chain-status-running {
-    background: var(--ak-color-primary-bg, #e6f4ff);
+  .ak-thought-chain-status-loading {
     color: var(--ak-color-primary, #1677ff);
   }
   .ak-thought-chain-status-success {
-    background: rgba(82, 196, 26, 0.1);
-    color: #52c41a;
+    color: var(--ak-color-success, #52c41a);
   }
   .ak-thought-chain-status-error {
-    background: rgba(255, 77, 79, 0.1);
     color: var(--ak-color-error, #ff4d4f);
   }
-  .ak-thought-chain-connector {
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    width: 0;
-    transform: translateX(-50%);
-    height: calc(100% + 16px);
+  .ak-thought-chain-status-abort {
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
   }
-  .ak-thought-chain-item-content-box {
+
+  /* Index number icon (default when no status and no custom icon) */
+  .ak-thought-chain-node-index-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.45));
+    font-size: 12px;
+    width: 14px;
+    height: 14px;
+    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 7px;
+  }
+
+  /* Loading spin (antd-x: LoadingOutlined → anticon-spin) */
+  @keyframes ak-thought-chain-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .ak-thought-chain-spin {
+    animation: ak-thought-chain-spin 1s linear infinite;
+  }
+
+  /* ── Node box ─────────────────────────────────── */
+  .ak-thought-chain-node-box {
     flex: 1;
-    padding-bottom: var(--ak-padding, 16px);
   }
-  .ak-thought-chain-item-title {
-    font-size: var(--ak-font-size, 14px);
+
+  /* ── Node header ──────────────────────────────── */
+  .ak-thought-chain-node-header {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Node title ───────────────────────────────── */
+  .ak-thought-chain-node-title {
     font-weight: 500;
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
     color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
-  }
-  .ak-thought-chain-item-description {
-    margin-top: var(--ak-padding-xs, 8px);
-    font-size: var(--ak-font-size, 14px);
     line-height: 1.5714;
-    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
   }
-  .ak-thought-chain-item-content {
-    margin-top: var(--ak-padding-xs, 8px);
-    font-size: var(--ak-font-size, 14px);
+  .ak-thought-chain-node-collapsible {
+    padding-inline-end: 16px;
+    cursor: pointer;
+  }
+  .ak-thought-chain-node-collapse-icon {
+    display: inline-flex;
+    align-items: center;
+  }
+  .ak-thought-chain-node-collapse-icon svg {
+    transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  .ak-thought-chain-node-collapse-icon-expanded svg {
+    transform: rotate(90deg);
+  }
+
+  /* ── Node description ─────────────────────────── */
+  .ak-thought-chain-node-description {
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
+    font-size: 14px;
+    line-height: 1.5714;
+    margin-block-end: 16px;
+  }
+
+  /* ── Node content (collapsible via CSSMotion) ─── */
+  .ak-thought-chain-node-content {
+    overflow: hidden;
+    transition:
+      max-height 200ms cubic-bezier(0.645, 0.045, 0.355, 1),
+      opacity 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  .ak-thought-chain-node-content-collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
+  .ak-thought-chain-node-content-expanded {
+    max-height: 2000px;
+    opacity: 1;
+  }
+  .ak-thought-chain-node-content-box {
+    margin-bottom: 16px;
+    font-size: 14px;
     color: var(--ak-color-text, rgba(0, 0, 0, 0.88));
   }
-  .ak-thought-chain-item-footer {
-    margin-top: var(--ak-padding-xs, 8px);
-    font-size: var(--ak-font-size-sm, 12px);
-    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+
+  /* ── Node footer ──────────────────────────────── */
+  .ak-thought-chain-node-footer {
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
+  }
+
+  /* ── Blink: gradient sweep (same as Think) ────── */
+  @keyframes ak-thought-chain-blink {
+    0% {
+      background-position-x: -200%;
+      background-position-y: 100%;
+    }
+    25% {
+      background-position-x: -100%;
+      background-position-y: 100%;
+    }
+    50% {
+      background-position-x: 0%;
+      background-position-y: 100%;
+    }
+    75% {
+      background-position-x: 100%;
+      background-position-y: 100%;
+    }
+    100% {
+      background-position-x: 200%;
+      background-position-y: 100%;
+    }
+  }
+  .ak-thought-chain-motion-blink {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: var(--ak-color-text-description, rgba(0, 0, 0, 0.45));
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--ak-color-text, rgba(0, 0, 0, 0.88)),
+      transparent
+    );
+    background-size: 50%;
+    background-repeat: no-repeat;
+    animation: ak-thought-chain-blink 1s linear infinite forwards;
+  }
+
+  /* ── Typewriter cursor ────────────────────────── */
+  .ak-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: currentColor;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: ak-typewriter-cursor 0.8s step-end infinite;
+  }
+  @keyframes ak-typewriter-cursor {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
   }
 `;
 
 @customElement("ak-thought-chain")
 export class AkThoughtChain extends AkElement {
   static override styles = [thoughtChainCSS];
+
   @property({ type: Array })
   items: ThoughtChainItem[] = [];
 
@@ -160,9 +314,17 @@ export class AkThoughtChain extends AkElement {
   @property({ type: String, attribute: "line-style" })
   lineStyle: "solid" | "dashed" | "dotted" = "solid";
 
-  /** antd-x: item variant (solid/outlined) */
-  @property({ type: String, attribute: "item-variant" })
-  itemVariant: "solid" | "outlined" = "solid";
+  /** Whether to show connector lines (antd-x: line) */
+  @property({ type: Boolean })
+  line = true;
+
+  /** Controlled expanded keys for per-item collapsible (antd-x: expandedKeys) */
+  @property({ type: Array, attribute: "expanded-keys" })
+  expandedKeys: string[] | null = null;
+
+  /** Default expanded keys (antd-x: defaultExpandedKeys) */
+  @property({ type: Array, attribute: "default-expanded-keys" })
+  defaultExpandedKeys: string[] = [];
 
   @state()
   private _internalCollapsed = false;
@@ -172,6 +334,13 @@ export class AkThoughtChain extends AkElement {
 
   @state()
   private _typedLengths: Record<string, number> = {};
+
+  /** Tracks collapsed item keys in uncontrolled mode */
+  @state()
+  private _collapsedItemKeys: Set<string> = new Set();
+
+  @state()
+  private _defaultExpandedInitialized = false;
 
   private get _isCollapsed() {
     if (this._userInteracted) return this._internalCollapsed;
@@ -192,7 +361,6 @@ export class AkThoughtChain extends AkElement {
   private _typingTask = new Task<[number, boolean], void>(this, {
     task: async ([speed, collapsed], { signal }) => {
       if (collapsed || speed <= 0) return;
-      // Reset and start typing all current items in parallel
       this._typedLengths = {};
       const descs = this.items.filter((it) => it.description);
       await Promise.allSettled(
@@ -209,7 +377,6 @@ export class AkThoughtChain extends AkElement {
   private async _typeItem(key: string, speed: number, signal: AbortSignal) {
     this._typedLengths = { ...this._typedLengths, [key]: 0 };
     while (true) {
-      // Re-read description each iteration to track streaming growth
       const item = this.items.find((it) => it.key === key);
       const text = item?.description ?? "";
       const typed = this._typedLengths[key] ?? 0;
@@ -225,7 +392,6 @@ export class AkThoughtChain extends AkElement {
           { once: true },
         );
       });
-      // Description may have grown during the wait; advance by one char
       const currentTyped = this._typedLengths[key] ?? 0;
       const currentText =
         this.items.find((it) => it.key === key)?.description ?? "";
@@ -249,31 +415,81 @@ export class AkThoughtChain extends AkElement {
     return text.slice(0, typed);
   }
 
-  private _statusIcon(status: string) {
+  // ── Status icons (antd-x: LoadingOutlined, CheckCircleOutlined, etc.) ──
+
+  private _statusIconName(status: string): string {
     const map: Record<string, string> = {
       pending: "clock",
+      loading: "loader",
       running: "loader",
       success: "circle-check",
       error: "circle-x",
+      abort: "circle-minus",
     };
-    return icon(map[status] ?? "clock", 14);
+    return map[status] ?? "clock";
   }
 
-  private _statusColor(status: string) {
+  private _statusClass(status: string): string {
     const map: Record<string, string> = {
       pending: "ak-thought-chain-status-pending",
-      running: "ak-thought-chain-status-running",
+      loading: "ak-thought-chain-status-loading",
+      running: "ak-thought-chain-status-loading",
       success: "ak-thought-chain-status-success",
       error: "ak-thought-chain-status-error",
+      abort: "ak-thought-chain-status-abort",
     };
-    return map[status] ?? map.pending;
+    return map[status] ?? "";
   }
+
+  private _isSpinStatus(status: string): boolean {
+    return status === "loading" || status === "running";
+  }
+
+  // ── Per-item collapsible ──
+
+  private _isItemExpanded(key: string): boolean {
+    if (this.expandedKeys !== null) {
+      return this.expandedKeys.includes(key);
+    }
+    return !this._collapsedItemKeys.has(key);
+  }
+
+  private _toggleItemExpand(key: string) {
+    const isExpanded = this._isItemExpanded(key);
+    if (this.expandedKeys !== null) {
+      // Controlled mode — emit event, parent updates expandedKeys
+      this.dispatchEvent(
+        new CustomEvent("expand", {
+          detail: { key, expanded: !isExpanded },
+          bubbles: true,
+          composed: true,
+        }),
+      );
+      return;
+    }
+    // Uncontrolled mode
+    const newKeys = new Set(this._collapsedItemKeys);
+    if (isExpanded) {
+      newKeys.add(key);
+    } else {
+      newKeys.delete(key);
+    }
+    this._collapsedItemKeys = newKeys;
+    this.dispatchEvent(
+      new CustomEvent("expand", {
+        detail: { key, expanded: !newKeys.has(key) },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  // ── Global toggle ──
 
   private _toggleCollapse() {
     if (!this.collapsible) return;
     this._userInteracted = true;
     this._internalCollapsed = !this._isCollapsed;
-    // Task auto-restarts when _isCollapsed changes via args
     this.dispatchEvent(
       new CustomEvent("toggle", {
         detail: { collapsed: this._isCollapsed },
@@ -281,6 +497,70 @@ export class AkThoughtChain extends AkElement {
         composed: true,
       }),
     );
+  }
+
+  // ── Initialize default expanded keys ──
+
+  protected override willUpdate(changedProps: import("lit").PropertyValues) {
+    if (
+      !this._defaultExpandedInitialized &&
+      this.defaultExpandedKeys.length > 0
+    ) {
+      this._defaultExpandedInitialized = true;
+      const expandedSet = new Set(this.defaultExpandedKeys);
+      // Collapse items with collapsible+content that are NOT in defaultExpandedKeys
+      const toCollapse = this.items
+        .filter(
+          (it) => it.collapsible && it.content && !expandedSet.has(it.key),
+        )
+        .map((it) => it.key);
+      this._collapsedItemKeys = new Set(toCollapse);
+    }
+  }
+
+  // ── Render ──
+
+  private _renderIcon(item: ThoughtChainItem, index: number) {
+    const status = item.status;
+    // Any defined status shows a status icon (antd-x: status ? StatusIcon : icon)
+    const isStatusActive = !!status;
+
+    // Build icon class
+    let iconCls = "ak-thought-chain-node-icon";
+    if (!this.line) {
+      iconCls += " ak-thought-chain-node-icon-none";
+    } else if (this.lineStyle === "dashed") {
+      iconCls += " ak-thought-chain-node-icon-dashed";
+    } else if (this.lineStyle === "dotted") {
+      iconCls += " ak-thought-chain-node-icon-dotted";
+    }
+
+    // Add status color class
+    const statusCls = this._statusClass(status ?? "");
+    if (statusCls) {
+      iconCls += ` ${statusCls}`;
+    }
+
+    // Determine icon content
+    let iconContent;
+    if (isStatusActive) {
+      // Status icon takes precedence (antd-x: status ? StatusIcon[status] : icon)
+      const iconName = this._statusIconName(status!);
+      const spinCls = this._isSpinStatus(status!)
+        ? "ak-thought-chain-spin"
+        : "";
+      iconContent = html`<span class="${spinCls}">${icon(iconName, 14)}</span>`;
+    } else if (item.icon) {
+      // Custom icon
+      iconContent = icon(item.icon, 14);
+    } else {
+      // Default: index number in a circle (antd-x: node-index-icon)
+      iconContent = html`<span class="ak-thought-chain-node-index-icon"
+        >${index + 1}</span
+      >`;
+    }
+
+    return html`<div class="${iconCls}">${iconContent}</div>`;
   }
 
   override render() {
@@ -309,48 +589,61 @@ export class AkThoughtChain extends AkElement {
           ? this.items.map(
               (item, i) => html`
                 <div
-                  class="ak-thought-chain-item ak-motion-slide-up"
+                  class="ak-thought-chain-node ak-motion-slide-up"
                   style="animation-delay: ${i * 60}ms;"
                 >
-                  <div class="ak-thought-chain-item-header">
-                    <div class="ak-thought-chain-item-icon-wrap">
+                  ${this._renderIcon(item, i)}
+                  <div class="ak-thought-chain-node-box">
+                    <div class="ak-thought-chain-node-header">
                       <div
-                        class="ak-thought-chain-item-icon ${this._statusColor(
-                          item.status ?? "pending",
-                        )}"
+                        class="ak-thought-chain-node-title ${item.collapsible
+                          ? "ak-thought-chain-node-collapsible"
+                          : ""} ${item.blink
+                          ? "ak-thought-chain-motion-blink"
+                          : ""}"
+                        @click=${item.collapsible
+                          ? () => this._toggleItemExpand(item.key)
+                          : undefined}
                       >
-                        ${item.icon
-                          ? icon(item.icon, 14)
-                          : this._statusIcon(item.status ?? "pending")}
+                        ${item.title}
+                        ${item.collapsible && item.content
+                          ? html`<span
+                              class="ak-thought-chain-node-collapse-icon ${this._isItemExpanded(
+                                item.key,
+                              )
+                                ? "ak-thought-chain-node-collapse-icon-expanded"
+                                : ""}"
+                            >
+                              ${icon("chevron-right", 12)}
+                            </span>`
+                          : nothing}
                       </div>
-                      ${i < this.items.length - 1
-                        ? html`<div
-                            class="ak-thought-chain-connector"
-                            style="border-inline-start: 1px ${this
-                              .lineStyle} var(--ak-color-border, #d9d9d9);"
-                          ></div>`
+                      ${item.description
+                        ? html`<div class="ak-thought-chain-node-description">
+                            ${this._getItemVisibleText(
+                              item.key,
+                              item.description,
+                            )}${this._isItemTyping(item.key, item.description)
+                              ? html`<span class="ak-cursor"></span>`
+                              : nothing}
+                          </div>`
                         : nothing}
                     </div>
-                  </div>
-                  <div class="ak-thought-chain-item-content-box">
-                    <div class="ak-thought-chain-item-title">${item.title}</div>
-                    ${item.description
-                      ? html`<div class="ak-thought-chain-item-description">
-                          ${this._getItemVisibleText(
-                            item.key,
-                            item.description,
-                          )}${this._isItemTyping(item.key, item.description)
-                            ? html`<span class="ak-cursor"></span>`
-                            : nothing}
-                        </div>`
-                      : nothing}
                     ${item.content
-                      ? html`<div class="ak-thought-chain-item-content">
-                          ${item.content}
+                      ? html`<div
+                          class="ak-thought-chain-node-content ${item.collapsible
+                            ? this._isItemExpanded(item.key)
+                              ? "ak-thought-chain-node-content-expanded"
+                              : "ak-thought-chain-node-content-collapsed"
+                            : "ak-thought-chain-node-content-expanded"}"
+                        >
+                          <div class="ak-thought-chain-node-content-box">
+                            ${item.content}
+                          </div>
                         </div>`
                       : nothing}
                     ${item.footer
-                      ? html`<div class="ak-thought-chain-item-footer">
+                      ? html`<div class="ak-thought-chain-node-footer">
                           ${item.footer}
                         </div>`
                       : nothing}
