@@ -5,7 +5,7 @@ import {
 } from "@vitepress-demo-preview/plugin";
 
 export default defineConfig({
-  base: "/docs/",
+  base: "/agentkit/",
   title: "AgentKit UI",
   description: "AI 对话界面 Web Components 组件库",
   lang: "zh-CN",
