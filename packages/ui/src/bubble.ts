@@ -2,7 +2,6 @@ import { css, html, nothing, type CSSResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
-import { icon } from "@/shared/icons";
 
 /**
  * antd-x Bubble 1:1 实现

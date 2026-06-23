@@ -1,4 +1,4 @@
-import { css, html, nothing, type CSSResult } from "lit";
+import { css, html, type CSSResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { ResizeController } from "@lit-labs/observers/resize-controller.js";
 import { AkElement } from "@/shared/base-element";
