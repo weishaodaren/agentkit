@@ -159,7 +159,9 @@ function getHistoryMessages(key: string): ChatMessage[] {
 }
 
 /** Convert the current messages state to the API message format. */
-function getHistoryForApi(messages: ChatMessage[]): Array<{ role: string; content: string }> {
+function getHistoryForApi(
+  messages: ChatMessage[],
+): Array<{ role: string; content: string }> {
   return messages
     .filter((m) => m.role === "user" || m.content)
     .map((m) => ({ role: m.role, content: m.content }));
@@ -444,11 +446,7 @@ export function App() {
             if (streamDone) {
               clearInterval(respInterval);
               setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === aId
-                    ? { ...m, status: "done" }
-                    : m,
-                ),
+                prev.map((m) => (m.id === aId ? { ...m, status: "done" } : m)),
               );
               setIsRequesting(false);
               return;
@@ -486,7 +484,9 @@ export function App() {
         try {
           const allHistory = getHistoryForApi(messagesRef.current);
           const response = await sendChatMessage({ messages: allHistory });
-          respText = response.messages[response.messages.length - 1]?.content ?? "(空回复)";
+          respText =
+            response.messages[response.messages.length - 1]?.content ??
+            "(空回复)";
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error("Chat API error:", err);
