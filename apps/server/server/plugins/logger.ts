@@ -1,5 +1,5 @@
 import { definePlugin } from "nitro";
-import { logger } from "~/server/utils/logger.ts";
+import { logger } from "~/utils/logger.ts";
 
 const timings = new WeakMap<Request, number>();
 

@@ -20,5 +20,7 @@ export default defineConfig({
     },
     url: "https://{{APP_DOMAIN}}/api",
     logLevel: "info",
+    AGNES_API_KEY: "{{APP_AGNES_API_KEY}}",
+    TAVILY_API_KEY: "{{APP_TAVILY_API_KEY}}",
   },
 });
