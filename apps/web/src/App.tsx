@@ -22,6 +22,7 @@ import type {
   NotificationOptions,
   AttachmentFile,
 } from "@agentkit/ui";
+import { sendChatMessage } from "~/lib/chat";
 
 // ─── Types ───────────────────────────────────────────────────────
 interface ChatMessage {
@@ -155,6 +156,13 @@ function getHistoryMessages(key: string): ChatMessage[] {
       status: "done",
     },
   ];
+}
+
+/** Convert the current messages state to the API message format. */
+function getHistoryForApi(messages: ChatMessage[]): Array<{ role: string; content: string }> {
+  return messages
+    .filter((m) => m.role === "user" || m.content)
+    .map((m) => ({ role: m.role, content: m.content }));
 }
 
 // ─── CSS-in-JS Styles ──────────────────────────────────────────
@@ -345,6 +353,8 @@ export function App() {
   const notifRef = useRef<HTMLElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const streamingIntervals = useRef<number[]>([]);
+  const messagesRef = useRef<ChatMessage[]>(messages);
+  messagesRef.current = messages;
 
   // Auto-scroll
   useEffect(() => {
@@ -413,12 +423,15 @@ export function App() {
         ),
       );
 
-      // Simulate streaming: thinking → response phases
-      const thinkText = MOCK_THINKING;
-      const respText = MOCK_RESPONSE;
-      let thinkIdx = 0;
-      let respIdx = 0;
+      // Build the message history from state (userMsg was just added)
       const aId = assistantMsg.id;
+
+      // Start streaming: simulate thinking → response phases
+      const thinkText = MOCK_THINKING;
+      let thinkIdx = 0;
+      let respText = "";
+      let respIdx = 0;
+      let streamDone = false;
 
       const thinkInterval = setInterval(() => {
         thinkIdx += 2;
@@ -426,19 +439,24 @@ export function App() {
           thinkIdx = thinkText.length;
           clearInterval(thinkInterval);
 
+          // Now stream the actual API response
           const respInterval = setInterval(() => {
-            respIdx += 3;
-            if (respIdx >= respText.length) {
-              respIdx = respText.length;
+            if (streamDone) {
               clearInterval(respInterval);
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === aId
-                    ? { ...m, content: respText, status: "done" }
+                    ? { ...m, status: "done" }
                     : m,
                 ),
               );
               setIsRequesting(false);
+              return;
+            }
+
+            respIdx += 3;
+            if (respIdx >= respText.length) {
+              streamDone = true;
             } else {
               setMessages((prev) =>
                 prev.map((m) =>
@@ -462,6 +480,21 @@ export function App() {
         );
       }, 15);
       streamingIntervals.current.push(thinkInterval);
+
+      // Fetch response from backend agent
+      const fetchResponse = async () => {
+        try {
+          const allHistory = getHistoryForApi(messagesRef.current);
+          const response = await sendChatMessage({ messages: allHistory });
+          respText = response.messages[response.messages.length - 1]?.content ?? "(空回复)";
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error("Chat API error:", err);
+          respText = "抱歉，后端服务暂时不可用。";
+          streamDone = true;
+        }
+      };
+      fetchResponse();
     },
     [activeKey, isRequesting],
   );

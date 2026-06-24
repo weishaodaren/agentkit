@@ -12,9 +12,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@agentkit/types": "workspace:*",
+    "@agentkit/shared": "workspace:*",
     "@agentkit/ui": "workspace:*",
     "@agentkit/utils": "workspace:*",
+    "ofetch": "^1.5.1",
     "react": "catalog:",
     "react-dom": "^19.1"
   },

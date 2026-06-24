@@ -2,7 +2,7 @@
  * @agentkit/utils - 工具函数
  */
 
-import type { ID } from "@agentkit/types";
+import type { ID } from "@agentkit/shared";
 
 /** 生成唯一 ID */
 export function generateId(): ID {

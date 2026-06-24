@@ -1,5 +1,5 @@
 /**
- * @agentkit/types - 共享类型定义
+ * @agentkit/shared - 类型定义
  */
 
 /** 通用 ID 类型 */
