@@ -1,11 +1,24 @@
 import { defineHandler } from "nitro";
-import { logger } from "~/utils/logger";
+import { createEventStream } from "nitro/h3";
+
 import { agent } from "~/agent";
 
 export default defineHandler(async (event) => {
-  logger.info(".................");
+  const stream = createEventStream(event);
+
   const result = await agent.invoke({
     messages: [{ role: "user", content: "What is langgraph?" }],
   });
-  logger.info(result.messages[result.messages.length - 1].content);
+
+  const content = result.messages[result.messages.length - 1].content as string;
+
+  const interval = setInterval(async () => {
+    await stream.push(content);
+  }, 1000);
+
+  stream.onClosed(() => {
+    clearInterval(interval);
+  });
+
+  return stream.send();
 });
