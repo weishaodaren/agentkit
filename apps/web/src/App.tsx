@@ -12,6 +12,7 @@ import {
   Button,
   Notification,
   Attachments,
+  ThoughtChain,
 } from "@agentkit/ui/adaptor/react";
 import { Markdown } from "@agentkit/ui/adaptor/react-plugins";
 import type {
@@ -21,33 +22,45 @@ import type {
   SuggestionItem,
   NotificationOptions,
   AttachmentFile,
+  ThoughtChainItem,
 } from "@agentkit/ui";
-import { sendChatMessage } from "~/lib/chat";
+import {
+  streamAgentMessage,
+  listAgents,
+  listWorkflows,
+  runWorkflow,
+  type ToolCallEvent,
+  type ToolResultEvent,
+  type StepFinishEvent,
+} from "~/lib/chat";
 
 // ─── Types ───────────────────────────────────────────────────────
+
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   thinking?: string;
+  toolCalls: ToolCallEvent[];
+  toolResults: ToolResultEvent[];
+  usage?: StepFinishEvent["usage"];
   status: "loading" | "streaming" | "done" | "error";
 }
 
 // ─── Static Data ─────────────────────────────────────────────────
+
 const DEFAULT_CONVERSATIONS: ConversationItem[] = [
   { key: "5", label: "新的对话", group: "今天" },
-  { key: "4", label: "AgentKit UI 有哪些升级？", group: "今天" },
-  { key: "3", label: "新的 AGI 混合界面范式", group: "今天" },
-  { key: "2", label: "如何快速安装和导入组件？", group: "昨天" },
-  { key: "1", label: "什么是 AgentKit UI？", group: "昨天" },
+  { key: "4", label: "查询北京天气", group: "今天" },
+  { key: "3", label: "如何快速安装组件？", group: "昨天" },
 ];
 
 const MOCK_SUGGESTIONS: SuggestionItem[] = [
+  { key: "weather", label: "查天气", value: "weather" },
   { key: "report", label: "写一份报告", value: "report" },
-  { key: "draw", label: "画一幅画", value: "draw" },
   {
     key: "knowledge",
-    label: "查阅一些知识",
+    label: "查阅知识",
     value: "knowledge",
     children: [
       { key: "react", label: "关于 React", value: "react" },
@@ -57,81 +70,13 @@ const MOCK_SUGGESTIONS: SuggestionItem[] = [
 ];
 
 const PROMPT_QUESTIONS = [
-  "AgentKit UI 有哪些升级？",
+  "北京今天天气怎么样？",
+  "帮我规划一下周末活动",
   "AgentKit UI 有哪些组件？",
-  "如何快速安装和导入组件？",
 ];
 
-const MOCK_RESPONSE = `## AgentKit UI 组件库
-
-AgentKit UI 是一个基于 **Lit** + **Tailwind CSS v4** 构建的 Web Components 组件库。
-
-### 核心特性
-
-- 🎯 **框架无关** — 可在 React、Vue、Angular 或原生 HTML 中使用
-- 🎨 **Tailwind CSS v4** — 原子化 CSS，Shadow DOM 内嵌样式
-- 📦 **插件化分包** — Markdown 和代码高亮作为可选插件
-- ⚡ **流式渲染** — 支持 AI 对话中逐字输出
-
-### 快速开始
-
-\`\`\`bash
-pnpm add @agentkit/ui
-\`\`\`
-
-### 使用示例
-
-\`\`\`tsx
-import { Bubble, Sender } from "@agentkit/ui/adaptor/react";
-import { Markdown } from "@agentkit/ui/adaptor/react-plugins";
-
-function Chat() {
-  return (
-    <div>
-      <Bubble content="Hello!" placement="start" />
-      <Markdown content={response} streamStatus="loading" />
-      <Sender onSubmit={handleSend} />
-    </div>
-  );
-}
-\`\`\`
-
-> 💡 **提示**: 使用 \`streamStatus="loading"\` 可以启用打字光标效果`;
-
-const MOCK_THINKING = `用户询问关于 AgentKit UI 组件库的信息。我需要：
-1. 介绍组件库的核心技术栈（Lit + Tailwind CSS v4）
-2. 列出主要特性
-3. 提供快速上手的代码示例
-4. 说明插件化分包策略`;
-
-// History messages keyed by conversation
-const HISTORY_MESSAGES: Record<string, { user: string; assistant: string }> = {
-  "5": {
-    user: "你好，开始新的对话",
-    assistant: "你好！我是 AgentKit AI，很高兴为你服务。有什么我可以帮你的吗？",
-  },
-  "4": {
-    user: "AgentKit UI 有哪些升级？",
-    assistant:
-      "AgentKit UI 近期升级了以下方面：\n\n1. **CSS-in-JS 样式系统** — 全面采用 CSS Custom Properties\n2. **Lucide 图标** — 统一使用 lucide-static 图标库\n3. **Locale 国际化** — 支持中英文语言包\n4. **Sender.Header** — 新增可折叠面板子组件",
-  },
-  "3": {
-    user: "什么是 AGI 混合界面范式？",
-    assistant:
-      "AGI 混合界面是一种融合了传统 GUI 和 AI 对话界面的新型交互范式，结合了结构化操作和自然语言交互的优势。",
-  },
-  "2": {
-    user: "如何快速安装和导入组件？",
-    assistant:
-      "通过 npm 或 pnpm 安装：\n\n```bash\npnpm add @agentkit/ui\n```\n\n然后在 React 中导入：\n\n```tsx\nimport { Bubble, Sender } from '@agentkit/ui/adaptor/react';\nimport { Markdown } from '@agentkit/ui/adaptor/react-plugins';\n```",
-  },
-  "1": {
-    user: "什么是 AgentKit UI？",
-    assistant: MOCK_RESPONSE,
-  },
-};
-
 // ─── Helpers ─────────────────────────────────────────────────────
+
 let msgIdCounter = 100;
 function genId() {
   return `msg-${++msgIdCounter}`;
@@ -144,30 +89,80 @@ function notify(
   if (ref.current) (ref.current as any).open(opts);
 }
 
-function getHistoryMessages(key: string): ChatMessage[] {
-  const h = HISTORY_MESSAGES[key];
-  if (!h) return [];
-  return [
-    { id: `${key}-u`, role: "user", content: h.user, status: "done" },
-    {
-      id: `${key}-a`,
-      role: "assistant",
-      content: h.assistant,
-      status: "done",
-    },
-  ];
+/** Build ThoughtChainItems from a ChatMessage */
+function buildThoughtChain(msg: ChatMessage): ThoughtChainItem[] {
+  const items: ThoughtChainItem[] = [];
+  let idx = 0;
+
+  // Reasoning step
+  if (msg.thinking) {
+    items.push({
+      key: `reason-${idx++}`,
+      title: "深度推理",
+      description: msg.thinking,
+      status:
+        msg.status === "loading" || msg.status === "streaming"
+          ? "running"
+          : "success",
+      collapsible: true,
+      content: "",
+    });
+  }
+
+  // Tool calls
+  for (const tc of msg.toolCalls) {
+    const result = msg.toolResults.find((r) => r.toolCallId === tc.toolCallId);
+    items.push({
+      key: `tool-${idx++}`,
+      title: `调用工具: ${tc.toolName}`,
+      description:
+        tc.args !== null && tc.args !== undefined
+          ? `参数: ${JSON.stringify(tc.args, null, 0)}`
+          : undefined,
+      status: result
+        ? result.isError
+          ? "error"
+          : "success"
+        : msg.status === "done"
+          ? "success"
+          : "running",
+      collapsible: !!result,
+      content: result ? `结果: ${JSON.stringify(result.result, null, 2)}` : "",
+    });
+  }
+
+  // Response generation step
+  if (msg.content || msg.status === "streaming") {
+    items.push({
+      key: `gen-${idx++}`,
+      title: "生成回复",
+      status:
+        msg.status === "streaming"
+          ? "running"
+          : msg.status === "done"
+            ? "success"
+            : "pending",
+    });
+  }
+
+  // Finish
+  if (msg.status === "done") {
+    const usageText = msg.usage
+      ? `Tokens: ${msg.usage.promptTokens ?? "?"} in / ${msg.usage.completionTokens ?? "?"} out`
+      : undefined;
+    items.push({
+      key: `finish-${idx++}`,
+      title: "完成",
+      status: "success",
+      description: usageText,
+    });
+  }
+
+  return items;
 }
 
-/** Convert the current messages state to the API message format. */
-function getHistoryForApi(
-  messages: ChatMessage[],
-): Array<{ role: string; content: string }> {
-  return messages
-    .filter((m) => m.role === "user" || m.content)
-    .map((m) => ({ role: m.role, content: m.content }));
-}
+// ─── Styles ──────────────────────────────────────────────────────
 
-// ─── CSS-in-JS Styles ──────────────────────────────────────────
 const styles = {
   wrapper: {
     width: "100%",
@@ -175,8 +170,6 @@ const styles = {
     display: "flex",
     fontFamily: "system-ui, sans-serif",
   } as React.CSSProperties,
-
-  // Left workarea
   workarea: {
     flex: 1,
     background: "#f5f5f5",
@@ -228,13 +221,6 @@ const styles = {
     height: "100%",
     padding: "16px 10px 16px 16px",
   } as React.CSSProperties,
-  bodyText: {
-    color: "#374151",
-    padding: 8,
-    lineHeight: 1.7,
-  } as React.CSSProperties,
-
-  // Right copilot panel
   copilotChat: {
     display: "flex",
     flexDirection: "column",
@@ -268,8 +254,6 @@ const styles = {
     borderRadius: 6,
     lineHeight: 1,
   } as React.CSSProperties,
-
-  // Chat list
   chatList: {
     flex: 1,
     overflowY: "auto",
@@ -284,19 +268,12 @@ const styles = {
     background: "#f3f4f6",
     marginBottom: 16,
   } as React.CSSProperties,
-
-  // Sender area
-  chatSend: {
-    padding: 16,
-    flexShrink: 0,
-  } as React.CSSProperties,
+  chatSend: { padding: 16, flexShrink: 0 } as React.CSSProperties,
   quickBtnRow: {
     display: "flex",
     gap: 12,
     alignItems: "center",
   } as React.CSSProperties,
-
-  // Message styles
   loadingMessage: {
     backgroundImage:
       "linear-gradient(90deg, #ff6b23 0%, #af3cb8 31%, #53b6ff 89%)",
@@ -314,8 +291,6 @@ const styles = {
     marginTop: 4,
     gap: 2,
   } as React.CSSProperties,
-
-  // Conversations popover
   popover: {
     position: "absolute",
     top: 52,
@@ -330,9 +305,55 @@ const styles = {
     zIndex: 100,
     padding: 0,
   } as React.CSSProperties,
+  agentSelector: {
+    fontSize: 12,
+    padding: "2px 6px",
+    borderRadius: 6,
+    border: "1px solid #e5e7eb",
+    background: "#f9fafb",
+    color: "#374151",
+    cursor: "pointer",
+    outline: "none",
+    maxWidth: 160,
+  } as React.CSSProperties,
+  thoughtChainWrap: {
+    marginBottom: 8,
+    padding: "8px 12px",
+    borderRadius: 12,
+    backgroundColor: "#fafafa",
+    border: "1px solid #f0f0f0",
+  } as React.CSSProperties,
+  workflowBar: {
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+    padding: "8px 16px",
+    borderTop: "1px solid #e5e7eb",
+    background: "#f9fafb",
+    flexShrink: 0,
+  } as React.CSSProperties,
+  workflowInput: {
+    flex: 1,
+    fontSize: 13,
+    padding: "4px 8px",
+    borderRadius: 6,
+    border: "1px solid #d1d5db",
+    outline: "none",
+  } as React.CSSProperties,
+  workflowBtn: {
+    fontSize: 12,
+    padding: "4px 12px",
+    borderRadius: 6,
+    border: "1px solid #d1d5db",
+    background: "#fff",
+    cursor: "pointer",
+    color: "#374151",
+    whiteSpace: "nowrap",
+  } as React.CSSProperties,
 };
 
 // ─── App ─────────────────────────────────────────────────────────
+
 export function App() {
   // ── State ──
   const [copilotOpen, setCopilotOpen] = useState(true);
@@ -340,9 +361,7 @@ export function App() {
     DEFAULT_CONVERSATIONS,
   );
   const [activeKey, setActiveKey] = useState("5");
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    getHistoryMessages("5"),
-  );
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [showConvPopover, setShowConvPopover] = useState(false);
@@ -351,12 +370,35 @@ export function App() {
   const [files, setFiles] = useState<AttachmentFile[]>([]);
   const [liked, setLiked] = useState(false);
 
+  // Agent & Workflow discovery
+  const [agentIds, setAgentIds] = useState<string[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState("weatherAgent");
+  const [workflowIds, setWorkflowIds] = useState<string[]>([]);
+  const [workflowCity, setWorkflowCity] = useState("Tokyo");
+  const [workflowRunning, setWorkflowRunning] = useState(false);
+
   // Refs
   const notifRef = useRef<HTMLElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const streamingIntervals = useRef<number[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<ChatMessage[]>(messages);
   messagesRef.current = messages;
+
+  // ── Discovery: load agents & workflows on mount ──
+  useEffect(() => {
+    listAgents()
+      .then((agents) => {
+        const ids = Object.keys(agents);
+        setAgentIds(ids);
+        if (ids.length > 0 && !ids.includes(selectedAgent)) {
+          setSelectedAgent(ids[0]);
+        }
+      })
+      .catch(() => {});
+    listWorkflows()
+      .then((wfs) => setWorkflowIds(Object.keys(wfs)))
+      .catch(() => {});
+  }, []);
 
   // Auto-scroll
   useEffect(() => {
@@ -370,7 +412,7 @@ export function App() {
       const key = detail?.key as string;
       if (key && key !== activeKey) {
         setActiveKey(key);
-        setMessages(getHistoryMessages(key));
+        setMessages([]);
         setShowConvPopover(false);
       }
     },
@@ -401,13 +443,18 @@ export function App() {
         id: genId(),
         role: "user",
         content: text,
+        toolCalls: [],
+        toolResults: [],
         status: "done",
       };
+      const aId = genId();
       const assistantMsg: ChatMessage = {
-        id: genId(),
+        id: aId,
         role: "assistant",
         content: "",
         thinking: "",
+        toolCalls: [],
+        toolResults: [],
         status: "loading",
       };
 
@@ -425,79 +472,174 @@ export function App() {
         ),
       );
 
-      // Build the message history from state (userMsg was just added)
-      const aId = assistantMsg.id;
+      // Build API messages
+      const apiMessages = [
+        ...messagesRef.current
+          .filter((m) => m.role === "user" || m.content)
+          .map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          })),
+        { role: "user" as const, content: text },
+      ];
 
-      // Start streaming: simulate thinking → response phases
-      const thinkText = MOCK_THINKING;
-      let thinkIdx = 0;
-      let respText = "";
-      let respIdx = 0;
-      let streamDone = false;
+      // Abort previous request
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      const thinkInterval = setInterval(() => {
-        thinkIdx += 2;
-        if (thinkIdx >= thinkText.length) {
-          thinkIdx = thinkText.length;
-          clearInterval(thinkInterval);
-
-          // Now stream the actual API response
-          const respInterval = setInterval(() => {
-            if (streamDone) {
-              clearInterval(respInterval);
-              setMessages((prev) =>
-                prev.map((m) => (m.id === aId ? { ...m, status: "done" } : m)),
-              );
-              setIsRequesting(false);
-              return;
-            }
-
-            respIdx += 3;
-            if (respIdx >= respText.length) {
-              streamDone = true;
-            } else {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === aId
-                    ? {
-                        ...m,
-                        content: respText.slice(0, respIdx),
-                        status: "streaming",
-                      }
-                    : m,
-                ),
-              );
-            }
-          }, 15);
-          streamingIntervals.current.push(respInterval);
-        }
+      streamAgentMessage(
+        selectedAgent,
+        apiMessages,
+        {
+          onTextDelta(delta) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aId
+                  ? {
+                      ...m,
+                      content: m.content + delta,
+                      status: m.status === "loading" ? "streaming" : m.status,
+                    }
+                  : m,
+              ),
+            );
+          },
+          onReasoningDelta(delta) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aId
+                  ? { ...m, thinking: (m.thinking || "") + delta }
+                  : m,
+              ),
+            );
+          },
+          onToolCall(event) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aId ? { ...m, toolCalls: [...m.toolCalls, event] } : m,
+              ),
+            );
+          },
+          onToolResult(event) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aId
+                  ? { ...m, toolResults: [...m.toolResults, event] }
+                  : m,
+              ),
+            );
+          },
+          onStepFinish(event) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aId ? { ...m, usage: event.usage } : m,
+              ),
+            );
+          },
+          onFinish() {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === aId ? { ...m, status: "done" } : m)),
+            );
+            setIsRequesting(false);
+            abortRef.current = null;
+          },
+          onError(err) {
+            console.error("Agent stream error:", err);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aId
+                  ? {
+                      ...m,
+                      content: m.content || "抱歉，服务暂时不可用。",
+                      status: "error" as const,
+                    }
+                  : m,
+              ),
+            );
+            setIsRequesting(false);
+            abortRef.current = null;
+          },
+        },
+        controller.signal,
+      ).catch((err) => {
+        // agent.stream() 在流开始前就抛异常（网络不可达、agent ID 无效等）
+        console.error("Agent stream failed:", err);
         setMessages((prev) =>
           prev.map((m) =>
-            m.id === aId ? { ...m, thinking: thinkText.slice(0, thinkIdx) } : m,
+            m.id === aId && (m.status === "loading" || m.status === "streaming")
+              ? {
+                  ...m,
+                  content: m.content || "抱歉，服务暂时不可用。",
+                  status: "error" as const,
+                }
+              : m,
           ),
         );
-      }, 15);
-      streamingIntervals.current.push(thinkInterval);
-
-      // Fetch response from backend agent
-      const fetchResponse = async () => {
-        try {
-          const allHistory = getHistoryForApi(messagesRef.current);
-          const response = await sendChatMessage({ messages: allHistory });
-          respText =
-            response.messages[response.messages.length - 1]?.content ??
-            "(空回复)";
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.error("Chat API error:", err);
-          respText = "抱歉，后端服务暂时不可用。";
-          streamDone = true;
-        }
-      };
-      fetchResponse();
+        setIsRequesting(false);
+        abortRef.current = null;
+      });
     },
-    [activeKey, isRequesting],
+    [activeKey, isRequesting, selectedAgent],
   );
+
+  // ── Workflow execution ──
+  const handleRunWorkflow = useCallback(async () => {
+    if (!workflowCity.trim() || workflowRunning) return;
+    const wfId = workflowIds[0];
+    if (!wfId) {
+      notify(notifRef, { title: "没有可用的 workflow", type: "info" });
+      return;
+    }
+    setWorkflowRunning(true);
+
+    // Show a system-like message
+    const userMsg: ChatMessage = {
+      id: genId(),
+      role: "user",
+      content: `[Workflow] ${wfId} → city: ${workflowCity}`,
+      toolCalls: [],
+      toolResults: [],
+      status: "done",
+    };
+    const aId = genId();
+    const assistantMsg: ChatMessage = {
+      id: aId,
+      role: "assistant",
+      content: "",
+      toolCalls: [],
+      toolResults: [],
+      status: "loading",
+    };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+
+    try {
+      const result = await runWorkflow(wfId, { city: workflowCity });
+      const output = JSON.stringify(result, null, 2);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === aId
+            ? {
+                ...m,
+                content: `Workflow 执行完成:\n\n\`\`\`json\n${output}\n\`\`\``,
+                status: "done",
+              }
+            : m,
+        ),
+      );
+    } catch (err) {
+      console.error("Workflow error:", err);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === aId
+            ? { ...m, content: "Workflow 执行失败", status: "error" }
+            : m,
+        ),
+      );
+    } finally {
+      setWorkflowRunning(false);
+    }
+  }, [workflowCity, workflowRunning, workflowIds]);
 
   // ── Event handlers ──
   const handleSenderSubmit = useCallback(
@@ -517,19 +659,27 @@ export function App() {
   }, []);
 
   const handleCancel = useCallback(() => {
-    streamingIntervals.current.forEach((id) => clearInterval(id));
-    streamingIntervals.current = [];
+    abortRef.current?.abort();
+    abortRef.current = null;
     setIsRequesting(false);
+    // 将正在流式传输的消息标记为完成（保留已接收的部分内容）
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.status === "loading" || m.status === "streaming"
+          ? { ...m, status: "done" as const }
+          : m,
+      ),
+    );
   }, []);
 
   const handleSuggestionSelect = useCallback(
     (e: Event) => {
       const detail = (e as CustomEvent).detail;
       const value = detail?.value as string;
-      if (value === "report") {
+      if (value === "weather") {
+        handleSubmit("北京今天天气怎么样？");
+      } else if (value === "report") {
         handleSubmit("帮我写一份项目报告");
-      } else if (value === "draw") {
-        handleSubmit("画一幅关于 AI 的插画");
       } else {
         setInputValue(`[${value}]: `);
       }
@@ -560,7 +710,6 @@ export function App() {
       setFiles((prev) => prev.filter((_, i) => i !== idx));
   }, []);
 
-  // ── Actions on assistant messages ──
   const makeActionItems = (): ActionsItem[] => [
     { key: "reload", label: "", icon: "refresh-cw" },
     { key: "copy", label: "", icon: "copy" },
@@ -578,7 +727,6 @@ export function App() {
       notify(notifRef, { title: "重新生成中...", type: "info" });
   }, []);
 
-  // ── Conversation items for popover ──
   const convItems: ConversationItem[] = conversations.map((c) =>
     c.key === activeKey ? { ...c, label: `[当前] ${c.label}` } : c,
   );
@@ -599,18 +747,18 @@ export function App() {
               width={20}
               height={20}
             />
-            AgentKit UI
+            AgentKit
           </div>
           {!copilotOpen && (
             <button
               style={styles.copilotButton}
               onClick={() => setCopilotOpen(true)}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.opacity = "0.8";
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.opacity = "1";
-              }}
+              onMouseEnter={(e) =>
+                ((e.target as HTMLElement).style.opacity = "0.8")
+              }
+              onMouseLeave={(e) =>
+                ((e.target as HTMLElement).style.opacity = "1")
+              }
             >
               ✨ AI Copilot
             </button>
@@ -624,49 +772,52 @@ export function App() {
           }}
         >
           <div style={styles.bodyContent}>
-            <img
-              src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*48RLR41kwHIAAAAAAAAAAAAADgCCAQ/fmt.webp"
-              alt="banner"
-              style={{ width: "100%", borderRadius: 8 }}
-            />
-            <div style={styles.bodyText}>
-              <h4 style={{ marginBottom: 8 }}>什么是 RICH 设计范式？</h4>
+            <div style={{ padding: 8, lineHeight: 1.7, color: "#374151" }}>
+              <h4 style={{ marginBottom: 8 }}>AgentKit — AI Agent 平台</h4>
               <p style={{ marginBottom: 12 }}>
-                RICH 是一种 AI 界面设计范式，类似于 WIMP 范式之于图形用户界面。
+                基于 <strong>Mastra</strong> + <strong>Hono</strong> 构建的全栈
+                AI Agent 平台。右侧面板可与 Agent
+                实时对话，支持工具调用、深度推理、Workflow 编排。
               </p>
-              <p style={{ marginBottom: 12 }}>
-                ACM SIGCHI 2005
-                （人机交互顶级会议）定义了人机交互的核心问题可分为三个层次：
-              </p>
+              <h5>已注册的 Agents</h5>
               <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-                <li>
-                  <strong>界面范式层</strong>
-                  ：定义人机交互界面的设计要素，引导设计师关注核心问题。
-                </li>
-                <li>
-                  <strong>用户模型层</strong>
-                  ：构建界面体验评价模型，衡量界面体验质量。
-                </li>
-                <li>
-                  <strong>软件框架层</strong>
-                  ：人机界面的底层支撑算法和数据结构。
-                </li>
+                {agentIds.map((id) => (
+                  <li key={id}>
+                    <code>{id}</code>
+                  </li>
+                ))}
               </ul>
-              <p>
-                界面范式是新生交互技术诞生时，设计师最需要关注和定义的方面。
-                它定义了设计师应该关注的设计要素，并据此判断什么是好的设计以及如何实现。
-              </p>
+              <h5>已注册的 Workflows</h5>
+              <ul style={{ paddingLeft: 20 }}>
+                {workflowIds.map((id) => (
+                  <li key={id}>
+                    <code>{id}</code>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
       {/* ═══ Right Copilot Panel ═══ */}
-      <div style={{ ...styles.copilotChat, width: copilotOpen ? 400 : 0 }}>
+      <div style={{ ...styles.copilotChat, width: copilotOpen ? 420 : 0 }}>
         {/* Chat Header */}
         <div style={styles.chatHeader}>
           <span style={styles.chatHeaderTitle}>✨ AI Copilot</span>
-          <div style={{ display: "flex", gap: 2 }}>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            {/* Agent selector */}
+            <select
+              style={styles.agentSelector}
+              value={selectedAgent}
+              onChange={(e) => setSelectedAgent(e.target.value)}
+            >
+              {agentIds.map((id) => (
+                <option key={id} value={id}>
+                  {id}
+                </option>
+              ))}
+            </select>
             <button
               style={styles.headerBtn}
               onClick={addConversation}
@@ -710,7 +861,7 @@ export function App() {
               <div style={styles.chatWelcome}>
                 <Welcome
                   title="👋 你好，我是 AgentKit AI"
-                  description="基于 Lit + Tailwind CSS v4 构建的 AI 组件库。有什么我可以帮你的吗？"
+                  description="支持工具调用、深度推理、Workflow 编排。试试问我天气或规划活动吧！"
                   variant="borderless"
                 />
               </div>
@@ -735,9 +886,12 @@ export function App() {
                 );
               }
 
+              // Build thought chain
+              const chain = buildThoughtChain(msg);
+
               return (
                 <div key={msg.id} style={{ marginBottom: 16 }}>
-                  {/* Thinking block */}
+                  {/* Thinking block — original Think component for reasoning */}
                   {msg.thinking && (
                     <div style={{ marginBottom: 8 }}>
                       <Think
@@ -750,6 +904,25 @@ export function App() {
                           msg.status === "loading" || msg.status === "streaming"
                         }
                         content={msg.thinking}
+                      />
+                    </div>
+                  )}
+
+                  {/* ThoughtChain — tool calls + steps (only when there are tools or steps) */}
+                  {(msg.toolCalls.length > 0 ||
+                    msg.toolResults.length > 0 ||
+                    (msg.status === "done" && chain.length > 0)) && (
+                    <div style={styles.thoughtChainWrap}>
+                      <ThoughtChain
+                        items={chain.filter(
+                          (item) =>
+                            item.key.startsWith("tool-") ||
+                            item.key.startsWith("gen-") ||
+                            item.key.startsWith("finish-"),
+                        )}
+                        collapsible
+                        lineStyle="dashed"
+                        typingSpeed={15}
                       />
                     </div>
                   )}
@@ -791,21 +964,49 @@ export function App() {
           <div ref={chatEndRef} />
         </div>
 
+        {/* Workflow Bar */}
+        {workflowIds.length > 0 && (
+          <div style={styles.workflowBar}>
+            <span
+              style={{ fontSize: 12, color: "#6b7280", whiteSpace: "nowrap" }}
+            >
+              Workflow
+            </span>
+            <input
+              style={styles.workflowInput}
+              placeholder="输入城市名..."
+              value={workflowCity}
+              onChange={(e) => setWorkflowCity(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleRunWorkflow()}
+            />
+            <button
+              style={{
+                ...styles.workflowBtn,
+                opacity: workflowRunning ? 0.5 : 1,
+              }}
+              onClick={handleRunWorkflow}
+              disabled={workflowRunning}
+            >
+              {workflowRunning ? "执行中..." : "▶ 执行"}
+            </button>
+          </div>
+        )}
+
         {/* Sender Area */}
         <div style={styles.chatSend}>
           {/* Quick action buttons */}
           <div style={{ ...styles.quickBtnRow, marginBottom: 12 }}>
             <Button
               variant="outline"
-              onClick={() => handleSubmit("AgentKit UI 有哪些升级？")}
+              onClick={() => handleSubmit("北京今天天气怎么样？")}
             >
-              📋 升级内容
+              🌤️ 天气
             </Button>
             <Button
               variant="outline"
-              onClick={() => handleSubmit("AgentKit UI 有哪些组件？")}
+              onClick={() => handleSubmit("帮我规划一下东京的周末活动")}
             >
-              📦 组件列表
+              📋 活动规划
             </Button>
             <Button variant="outline">⊞ 更多</Button>
           </div>
@@ -839,7 +1040,6 @@ export function App() {
               onChange={handleSenderChange}
               onCancel={handleCancel}
             >
-              {/* Header: Attachments panel */}
               <SenderHeader
                 slot="header"
                 title="上传文件"
@@ -857,7 +1057,6 @@ export function App() {
                 />
               </SenderHeader>
 
-              {/* Prefix: paperclip toggle */}
               <button
                 slot="prefix"
                 style={{

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 
 import {
   type HonoBindings,
@@ -11,6 +12,17 @@ import {
 import { mastra, logger } from "@/mastra";
 
 const app = new Hono<{ Bindings: HonoBindings; Variables: HonoVariables }>();
+
+// CORS — 允许 web 开发服务器（localhost:3000）直接访问
+app.use(
+  "*",
+  cors({
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }),
+);
 
 const server = new MastraServer({ app, mastra });
 await server.init();

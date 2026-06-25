@@ -89,8 +89,8 @@ const senderCSS: CSSResult = css`
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
@@ -102,36 +102,36 @@ const senderCSS: CSSResult = css`
   }
   .ak-sender-send-btn-active:hover {
     background: var(--ak-color-primary-hover, #4096ff);
-    transform: scale(1.1);
   }
   .ak-sender-send-btn-active:active {
-    transform: scale(0.95);
+    background: var(--ak-color-primary-active, #0958d9);
   }
   .ak-sender-send-btn-inactive {
     background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
     color: var(--ak-color-text-quaternary, rgba(0, 0, 0, 0.25));
     cursor: not-allowed;
   }
-  /* Cancel button */
+  /* Cancel button — antd-x StopLoading: circle border + spinning arc + inner square */
   .ak-sender-cancel-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
-    background: var(--ak-color-error, #ff4d4f);
-    color: #fff;
+    background: transparent;
+    color: var(--ak-color-primary, #1677ff);
     cursor: pointer;
     transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
+    padding: 0;
   }
   .ak-sender-cancel-btn:hover {
-    background: #ff7875;
-    transform: scale(1.1);
+    color: var(--ak-color-primary-hover, #4096ff);
   }
-  .ak-sender-cancel-btn:active {
-    transform: scale(0.95);
+  .ak-sender-cancel-btn svg {
+    width: 16px;
+    height: 16px;
   }
 `;
 
@@ -248,6 +248,50 @@ export class AkSender extends AkElement {
     this._textarea.style.height = `${Math.min(this._textarea.scrollHeight, maxHeight)}px`;
   }
 
+  /**
+   * antd-x StopLoadingIcon 1:1 — spinning arc + inner square
+   */
+  private _renderStopLoadingIcon() {
+    return html`<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+      <rect
+        fill="currentColor"
+        height="250"
+        rx="24"
+        ry="24"
+        width="250"
+        x="375"
+        y="375"
+      />
+      <circle
+        cx="500"
+        cy="500"
+        fill="none"
+        r="450"
+        stroke="currentColor"
+        stroke-width="100"
+        opacity="0.45"
+      />
+      <circle
+        cx="500"
+        cy="500"
+        fill="none"
+        r="450"
+        stroke="currentColor"
+        stroke-width="100"
+        stroke-dasharray="600 9999999"
+      >
+        <animateTransform
+          attributeName="transform"
+          dur="1s"
+          from="0 500 500"
+          repeatCount="indefinite"
+          to="360 500 500"
+          type="rotate"
+        />
+      </circle>
+    </svg>`;
+  }
+
   override render() {
     const hasValue = this._currentValue.trim().length > 0;
 
@@ -298,7 +342,7 @@ export class AkSender extends AkElement {
                     @click=${this._handleCancel}
                     title="停止"
                   >
-                    ${icon("square", 12)}
+                    ${this._renderStopLoadingIcon()}
                   </button>
                 `
               : html`
@@ -310,7 +354,7 @@ export class AkSender extends AkElement {
                     @click=${this._handleSubmit}
                     title="发送"
                   >
-                    ${icon("send-horizontal", 14)}
+                    ${icon("arrow-up", 16)}
                   </button>
                 `}
           </div>

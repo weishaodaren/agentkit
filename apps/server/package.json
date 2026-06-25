@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "studio:dev": "mastra dev",
-    "studio:build": "mastra build"
+    "studio:build": "mastra build",
+    "lint": "oxlint .",
+    "format": "oxfmt write ."
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.51",
