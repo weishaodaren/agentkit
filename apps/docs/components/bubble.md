@@ -17,54 +17,37 @@ description: 聊天气泡组件，用于展示对话消息
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `placement`
 
 <preview path="./demos/bubble-basic.vue" title="基础用法" description="展示基本的消息气泡用法，支持 start/end 两种位置"></preview>
 
-### 样式变体
+### 样式变体 — `variant`
 
-<preview path="./demos/bubble-variant.vue" title="样式变体" description="Bubble 支持 filled、outlined、shadow、borderless 四种样式变体"></preview>
+<preview path="./demos/bubble-variant.vue" title="样式变体" description="variant 支持 filled、outlined、shadow、borderless 四种样式变体"></preview>
 
-### 形状
+### 气泡形状 — `shape`
 
-```html
-<!-- 默认圆角 -->
-<ak-bubble content="default" shape="default" placement="start"></ak-bubble>
+<preview path="./demos/bubble-shape.vue" title="气泡形状" description="shape 属性支持 default（默认圆角）、round（胶囊形）、corner（方角）三种形状"></preview>
 
-<!-- 胶囊形 -->
-<ak-bubble content="round" shape="round" placement="start"></ak-bubble>
+### 加载状态 — `loading`
 
-<!-- 方角 -->
-<ak-bubble content="corner" shape="corner" placement="start"></ak-bubble>
-```
+<preview path="./demos/bubble-loading.vue" title="加载状态" description="loading 属性展示加载中的气泡样式，常用于等待 AI 回复"></preview>
 
-### 加载状态
+### 打字动画 — `typing` / `typingSpeed`
 
-<preview path="./demos/bubble-loading.vue" title="加载状态" description="展示加载中的气泡样式，常用于等待 AI 回复"></preview>
+<preview path="./demos/bubble-typing.vue" title="打字动画" description="typing 属性启用逐字显示的打字机效果，typingSpeed 控制速度（ms/字符）"></preview>
 
-### 打字动画
+### 流式模式 — `streaming`
 
-```html
-<ak-bubble
-  content="这是一段正在打字的内容..."
-  typing
-  typing-speed="30"
-  placement="start"
-></ak-bubble>
-```
+<preview path="./demos/bubble-streaming.vue" title="流式模式" description="streaming 属性会延迟 typing-complete 事件的触发，直到流式内容停止增长"></preview>
 
-### 流式模式
+### 头像 — `avatar`
 
-当配合流式响应使用时，`streaming` 属性会延迟 `typing-complete` 事件的触发，直到流式结束：
+<preview path="./demos/bubble-avatar.vue" title="头像" description="avatar 属性设置头像图片 URL，头像根据 placement 自动显示在对应侧"></preview>
 
-```html
-<ak-bubble
-  content="流式内容逐字增长..."
-  typing
-  streaming
-  placement="start"
-></ak-bubble>
-```
+### 底部插槽位置 — `footerPlacement`
+
+<preview path="./demos/bubble-footer-placement.vue" title="底部插槽位置" description="footerPlacement 支持 outer-start、outer-end、inner-start、inner-end 四种底部插槽位置"></preview>
 
 ## API
 

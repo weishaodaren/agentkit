@@ -16,35 +16,17 @@ description: Mermaid 图表渲染组件，支持图表/代码双视图和下载
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `code`
 
-```html
-<ak-mermaid
-  code="graph TD&#10;  A[开始] --> B{条件?}&#10;  B -->|是| C[执行]&#10;  B -->|否| D[结束]"
-></ak-mermaid>
-```
+<preview path="./demos/mermaid-basic.vue" title="基础用法" description="code 属性设置 Mermaid 图表代码，默认以图表视图渲染"></preview>
 
-### 代码视图
+### 视图模式 — `view`
 
-```html
-<ak-mermaid
-  view="code"
-  code="sequenceDiagram&#10;  A->>B: Hello&#10;  B-->>A: Hi"
-></ak-mermaid>
-```
+<preview path="./demos/mermaid-view.vue" title="视图模式" description="view 属性支持 image（图表渲染）和 code（原始代码）两种模式"></preview>
 
-### 主题
+### 图表主题 — `theme`
 
-```html
-<!-- 默认主题 -->
-<ak-mermaid theme="default" code="..."></ak-mermaid>
-
-<!-- 暗色主题 -->
-<ak-mermaid theme="dark" code="..."></ak-mermaid>
-
-<!-- 森林主题 -->
-<ak-mermaid theme="forest" code="..."></ak-mermaid>
-```
+<preview path="./demos/mermaid-theme.vue" title="图表主题" description="theme 属性支持 default、dark、forest、neutral 四种主题"></preview>
 
 ## API
 

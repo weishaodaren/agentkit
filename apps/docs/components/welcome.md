@@ -16,29 +16,17 @@ description: 欢迎信息组件，引导用户开始对话
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `title` / `description`
 
-<preview path="./demos/welcome-basic.vue" title="基础用法" description="展示欢迎信息，引导用户开始对话"></preview>
+<preview path="./demos/welcome-basic.vue" title="基础用法" description="title 设置标题，description 设置描述文本"></preview>
 
-### 带图标
+### 样式变体 — `variant`
 
-```html
-<ak-welcome
-  title="欢迎使用"
-  description="输入你的问题开始对话"
-  icon="https://example.com/logo.png"
-></ak-welcome>
-```
+<preview path="./demos/welcome-variant.vue" title="样式变体" description="variant 支持 filled（填充背景，默认）和 borderless（无边框）两种样式"></preview>
 
-### 样式变体
+### 带图标 — `icon`
 
-```html
-<!-- 填充（默认） -->
-<ak-welcome title="Hello" variant="filled"></ak-welcome>
-
-<!-- 无边框 -->
-<ak-welcome title="Hello" variant="borderless"></ak-welcome>
-```
+<preview path="./demos/welcome-icon.vue" title="带图标" description="icon 属性接受 URL 自动转为 img，也支持 emoji 字符"></preview>
 
 ## API
 

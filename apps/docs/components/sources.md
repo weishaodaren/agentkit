@@ -20,17 +20,13 @@ description: 来源引用列表，展示参考来源信息
 
 <preview path="./demos/sources-basic.vue" title="基础用法" description="展示来源引用列表"></preview>
 
-### 自定义标题
+### 自定义标题 — `title`
 
-```html
-<ak-sources title="参考资料" .items="${JSON.stringify([...])}"></ak-sources>
-```
+<preview path="./demos/sources-title.vue" title="自定义标题" description="title 属性自定义来源列表的标题文本，默认为「参考来源」"></preview>
 
-### 行内模式
+### 行内模式 — `mode`
 
-```html
-<ak-sources mode="inline" .items="${JSON.stringify([...])}"></ak-sources>
-```
+<preview path="./demos/sources-inline.vue" title="行内模式" description="mode=inline 时来源以横向滚动卡片展示，适合空间受限场景"></preview>
 
 ## API
 
@@ -44,9 +40,15 @@ description: 来源引用列表，展示参考来源信息
 
 ### SourceItem
 
-| 属性    | 说明     | 类型     | 默认值 |
-| ------- | -------- | -------- | ------ |
-| key     | 唯一标识 | `string` | -      |
-| title   | 来源标题 | `string` | -      |
-| url     | 来源链接 | `string` | -      |
-| summary | 摘要     | `string` | -      |
+| 属性        | 说明     | 类型     | 默认值 |
+| ----------- | -------- | -------- | ------ |
+| key         | 唯一标识 | `string` | -      |
+| title       | 来源标题 | `string` | -      |
+| url         | 来源链接 | `string` | -      |
+| description | 摘要描述 | `string` | -      |
+
+### 事件
+
+| 事件名       | 说明       | 参数                                |
+| ------------ | ---------- | ----------------------------------- |
+| source-click | 点击来源项 | `{ key: string, item: SourceItem }` |

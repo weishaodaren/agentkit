@@ -16,40 +16,17 @@ description: 快捷指令建议列表，支持模糊搜索过滤
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `items` / `open`
 
-<preview path="./demos/suggestion-basic.vue" title="基础用法" description="快捷指令建议列表，支持模糊搜索过滤"></preview>
+<preview path="./demos/suggestion-basic.vue" title="基础用法" description="items 提供建议项数据，open 控制是否显示"></preview>
 
-### 带过滤
+### 过滤筛选 — `filterValue`
 
-```html
-<ak-suggestion
-  open
-  filter-value="/re"
-  .items='${JSON.stringify([
-    { key: "report", label: "写一份报告", value: "report" },
-    { key: "review", label: "代码审查", value: "review" }
-  ])}'
-></ak-suggestion>
-```
+<preview path="./demos/suggestion-filter.vue" title="过滤筛选" description="filterValue 属性过滤建议项，支持模糊搜索 label 和 value"></preview>
 
-### 嵌套子项
+### 嵌套子项 — `items[].children`
 
-```html
-<ak-suggestion
-  open
-  .items='${JSON.stringify([
-    {
-      key: "knowledge",
-      label: "查阅知识",
-      children: [
-        { key: "react", label: "关于 React", value: "react" },
-        { key: "vue", label: "关于 Vue", value: "vue" }
-      ]
-    }
-  ])}'
-></ak-suggestion>
-```
+<preview path="./demos/suggestion-children.vue" title="嵌套子项" description="children 属性支持多级嵌套，点击父项展开子项列表"></preview>
 
 ## API
 

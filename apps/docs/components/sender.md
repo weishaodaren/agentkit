@@ -17,47 +17,33 @@ description: 消息发送输入框，支持多行输入和自动调整高度
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `value` / `placeholder`
 
-<preview path="./demos/sender-basic.vue" title="基础用法" description="基本的消息发送输入框"></preview>
+<preview path="./demos/sender-basic.vue" title="基础用法" description="value 设置输入值，placeholder 设置占位文本"></preview>
 
-### 加载状态
+### 加载状态 — `loading`
 
-<preview path="./demos/sender-loading.vue" title="加载状态" description="loading 状态下的发送框，显示取消按钮"></preview>
+<preview path="./demos/sender-loading.vue" title="加载状态" description="loading 状态下发送按钮变为取消按钮，用于中断 AI 响应"></preview>
 
-### 发送方式
+### 禁用状态 — `disabled`
 
-```html
-<!-- Enter 发送（默认） -->
-<ak-sender submit-type="enter"></ak-sender>
+<preview path="./demos/sender-disabled.vue" title="禁用状态" description="disabled 属性禁用输入框，不可输入和发送"></preview>
 
-<!-- Shift+Enter 发送 -->
-<ak-sender submit-type="shift-enter"></ak-sender>
-```
+### 发送方式 — `submitType`
 
-### 最大行数限制
+<preview path="./demos/sender-submit-type.vue" title="发送方式" description="submitType 支持 enter（默认）和 shiftEnter 两种发送方式"></preview>
 
-```html
-<ak-sender max-rows="4" placeholder="最多显示 4 行"></ak-sender>
-```
+### 最大行数 — `maxRows`
 
-### 带前缀插槽
+<preview path="./demos/sender-max-rows.vue" title="最大行数" description="maxRows 属性控制 textarea 最大显示行数，超出后出现滚动条"></preview>
 
-```html
-<ak-sender>
-  <button slot="prefix" title="附件">📎</button>
-</ak-sender>
-```
+### 前缀插槽 — `prefix`
 
-### Sender Header 面板
+<preview path="./demos/sender-prefix.vue" title="前缀插槽" description="prefix 插槽用于在输入框左侧放置附件、表情等按钮"></preview>
 
-```html
-<ak-sender>
-  <ak-sender-header slot="header" title="上传文件" open="false">
-    <!-- header content -->
-  </ak-sender-header>
-</ak-sender>
-```
+### 头部面板 — `header` / `SenderHeader`
+
+<preview path="./demos/sender-header.vue" title="头部面板" description="header 插槽配合 Sender.Header 组件实现可折叠面板"></preview>
 
 ## API
 

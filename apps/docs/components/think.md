@@ -17,47 +17,25 @@ description: 展示大模型深度思考过程
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `title` / `content`
 
-<preview path="./demos/think-basic.vue" title="基础用法" description="展示 Think 组件的基本用法，包含标题和思考内容"></preview>
+<preview path="./demos/think-basic.vue" title="基础用法" description="title 设置状态文本，content 设置思考内容"></preview>
 
-### 加载状态
+### 加载状态 — `loading` / `blink`
 
-<preview path="./demos/think-loading.vue" title="加载状态与闪烁" description="loading + blink 组合使用，标题产生闪烁动画效果"></preview>
+<preview path="./demos/think-loading.vue" title="加载状态与闪烁" description="loading 显示加载图标，blink 启用标题闪烁动画"></preview>
 
-### 折叠/展开
+### 折叠展开 — `defaultExpanded` / `expanded`
 
-<preview path="./demos/think-collapse.vue" title="折叠控制" description="支持 default-expanded 控制默认折叠状态，点击标题栏可展开/折叠"></preview>
+<preview path="./demos/think-collapse.vue" title="折叠控制" description="default-expanded 控制默认折叠状态，点击标题栏可展开/折叠"></preview>
 
-### 折叠/展开
+### 打字动画 — `content` / `typingSpeed`
 
-```html
-<!-- 默认展开 -->
-<ak-think title="思考过程" content="..." default-expanded></ak-think>
+<preview path="./demos/think-typing.vue" title="打字动画" description="content 配合 typingSpeed 实现逐字显示，支持流式 content 动态增长"></preview>
 
-<!-- 默认折叠 -->
-<ak-think title="思考过程" content="..." default-expanded="false"></ak-think>
+### 自定义图标 — `icon`
 
-<!-- 受控模式 -->
-<ak-think title="思考过程" content="..." expanded="false"></ak-think>
-```
-
-### 打字动画
-
-```html
-<ak-think
-  title="思考中"
-  content="这是正在逐字显示的思考内容..."
-  typing-speed="20"
-></ak-think>
-```
-
-### 自定义图标
-
-```html
-<!-- 使用 lucide 图标名 -->
-<ak-think title="分析中" icon="brain" content="..."></ak-think>
-```
+<preview path="./demos/think-icon.vue" title="自定义图标" description="icon 属性接受 lucide 图标名，默认 sparkles，可设为 brain、lightbulb、search 等"></preview>
 
 ## API
 

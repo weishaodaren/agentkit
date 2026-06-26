@@ -1,0 +1,143 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": [
+    "config:best-practices",
+    ":semanticCommits",
+    ":dependencyDashboard",
+    ":enableVulnerabilityAlertsWithLabel(security)",
+    "schedule:earlyMondays",
+    "group:monorepos",
+    "replacements:all"
+  ],
+
+  "timezone": "Asia/Shanghai",
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 5,
+  "branchConcurrentLimit": 5,
+  "commitMessagePrefix": "deps",
+  "commitMessageTopic": "{{depName}}",
+  "rangeStrategy": "bump",
+
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"],
+    "automerge": false,
+    "automergeType": "pr",
+    "automergeStrategy": "squash"
+  },
+  "transitiveRemediation": true,
+
+  "updateInternalDeps": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 9am on Monday"]
+  },
+
+  "packageRules": [
+    {
+      "description": "devDependencies patch/minor: automerge",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "schedule": ["before 9am on Monday"]
+    },
+    {
+      "description": "Security patch: automerge",
+      "matchUpdateTypes": ["patch"],
+      "matchCurrentVersion": "!/^0/",
+      "vulnerabilityAlerts": {
+        "enabled": true,
+        "automerge": true,
+        "automergeType": "pr",
+        "automergeStrategy": "squash",
+        "schedule": ["at any time"]
+      }
+    },
+    {
+      "description": "Major updates: manual approval",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "labels": ["major"],
+      "schedule": ["before 9am on Monday"]
+    },
+    {
+      "description": "0.x versions: manual approval",
+      "matchCurrentVersion": "/^0\\./",
+      "dependencyDashboardApproval": true,
+      "labels": ["pre-release"]
+    },
+    {
+      "description": "React ecosystem",
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "groupName": "React"
+    },
+    {
+      "description": "Vite ecosystem",
+      "matchPackageNames": [
+        "@vitejs/plugin-react",
+        "vite",
+        "@rolldown/plugin-babel"
+      ],
+      "groupName": "Vite"
+    },
+    {
+      "description": "Lit ecosystem",
+      "matchPackageNames": ["/^lit/", "/^@lit\\//", "/^@lit-labs\\//"],
+      "groupName": "Lit"
+    },
+    {
+      "description": "Mastra ecosystem",
+      "matchPackageNames": ["/^@mastra\\//", "mastra"],
+      "groupName": "Mastra"
+    },
+    {
+      "description": "Hono ecosystem",
+      "matchPackageNames": ["hono", "@hono/node-server"],
+      "groupName": "Hono"
+    },
+    {
+      "description": "Changesets",
+      "matchPackageNames": ["/^@changesets\\//"],
+      "groupName": "Changesets"
+    },
+    {
+      "description": "Commitlint",
+      "matchPackageNames": ["/^@commitlint\\//"],
+      "groupName": "Commitlint"
+    },
+    {
+      "description": "TypeScript: major needs approval",
+      "matchPackageNames": ["typescript"],
+      "groupName": "TypeScript",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Node.js major needs approval",
+      "matchDepNames": ["node"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "CI Docker images",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^ghcr\\.io\\//", "/^registry\\.github\\.com\\//"],
+      "groupName": "CI containers"
+    }
+  ],
+
+  "npm": {
+    "fileMatch": ["(^|/)package\\.json$", "(^|/)pnpm-workspace\\.yaml$"]
+  }
+}
