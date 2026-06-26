@@ -6,12 +6,15 @@ pre-commit:
   commands:
     lint:
       glob: "*.{ts,tsx}"
+      exclude: "*.d.ts"
       run: pnpm oxlint {staged_files}
     format:
       glob: "*.{ts,tsx,json,css}"
-      run: pnpm oxfmt write {staged_files}
+      exclude: "*.d.ts"
+      run: pnpm oxfmt {staged_files}
     typecheck:
       glob: "*.{ts,tsx}"
+      exclude: "*.d.ts"
       run: pnpm turbo run typecheck --affected
 
 commit-msg:
