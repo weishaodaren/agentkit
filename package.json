@@ -31,6 +31,7 @@
   },
   "type": "module",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "bootstrap": "pnpm install",
     "dev": "turbo watch dev --ui=tui",
     "dev:web": "turbo watch dev --filter=web",
@@ -38,8 +39,8 @@
     "dev:docs": "turbo watch dev --filter=docs",
     "build": "turbo run build",
     "build:packages": "turbo run build --filter='./packages/*'",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "clean:cache": "turbo run clean && rm -rf .turbo",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "clean:all": "pnpm clean && rm -rf apps/*/node_modules packages/*/node_modules",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint -- --fix",
     "format": "turbo run format",
