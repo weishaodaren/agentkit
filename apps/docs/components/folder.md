@@ -18,15 +18,15 @@ description: 文件树组件，支持展开/折叠和文件预览
 
 ### 基础用法 — `items` / `activeKey`
 
-<preview path="./demos/folder-basic.vue" title="基础用法" description="items 提供文件树数据，activeKey 控制选中文件"></preview>
+<preview path="./demos/folder/folder-basic.vue" title="基础用法" description="items 提供文件树数据，activeKey 控制选中文件"></preview>
 
 ### 目录树宽度 — `treeWidth`
 
-<preview path="./demos/folder-tree-width.vue" title="目录树宽度" description="treeWidth 属性控制左侧目录树面板的宽度（px）"></preview>
+<preview path="./demos/folder/folder-tree-width.vue" title="目录树宽度" description="treeWidth 属性控制左侧目录树面板的宽度（px）"></preview>
 
 ### 隐藏预览 — `preview`
 
-<preview path="./demos/folder-no-preview.vue" title="隐藏预览" description="preview 属性设为 false 可隐藏右侧预览面板，仅显示文件树"></preview>
+<preview path="./demos/folder/folder-no-preview.vue" title="隐藏预览" description="preview 属性设为 false 可隐藏右侧预览面板，仅显示文件树"></preview>
 
 ## API
 

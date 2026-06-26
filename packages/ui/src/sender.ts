@@ -84,16 +84,17 @@ const senderCSS: CSSResult = css`
     align-items: center;
     gap: var(--ak-padding-xxs, 4px);
   }
-  /* Send button */
+  /* Send button — antd-x: 24x24 circle */
   .ak-sender-send-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
+    flex-shrink: 0;
     transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
   }
   .ak-sender-send-btn-active {
@@ -109,20 +110,21 @@ const senderCSS: CSSResult = css`
   .ak-sender-send-btn-inactive {
     background: var(--ak-color-fill-content, rgba(0, 0, 0, 0.04));
     color: var(--ak-color-text-quaternary, rgba(0, 0, 0, 0.25));
-    cursor: not-allowed;
+    cursor: default;
   }
-  /* Cancel button — antd-x StopLoading: circle border + spinning arc + inner square */
+  /* Cancel button — antd-x StopLoading: same 24x24 circle */
   .ak-sender-cancel-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: none;
     background: transparent;
     color: var(--ak-color-primary, #1677ff);
     cursor: pointer;
+    flex-shrink: 0;
     transition: all var(--ak-duration-mid, 200ms) var(--ak-ease-in-out);
     padding: 0;
   }
@@ -130,8 +132,8 @@ const senderCSS: CSSResult = css`
     color: var(--ak-color-primary-hover, #4096ff);
   }
   .ak-sender-cancel-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 `;
 
@@ -240,6 +242,22 @@ export class AkSender extends AkElement {
     );
   }
 
+  /**
+   * Click on the sender container focuses the textarea (antd-x behavior).
+   * Ignores clicks on buttons, slots, or the textarea itself.
+   */
+  private _handleContainerClick(e: MouseEvent) {
+    if (this.disabled) return;
+    const target = e.target as HTMLElement;
+    // Don't focus if clicking on a button, slot content, or the textarea itself
+    if (target.closest("button")) return;
+    if (target.closest("[slot]")) return;
+    if (target.tagName === "TEXTAREA") return;
+    if (this._textarea) {
+      this._textarea.focus();
+    }
+  }
+
   private _autoResize() {
     if (!this._textarea) return;
     this._textarea.style.height = "auto";
@@ -301,6 +319,7 @@ export class AkSender extends AkElement {
           .disabled
           ? "ak-sender-disabled"
           : ""}"
+        @click=${this._handleContainerClick}
       >
         <!-- Header slot -->
         <slot name="header"></slot>
@@ -354,7 +373,7 @@ export class AkSender extends AkElement {
                     @click=${this._handleSubmit}
                     title="发送"
                   >
-                    ${icon("arrow-up", 16)}
+                    ${icon("arrow-up", 14)}
                   </button>
                 `}
           </div>

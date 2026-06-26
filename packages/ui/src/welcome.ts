@@ -1,6 +1,7 @@
 import { css, html, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AkElement } from "@/shared/base-element";
+import { icon } from "@/shared/icons";
 
 const welcomeCSS: CSSResult = css`
   .ak-welcome {
@@ -84,7 +85,7 @@ export class AkWelcome extends AkElement {
           ? html`<div class="ak-welcome-icon">
               ${this._isIconUrl()
                 ? html`<img src=${this.icon} alt="icon" />`
-                : html`<span style="font-size: 20px;">${this.icon}</span>`}
+                : html`${icon(this.icon, 20)}`}
             </div>`
           : html`<slot name="icon"></slot>`}
 

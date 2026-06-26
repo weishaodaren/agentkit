@@ -168,12 +168,12 @@ export class AkPrompts extends AkElement {
     );
   }
 
-  private _renderItem(item: PromptsItem, index: number) {
+  private _renderItem(item: PromptsItem, index: number, motionClass: string) {
     const hasChildren = item.children && item.children.length > 0;
 
     return html`
       <div
-        class="ak-prompts-item ${item.disabled
+        class="ak-prompts-item ${motionClass} ${item.disabled
           ? "ak-prompts-item-disabled"
           : ""} ${hasChildren ? "ak-prompts-item-has-nest" : ""}"
         style="animation-delay: ${index * 50}ms;"
@@ -238,7 +238,7 @@ export class AkPrompts extends AkElement {
           : nothing}
 
         <div class=${listCls}>
-          ${this.items.map((item, i) => this._renderItem(item, i))}
+          ${this.items.map((item, i) => this._renderItem(item, i, motionClass))}
         </div>
       </div>
     `;

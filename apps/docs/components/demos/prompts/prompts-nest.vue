@@ -3,7 +3,7 @@ import '@agentkit/ui'
 const items = [
   {
     key: '1',
-    label: '🔥 Ignite Your Creativity',
+    label: 'Ignite Your Creativity',
     icon: 'sparkles',
     children: [
       { key: '1-1', label: 'What sparks your creativity?', description: '寻找创意灵感' },
@@ -12,7 +12,7 @@ const items = [
   },
   {
     key: '2',
-    label: '🎨 Uncover Background Info',
+    label: 'Uncover Background Info',
     icon: 'palette',
     children: [
       { key: '2-1', label: 'What is the background of this topic?', description: '主题背景' },
@@ -23,5 +23,5 @@ const items = [
 </script>
 
 <template>
-  <ak-prompts title="✨ Nested Prompts" :items="items"></ak-prompts>
+  <ak-prompts title="Nested Prompts" :items="items"></ak-prompts>
 </template>

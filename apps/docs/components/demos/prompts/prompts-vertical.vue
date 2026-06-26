@@ -8,5 +8,5 @@ const items = [
 </script>
 
 <template>
-  <ak-prompts title="✨ Inspirational Sparks and Marvelous Tips" vertical :items="items"></ak-prompts>
+  <ak-prompts title="Inspirational Sparks and Marvelous Tips" vertical :items="items"></ak-prompts>
 </template>

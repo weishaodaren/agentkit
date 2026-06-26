@@ -18,15 +18,15 @@ description: 快捷指令建议列表，支持模糊搜索过滤
 
 ### 基础用法 — `items` / `open`
 
-<preview path="./demos/suggestion-basic.vue" title="基础用法" description="items 提供建议项数据，open 控制是否显示"></preview>
+<preview path="./demos/suggestion/suggestion-basic.vue" title="基础用法" description="items 提供建议项数据，open 控制是否显示"></preview>
 
 ### 过滤筛选 — `filterValue`
 
-<preview path="./demos/suggestion-filter.vue" title="过滤筛选" description="filterValue 属性过滤建议项，支持模糊搜索 label 和 value"></preview>
+<preview path="./demos/suggestion/suggestion-filter.vue" title="过滤筛选" description="filterValue 属性过滤建议项，支持模糊搜索 label 和 value"></preview>
 
 ### 嵌套子项 — `items[].children`
 
-<preview path="./demos/suggestion-children.vue" title="嵌套子项" description="children 属性支持多级嵌套，点击父项展开子项列表"></preview>
+<preview path="./demos/suggestion/suggestion-children.vue" title="嵌套子项" description="children 属性支持多级嵌套，点击父项展开子项列表"></preview>
 
 ## API
 

@@ -17,19 +17,19 @@ description: 通用按钮组件
 
 ### 基础用法 — 默认按钮
 
-<preview path="./demos/button-basic.vue" title="基础用法" description="默认按钮样式，variant=default、size=default"></preview>
+<preview path="./demos/button/button-basic.vue" title="基础用法" description="默认按钮样式，variant=default、size=default"></preview>
 
 ### 样式变体 — `variant`
 
-<preview path="./demos/button-variant.vue" title="样式变体" description="variant 支持 default、secondary、outline、ghost、link、destructive 六种变体，以及 disabled 禁用状态"></preview>
+<preview path="./demos/button/button-variant.vue" title="样式变体" description="variant 支持 default、secondary、outline、ghost、link、destructive 六种变体，以及 disabled 禁用状态"></preview>
 
 ### 按钮尺寸 — `size`
 
-<preview path="./demos/button-size.vue" title="按钮尺寸" description="size 支持 default、sm、lg、icon 四种尺寸"></preview>
+<preview path="./demos/button/button-size.vue" title="按钮尺寸" description="size 支持 default、sm、lg、icon 四种尺寸"></preview>
 
 ### 禁用状态 — `disabled`
 
-<preview path="./demos/button-variant.vue" title="禁用状态" description="disabled 属性禁用按钮交互，样式见上方变体示例中的禁用按钮"></preview>
+<preview path="./demos/button/button-variant.vue" title="禁用状态" description="disabled 属性禁用按钮交互，样式见上方变体示例中的禁用按钮"></preview>
 
 ## API
 

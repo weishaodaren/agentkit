@@ -18,15 +18,15 @@ description: 全局配置组件，提供主题、国际化和方向控制
 
 ### 基础用法 — `prefixCls`
 
-<preview path="./demos/x-provider-basic.vue" title="基础用法" description="XProvider 包裹子组件，提供全局上下文配置，prefixCls 默认为「ant」"></preview>
+<preview path="./demos/x-provider/x-provider-basic.vue" title="基础用法" description="XProvider 包裹子组件，提供全局上下文配置，prefixCls 默认为「ant」"></preview>
 
 ### 文本方向 — `direction`
 
-<preview path="./demos/x-provider-direction.vue" title="文本方向" description="direction=rtl 设置从右到左的布局方向"></preview>
+<preview path="./demos/x-provider/x-provider-direction.vue" title="文本方向" description="direction=rtl 设置从右到左的布局方向"></preview>
 
 ### 主题配置 — `theme`
 
-<preview path="./demos/x-provider-theme.vue" title="主题配置" description="theme 属性设置主题名称，子组件通过 Context 响应主题变化"></preview>
+<preview path="./demos/x-provider/x-provider-theme.vue" title="主题配置" description="theme 属性设置主题名称，子组件通过 Context 响应主题变化"></preview>
 
 ## API
 

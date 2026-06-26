@@ -13,11 +13,11 @@ import '@agentkit/ui'
       ></ak-welcome>
     </div>
     <div>
-      <div style="font-size: 12px; color: rgba(0,0,0,0.45); margin-bottom: 8px;">icon 为 emoji 表情</div>
+      <div style="font-size: 12px; color: rgba(0,0,0,0.45); margin-bottom: 8px;">icon 为 lucide 图标名</div>
       <ak-welcome
         title="表情图标"
-        description="icon 属性也支持 emoji 字符。"
-        icon="🤖"
+        description="icon 属性为 lucide 图标名时，自动渲染为 SVG 图标。"
+        icon="bot"
       ></ak-welcome>
     </div>
   </div>

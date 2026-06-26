@@ -79,6 +79,7 @@
   "peerDependencies": {
     "highlight.js": ">=11",
     "marked": ">=14",
+    "mermaid": ">=11",
     "react": ">=18",
     "react-dom": ">=18",
     "vue": ">=3"
@@ -88,6 +89,9 @@
       "optional": true
     },
     "marked": {
+      "optional": true
+    },
+    "mermaid": {
       "optional": true
     },
     "react": {

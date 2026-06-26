@@ -18,19 +18,19 @@ description: 全局通知提示组件，支持多种类型和位置
 
 ### 基础用法 — `type`
 
-<preview path="./demos/notification-basic.vue" title="基础用法" description="type 支持 info、success、warning、error 四种通知类型"></preview>
+<preview path="./demos/notification/notification-basic.vue" title="基础用法" description="type 支持 info、success、warning、error 四种通知类型"></preview>
 
 ### 通知位置 — `placement`
 
-<preview path="./demos/notification-placement.vue" title="通知位置" description="placement 支持 top-right、top-left、bottom-right、bottom-left 四个位置"></preview>
+<preview path="./demos/notification/notification-placement.vue" title="通知位置" description="placement 支持 top-right、top-left、bottom-right、bottom-left 四个位置"></preview>
 
 ### 持续时间 — `duration`
 
-<preview path="./demos/notification-duration.vue" title="持续时间" description="duration 控制自动关闭时间（毫秒），0 表示不自动关闭"></preview>
+<preview path="./demos/notification/notification-duration.vue" title="持续时间" description="duration 控制自动关闭时间（毫秒），0 表示不自动关闭"></preview>
 
 ### 手动关闭 — `key`
 
-<preview path="./demos/notification-close.vue" title="手动关闭" description="duration=0 时需手动关闭，相同 key 可更新已有通知"></preview>
+<preview path="./demos/notification/notification-close.vue" title="手动关闭" description="duration=0 时需手动关闭，相同 key 可更新已有通知"></preview>
 
 ## API
 

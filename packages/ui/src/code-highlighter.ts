@@ -126,7 +126,7 @@ export class AkCodeHighlighter extends AkElement {
   @property({ type: String })
   language = "";
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, attribute: "show-line-numbers" })
   showLineNumbers = false;
 
   @state()
