@@ -1,17 +1,50 @@
 {
   "name": "agentkit",
   "private": true,
+  "description": "AI Agent Kit - Lit Web Components + Mastra + Hono",
   "keywords": [
-    "Agent"
+    "agent",
+    "ai",
+    "chatbot",
+    "hono",
+    "lit",
+    "llm",
+    "mastra",
+    "web-components"
   ],
-  "author": "weishaodaren",
+  "homepage": "https://github.com/weishaodaren/agentkit#readme",
+  "bugs": {
+    "url": "https://github.com/weishaodaren/agentkit/issues"
+  },
+  "author": {
+    "name": "weishaodaren",
+    "email": "weishaodaren@gmail.com",
+    "url": "https://github.com/weishaodaren"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weishaodaren/agentkit.git"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/weishaodaren"
+  },
   "type": "module",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo watch dev --ui=tui",
-    "lint": "turbo run lint",
+    "preinstall": "npx only-allow pnpm",
     "bootstrap": "pnpm install",
+    "dev": "turbo watch dev --ui=tui",
+    "dev:web": "turbo watch dev --filter=web",
+    "dev:server": "turbo watch dev --filter=server",
+    "dev:docs": "turbo watch dev --filter=docs",
+    "build": "turbo run build",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "clean:all": "pnpm clean && rm -rf apps/*/node_modules packages/*/node_modules",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
     "format": "turbo run format",
+    "format:check": "turbo run format -- --check",
     "typecheck": "turbo run typecheck",
     "changeset": "changeset",
     "version": "changeset version",
@@ -28,7 +61,8 @@
     "typescript": "6.0.3"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   },
   "packageManager": "pnpm@10.30.2"
 }
