@@ -21,6 +21,15 @@
         "test/**/*.ts",
         "tsconfig.json",
         "package.json"
+      ]
+    },
+    "test:coverage": {
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "test/**/*.ts",
+        "tsconfig.json",
+        "package.json"
       ],
       "outputs": ["coverage/**"]
     }
