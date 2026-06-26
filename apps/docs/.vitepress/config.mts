@@ -6,9 +6,10 @@ import {
 
 export default defineConfig({
   base: "/agentkit/",
-  title: "AgentKit UI",
-  description: "AI 对话界面 Web Components 组件库",
+  title: "AgentKit",
+  description: "Lit Web Components + Mastra + Hono",
   lang: "zh-CN",
+  ignoreDeadLinks: [/^https?:\/\/localhost/, /^https?:\/\/127\.0\.0\.1/],
 
   markdown: {
     config(md) {
@@ -30,6 +31,7 @@ export default defineConfig({
     nav: [
       { text: "指南", link: "/guide/getting-started" },
       { text: "组件", link: "/components/overview" },
+      { text: "Wiki", link: "/wiki/项目概述" },
       { text: "Playground", link: "http://localhost:3000" },
       {
         text: "GitHub",
@@ -44,6 +46,121 @@ export default defineConfig({
           items: [
             { text: "快速开始", link: "/guide/getting-started" },
             { text: "安装", link: "/guide/install" },
+          ],
+        },
+      ],
+      "/wiki/": [
+        { text: "项目概述", link: "/wiki/项目概述" },
+        { text: "快速开始", link: "/wiki/快速开始" },
+        {
+          text: "Monorepo 管理",
+          items: [
+            {
+              text: "Monorepo 管理",
+              link: "/wiki/Monorepo-管理/Monorepo-管理",
+            },
+            {
+              text: "Changesets 版本管理",
+              link: "/wiki/Monorepo-管理/Changesets-版本管理",
+            },
+            { text: "共享类型包", link: "/wiki/Monorepo-管理/共享类型包" },
+          ],
+        },
+        {
+          text: "配置详解",
+          items: [
+            { text: "配置详解", link: "/wiki/配置详解/配置详解" },
+            { text: "Turbo 构建配置", link: "/wiki/配置详解/Turbo-构建配置" },
+            {
+              text: "TypeScript 基础配置",
+              link: "/wiki/配置详解/TypeScript-基础配置",
+            },
+            { text: "pnpm 工作区配置", link: "/wiki/配置详解/pnpm-工作区配置" },
+          ],
+        },
+        {
+          text: "开发工具集成",
+          items: [
+            { text: "开发工具集成", link: "/wiki/开发工具集成/开发工具集成" },
+            {
+              text: "Babel 构建工具链",
+              link: "/wiki/开发工具集成/Babel-构建工具链",
+            },
+            {
+              text: "CSS 样式基础设施",
+              link: "/wiki/开发工具集成/CSS-样式基础设施",
+            },
+            {
+              text: "Hono 服务器应用",
+              link: "/wiki/开发工具集成/Hono服务器应用",
+            },
+            {
+              text: "Lefthook Git 钩子",
+              link: "/wiki/开发工具集成/Lefthook-Git-钩子配置",
+            },
+            {
+              text: "Oxlint 代码检查",
+              link: "/wiki/开发工具集成/Oxlint-代码检查配置",
+            },
+            { text: "Pino 日志系统", link: "/wiki/开发工具集成/Pino-日志系统" },
+            {
+              text: "React 编译器集成",
+              link: "/wiki/开发工具集成/React-编译器集成",
+            },
+            {
+              text: "Renovate 自动依赖管理",
+              link: "/wiki/开发工具集成/Renovate-自动依赖管理",
+            },
+            {
+              text: "Rolldown Babel 插件",
+              link: "/wiki/开发工具集成/Rolldown-Babel-插件",
+            },
+            {
+              text: "版本控制忽略规则",
+              link: "/wiki/开发工具集成/版本控制忽略规则",
+            },
+          ],
+        },
+        {
+          text: "最佳实践",
+          items: [
+            { text: "最佳实践", link: "/wiki/最佳实践/最佳实践" },
+            {
+              text: "Lit 框架使用指南",
+              link: "/wiki/最佳实践/Lit-框架使用指南",
+            },
+            {
+              text: "React 适配器系统",
+              link: "/wiki/最佳实践/React-适配器系统",
+            },
+            { text: "Vue 适配器系统", link: "/wiki/最佳实践/Vue-适配器系统" },
+            {
+              text: "Tailwind CSS 样式系统",
+              link: "/wiki/最佳实践/Tailwind-CSS-样式系统",
+            },
+            {
+              text: "Vite 构建系统配置",
+              link: "/wiki/最佳实践/Vite-构建系统配置",
+            },
+            {
+              text: "VitePress 文档系统",
+              link: "/wiki/最佳实践/VitePress-文档系统",
+            },
+            { text: "Mastra 代理系统", link: "/wiki/最佳实践/Mastra代理系统" },
+            { text: "设计令牌系统", link: "/wiki/最佳实践/设计令牌系统" },
+            { text: "国际化支持", link: "/wiki/最佳实践/国际化支持" },
+            {
+              text: "@agentkit/sdk 包",
+              link: "/wiki/最佳实践/@agentkit_sdk-包",
+            },
+            {
+              text: "Web Components 集成指南",
+              link: "/wiki/最佳实践/Web-Components-集成指南/Web-Components-集成指南",
+            },
+            {
+              text: "ThoughtChain 思维链组件",
+              link: "/wiki/最佳实践/Web-Components-集成指南/ThoughtChain-思维链组件",
+            },
           ],
         },
       ],

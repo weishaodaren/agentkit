@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: "AgentKit UI"
+  name: "AgentKit"
   text: "AI 对话界面 Web Components 组件库"
   tagline: 基于 Lit + Tailwind CSS v4 构建，框架无关、开箱即用
   image:
     src: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original
-    alt: AgentKit UI
+    alt: AgentKit
   actions:
     - theme: brand
       text: 快速开始
@@ -15,6 +15,9 @@ hero:
     - theme: alt
       text: 组件总览
       link: /components/overview
+    - theme: alt
+      text: Wiki
+      link: /wiki/项目概述
     - theme: alt
       text: GitHub
       link: https://github.com/weishaodaren/agentkit
