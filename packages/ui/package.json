@@ -49,7 +49,9 @@
     "build": "tsc && vite build",
     "lint": "oxlint .",
     "format": "oxfmt write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@lit-labs/motion": "^1.1.0",
@@ -70,11 +72,15 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
     "@types/react": "catalog:",
+    "@vitest/browser": "^4.1.9",
+    "@vitest/browser-playwright": "^4.1.9",
+    "playwright": "^1.61.1",
     "react": "catalog:",
     "tailwindcss": "^4.3.1",
     "typescript": "catalog:",
     "unplugin-dts": "^1.0.2",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest-browser-lit": "^1.0.1"
   },
   "peerDependencies": {
     "highlight.js": ">=11",
