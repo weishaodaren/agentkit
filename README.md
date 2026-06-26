@@ -133,6 +133,18 @@ pnpm lint             # 代码检查
 pnpm format           # 代码格式化
 ```
 
+### 测试
+
+单元测试基于 **Vitest 4**，测试文件约定 `packages/*/test/**/*.test.ts` 与 `apps/*/test/**/*.test.ts`，根配置见 [vitest.config.ts](./vitest.config.ts)。
+
+```bash
+pnpm test             # 运行全部单元测试
+pnpm test:watch       # watch 模式
+pnpm test:coverage    # 生成覆盖率报告（v8 provider）
+```
+
+示例见 [packages/utils/test/utils.test.ts](./packages/utils/test/utils.test.ts)。
+
 ## API 文档
 
 ### Agent 平台 API（核心）
@@ -350,19 +362,20 @@ import { XRequest, useXChat } from "@agentkit/sdk";
 
 ## 常用脚本
 
-| 命令                                       | 说明                    |
-| ------------------------------------------ | ----------------------- |
-| `pnpm dev`                                 | 全部 watch（Turbo TUI） |
-| `pnpm dev:web` / `dev:server` / `dev:docs` | 单独启动                |
-| `pnpm build`                               | 全部构建                |
-| `pnpm build:packages`                      | 构建 packages/\*        |
-| `pnpm lint` / `pnpm lint:fix`              | 代码检查                |
-| `pnpm format` / `pnpm format:check`        | 代码格式化              |
-| `pnpm typecheck`                           | 类型检查                |
-| `pnpm changeset`                           | 新增 changeset          |
-| `pnpm version`                             | 基于 changeset 更新版本 |
-| `pnpm release`                             | 构建并发布              |
-| `pnpm clean` / `pnpm clean:all`            | 清理产物与依赖          |
+| 命令                                         | 说明                    |
+| -------------------------------------------- | ----------------------- |
+| `pnpm dev`                                   | 全部 watch（Turbo TUI） |
+| `pnpm dev:web` / `dev:server` / `dev:docs`   | 单独启动                |
+| `pnpm build`                                 | 全部构建                |
+| `pnpm build:packages`                        | 构建 packages/\*        |
+| `pnpm lint` / `pnpm lint:fix`                | 代码检查                |
+| `pnpm format` / `pnpm format:check`          | 代码格式化              |
+| `pnpm typecheck`                             | 类型检查                |
+| `pnpm test` / `test:watch` / `test:coverage` | 单元测试（Vitest）      |
+| `pnpm changeset`                             | 新增 changeset          |
+| `pnpm version`                               | 基于 changeset 更新版本 |
+| `pnpm release`                               | 构建并发布              |
+| `pnpm clean` / `pnpm clean:all`              | 清理产物与依赖          |
 
 ## 技术栈
 

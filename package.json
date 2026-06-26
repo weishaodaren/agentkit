@@ -46,6 +46,9 @@
     "format": "turbo run format",
     "format:check": "turbo run format -- --check",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test --ui=stream",
+    "test:watch": "vitest",
+    "test:coverage": "turbo run test --ui=stream -- --coverage",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "turbo run build && changeset publish"
@@ -54,11 +57,13 @@
     "@changesets/cli": "2.31.0",
     "@commitlint/cli": "21.0.2",
     "@commitlint/config-conventional": "21.0.2",
+    "@vitest/coverage-v8": "catalog:",
     "lefthook": "2.1.9",
     "oxfmt": "0.55.0",
     "oxlint": "1.70.0",
     "turbo": "2.9.18",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=22.0.0",
