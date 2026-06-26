@@ -127,9 +127,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@agentkit/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       '@agentkit/ui':
         specifier: workspace:*
         version: link:../../packages/ui
