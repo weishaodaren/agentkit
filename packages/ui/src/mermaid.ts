@@ -1,21 +1,33 @@
 import { css, html, nothing, type CSSResult } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { Task } from "@lit/task";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
 
+/** Toolbar action configuration (1:1 antd-x parity) */
+export interface MermaidActions {
+  /** Enable zoom in/out/reset controls (default: true) */
+  enableZoom?: boolean;
+  /** Enable download SVG button (default: true) */
+  enableDownload?: boolean;
+  /** Enable copy code button (default: true) */
+  enableCopy?: boolean;
+}
+
 /**
  * antd-x Mermaid 对标实现
  *
  * antd-x: Uses mermaid library to render diagrams from code.
- * Supports Image/Code dual view, zoom, download.
+ * Supports Image/Code dual view, zoom, pan, download, copy.
  *
  * Our implementation:
- *   - Lazy-loads mermaid from CDN or local install
+ *   - Peer dependency: `pnpm add mermaid` (lazy dynamic import)
  *   - Renders SVG output
  *   - Code/Image view toggle
+ *   - Zoom in/out/reset (1:1 antd-x parity)
  *   - Download SVG
+ *   - Copy code to clipboard
  */
 const mermaidCSS: CSSResult = css`
   .ak-mermaid {
@@ -81,6 +93,19 @@ const mermaidCSS: CSSResult = css`
     align-items: center;
     justify-content: center;
     overflow: auto;
+    max-height: 480px;
+  }
+  .ak-mermaid-svg-wrapper {
+    transform-origin: center center;
+    transition: transform var(--ak-duration-mid, 200ms) ease;
+    padding: var(--ak-padding, 16px);
+  }
+  .ak-mermaid-zoom-label {
+    min-width: 40px;
+    text-align: center;
+    font-size: var(--ak-font-size-sm, 12px);
+    color: var(--ak-color-text-secondary, rgba(0, 0, 0, 0.65));
+    user-select: none;
   }
   .ak-mermaid-code {
     overflow: auto;
@@ -106,6 +131,27 @@ export class AkMermaid extends AkElement {
   @property({ type: String })
   theme: "default" | "dark" | "forest" | "neutral" = "default";
 
+  /** Toolbar actions config (1:1 antd-x parity: all enabled by default) */
+  @property({ type: Object })
+  actions: MermaidActions = {};
+
+  /** Internal zoom level (1.0 = 100%) */
+  @state()
+  private _zoom = 1.0;
+
+  /** Internal copy feedback state */
+  @state()
+  private _copied = false;
+
+  /** Resolve effective actions with defaults */
+  private get _effectiveActions(): Required<MermaidActions> {
+    return {
+      enableZoom: this.actions.enableZoom ?? true,
+      enableDownload: this.actions.enableDownload ?? true,
+      enableCopy: this.actions.enableCopy ?? true,
+    };
+  }
+
   /**
    * Async rendering task — automatically manages loading/error/complete states.
    * When code or theme changes, the previous render is automatically cancelled
@@ -114,11 +160,16 @@ export class AkMermaid extends AkElement {
   private _renderTask = new Task<[string, string], string>(this, {
     task: async ([code, theme]) => {
       if (!code) return "";
-      const mermaid = (window as any).mermaid;
-      if (!mermaid) {
-        throw new Error("mermaid library not loaded");
+      // Dynamic import — mermaid is a peer dependency, loaded only when needed
+      let mermaid: any;
+      try {
+        ({ default: mermaid } = await import("mermaid"));
+      } catch {
+        throw new Error(
+          "Mermaid is not installed. Please install it: pnpm add mermaid",
+        );
       }
-      mermaid.initialize({ startOnLoad: false, theme });
+      mermaid.initialize({ startOnLoad: false, theme: theme as any });
       const { svg } = await mermaid.render(
         `mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         code,
@@ -145,8 +196,68 @@ export class AkMermaid extends AkElement {
     URL.revokeObjectURL(url);
   }
 
+  private _zoomIn() {
+    this._zoom = Math.min(this._zoom + 0.2, 3);
+  }
+
+  private _zoomOut() {
+    this._zoom = Math.max(this._zoom - 0.2, 0.4);
+  }
+
+  private _resetZoom() {
+    this._zoom = 1.0;
+  }
+
+  private async _copyCode() {
+    try {
+      await navigator.clipboard.writeText(this.code);
+      this._copied = true;
+      setTimeout(() => {
+        this._copied = false;
+      }, 2000);
+    } catch {
+      // Clipboard API not available
+    }
+  }
+
+  /** Render zoom controls (zoom out / label / zoom in / reset) */
+  private _renderZoomControls() {
+    if (this._zoom === 1.0) {
+      return html`
+        <button class="ak-mermaid-toolbar-btn" @click=${this._zoomOut}>
+          ${icon("zoom-out", 12)}
+        </button>
+        <span class="ak-mermaid-zoom-label"
+          >${Math.round(this._zoom * 100)}%</span
+        >
+        <button class="ak-mermaid-toolbar-btn" @click=${this._zoomIn}>
+          ${icon("zoom-in", 12)}
+        </button>
+      `;
+    }
+    return html`
+      <button class="ak-mermaid-toolbar-btn" @click=${this._zoomOut}>
+        ${icon("zoom-out", 12)}
+      </button>
+      <span class="ak-mermaid-zoom-label"
+        >${Math.round(this._zoom * 100)}%</span
+      >
+      <button class="ak-mermaid-toolbar-btn" @click=${this._zoomIn}>
+        ${icon("zoom-in", 12)}
+      </button>
+      <button class="ak-mermaid-toolbar-btn" @click=${this._resetZoom}>
+        ${icon("rotate-ccw", 12)}
+      </button>
+    `;
+  }
+
   override render() {
     const svg = this._renderTask.value;
+    const acts = this._effectiveActions;
+    const showActions =
+      this.view === "image" &&
+      svg &&
+      (acts.enableZoom || acts.enableDownload || acts.enableCopy);
 
     return html`
       <div class="ak-mermaid">
@@ -174,13 +285,27 @@ export class AkMermaid extends AkElement {
               ${icon("code", 12)} 代码
             </button>
           </div>
-          ${this.view === "image" && svg
-            ? html`<button
-                class="ak-mermaid-toolbar-btn"
-                @click=${this._downloadSvg}
-              >
-                ${icon("download", 12)} 下载
-              </button>`
+          ${showActions
+            ? html`<div class="ak-mermaid-toolbar-group">
+                ${acts.enableZoom ? this._renderZoomControls() : nothing}
+                ${acts.enableCopy
+                  ? html`<button
+                      class="ak-mermaid-toolbar-btn"
+                      @click=${this._copyCode}
+                    >
+                      ${icon(this._copied ? "check" : "copy", 12)}
+                      ${this._copied ? "已复制" : "复制"}
+                    </button>`
+                  : nothing}
+                ${acts.enableDownload
+                  ? html`<button
+                      class="ak-mermaid-toolbar-btn"
+                      @click=${this._downloadSvg}
+                    >
+                      ${icon("download", 12)} 下载
+                    </button>`
+                  : nothing}
+              </div>`
             : nothing}
         </div>
 
@@ -193,7 +318,12 @@ export class AkMermaid extends AkElement {
               result
                 ? this.view === "image"
                   ? html`<div class="ak-mermaid-output">
-                      ${unsafeHTML(result)}
+                      <div
+                        class="ak-mermaid-svg-wrapper"
+                        style="transform: scale(${this._zoom});"
+                      >
+                        ${unsafeHTML(result)}
+                      </div>
                     </div>`
                   : html`<pre class="ak-mermaid-code"><code>${this
                       .code}</code></pre>`

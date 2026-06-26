@@ -37,6 +37,7 @@ export default defineConfig({
         /^vue/,
         /^marked/,
         /^highlight\.js/,
+        /^mermaid/,
       ],
     },
   },

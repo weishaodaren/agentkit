@@ -19,31 +19,31 @@ description: 消息发送输入框，支持多行输入和自动调整高度
 
 ### 基础用法 — `value` / `placeholder`
 
-<preview path="./demos/sender-basic.vue" title="基础用法" description="value 设置输入值，placeholder 设置占位文本"></preview>
+<preview path="./demos/sender/sender-basic.vue" title="基础用法" description="value 设置输入值，placeholder 设置占位文本"></preview>
 
 ### 加载状态 — `loading`
 
-<preview path="./demos/sender-loading.vue" title="加载状态" description="loading 状态下发送按钮变为取消按钮，用于中断 AI 响应"></preview>
+<preview path="./demos/sender/sender-loading.vue" title="加载状态" description="loading 状态下发送按钮变为取消按钮，用于中断 AI 响应"></preview>
 
 ### 禁用状态 — `disabled`
 
-<preview path="./demos/sender-disabled.vue" title="禁用状态" description="disabled 属性禁用输入框，不可输入和发送"></preview>
+<preview path="./demos/sender/sender-disabled.vue" title="禁用状态" description="disabled 属性禁用输入框，不可输入和发送"></preview>
 
 ### 发送方式 — `submitType`
 
-<preview path="./demos/sender-submit-type.vue" title="发送方式" description="submitType 支持 enter（默认）和 shiftEnter 两种发送方式"></preview>
+<preview path="./demos/sender/sender-submit-type.vue" title="发送方式" description="submitType 支持 enter（默认）和 shiftEnter 两种发送方式"></preview>
 
 ### 最大行数 — `maxRows`
 
-<preview path="./demos/sender-max-rows.vue" title="最大行数" description="maxRows 属性控制 textarea 最大显示行数，超出后出现滚动条"></preview>
+<preview path="./demos/sender/sender-max-rows.vue" title="最大行数" description="maxRows 属性控制 textarea 最大显示行数，超出后出现滚动条"></preview>
 
 ### 前缀插槽 — `prefix`
 
-<preview path="./demos/sender-prefix.vue" title="前缀插槽" description="prefix 插槽用于在输入框左侧放置附件、表情等按钮"></preview>
+<preview path="./demos/sender/sender-prefix.vue" title="前缀插槽" description="prefix 插槽用于在输入框左侧放置附件、表情等按钮"></preview>
 
 ### 头部面板 — `header` / `SenderHeader`
 
-<preview path="./demos/sender-header.vue" title="头部面板" description="header 插槽配合 Sender.Header 组件实现可折叠面板"></preview>
+<preview path="./demos/sender/sender-header.vue" title="头部面板" description="header 插槽配合 Sender.Header 组件实现可折叠面板"></preview>
 
 ## API
 

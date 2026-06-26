@@ -1,19 +1,10 @@
 <script setup>
 import '@agentkit/ui'
-import { onMounted } from 'vue'
 
 const code = `graph LR
   A[需求分析] --> B[开发]
   B --> C[测试]
   C --> D[部署]`
-
-onMounted(() => {
-  if (!window.mermaid) {
-    const script = document.createElement('script')
-    script.src = 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js'
-    document.head.appendChild(script)
-  }
-})
 </script>
 
 <template>

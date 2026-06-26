@@ -18,15 +18,15 @@ description: 欢迎信息组件，引导用户开始对话
 
 ### 基础用法 — `title` / `description`
 
-<preview path="./demos/welcome-basic.vue" title="基础用法" description="title 设置标题，description 设置描述文本"></preview>
+<preview path="./demos/welcome/welcome-basic.vue" title="基础用法" description="title 设置标题，description 设置描述文本"></preview>
 
 ### 样式变体 — `variant`
 
-<preview path="./demos/welcome-variant.vue" title="样式变体" description="variant 支持 filled（填充背景，默认）和 borderless（无边框）两种样式"></preview>
+<preview path="./demos/welcome/welcome-variant.vue" title="样式变体" description="variant 支持 filled（填充背景，默认）和 borderless（无边框）两种样式"></preview>
 
 ### 带图标 — `icon`
 
-<preview path="./demos/welcome-icon.vue" title="带图标" description="icon 属性接受 URL 自动转为 img，也支持 emoji 字符"></preview>
+<preview path="./demos/welcome/welcome-icon.vue" title="带图标" description="icon 属性接受 URL 自动转为 img，也支持 emoji 字符"></preview>
 
 ## API
 

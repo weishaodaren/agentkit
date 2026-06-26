@@ -1,5 +1,5 @@
 import { css, html, nothing, type CSSResult } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import "@lit-labs/virtualizer";
 import { AkElement } from "@/shared/base-element";
 import { icon } from "@/shared/icons";
@@ -161,6 +161,10 @@ const conversationsCSS: CSSResult = css`
     white-space: nowrap;
     transition: color 150ms;
   }
+  .ak-conversations-item-keyboard-focus {
+    outline: 2px solid var(--ak-color-primary, #1677ff);
+    outline-offset: -2px;
+  }
 `;
 
 @customElement("ak-conversations")
@@ -190,6 +194,56 @@ export class AkConversations extends AkElement {
   /** Enable keyboard navigation */
   @property({ type: Boolean, attribute: "shortcut-keys" })
   shortcutKeys = false;
+
+  /** Current keyboard focus index (-1 = no focus) */
+  @state()
+  private _keyboardIndex = -1;
+
+  /** Get flat items (excluding group headers) for keyboard navigation */
+  private get _navigableItems(): ConversationItem[] {
+    return this._flatItems
+      .filter(
+        (f): f is { type: "item"; item: ConversationItem } => f.type === "item",
+      )
+      .map((f) => f.item);
+  }
+
+  private _handleKeyDown(e: KeyboardEvent) {
+    if (!this.shortcutKeys) return;
+    const items = this._navigableItems;
+    if (items.length === 0) return;
+
+    let newIndex = this._keyboardIndex;
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        newIndex =
+          this._keyboardIndex < 0
+            ? 0
+            : Math.min(this._keyboardIndex + 1, items.length - 1);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        newIndex =
+          this._keyboardIndex < 0
+            ? items.length - 1
+            : Math.max(this._keyboardIndex - 1, 0);
+        break;
+      case "Enter": {
+        e.preventDefault();
+        if (this._keyboardIndex >= 0 && this._keyboardIndex < items.length) {
+          const item = items[this._keyboardIndex];
+          if (!item.disabled) {
+            this._handleClick(item);
+          }
+        }
+        return;
+      }
+      default:
+        return;
+    }
+    this._keyboardIndex = newIndex;
+  }
 
   private _handleClick(item: ConversationItem) {
     if (item.disabled) return;
@@ -251,7 +305,11 @@ export class AkConversations extends AkElement {
 
   override render() {
     return html`
-      <div class="ak-conversations">
+      <div
+        class="ak-conversations"
+        tabindex=${this.shortcutKeys ? "0" : "-1"}
+        @keydown=${this._handleKeyDown}
+      >
         ${this.title || this.creation
           ? html`<div class="ak-conversations-header">
               ${this.title
@@ -284,11 +342,19 @@ export class AkConversations extends AkElement {
 
   private _renderItem(item: ConversationItem) {
     const isActive = item.active || item.key === this.activeKey;
+    const navigableItems = this._navigableItems;
+    const navIndex = navigableItems.indexOf(item);
+    const isKeyboardFocus =
+      this.shortcutKeys && navIndex === this._keyboardIndex && navIndex >= 0;
     return html`
       <button
         class="ak-conversations-item ${isActive
           ? "ak-conversations-item-active"
-          : ""} ${item.disabled ? "ak-conversations-item-disabled" : ""}"
+          : ""} ${item.disabled
+          ? "ak-conversations-item-disabled"
+          : ""} ${isKeyboardFocus
+          ? "ak-conversations-item-keyboard-focus"
+          : ""}"
         ?disabled=${item.disabled}
         @click=${() => this._handleClick(item)}
       >

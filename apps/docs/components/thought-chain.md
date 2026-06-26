@@ -18,47 +18,47 @@ description: 展示 AI 推理步骤的思维链组件，1:1 对标 antd-x Though
 
 ### 基础用法 — `items`
 
-<preview path="./demos/thought-chain-basic.vue" title="基础用法" description="items 属性接受 ThoughtChainItem[] 数组，包含 key、title、description、status 等"></preview>
+<preview path="./demos/thought-chain/thought-chain-basic.vue" title="基础用法" description="items 属性接受 ThoughtChainItem[] 数组，包含 key、title、description、status 等"></preview>
 
 ### 节点状态 — `items[].status`
 
-<preview path="./demos/thought-chain-status.vue" title="节点状态" description="status 支持 pending、loading、running、success、error、abort 六种状态"></preview>
+<preview path="./demos/thought-chain/thought-chain-status.vue" title="节点状态" description="status 支持 pending、loading、running、success、error、abort 六种状态"></preview>
 
 ### 自定义图标 — `items[].icon`
 
-<preview path="./demos/thought-chain-icon.vue" title="自定义图标" description="icon 属性接受 lucide 图标名，覆盖默认状态图标和序号"></preview>
+<preview path="./demos/thought-chain/thought-chain-icon.vue" title="自定义图标" description="icon 属性接受 lucide 图标名，覆盖默认状态图标和序号"></preview>
 
 ### 闪烁动画 — `items[].blink`
 
-<preview path="./demos/thought-chain-blink.vue" title="闪烁动画" description="blink 属性为标题添加渐变扫光效果，常配合 loading 状态使用"></preview>
+<preview path="./demos/thought-chain/thought-chain-blink.vue" title="闪烁动画" description="blink 属性为标题添加渐变扫光效果，常配合 loading 状态使用"></preview>
 
 ### 逐节点折叠 — `items[].collapsible`
 
-<preview path="./demos/thought-chain-item-collapsible.vue" title="逐节点可折叠" description="每个节点可独立设置 collapsible，点击标题展开/收起 content 内容"></preview>
+<preview path="./demos/thought-chain/thought-chain-item-collapsible.vue" title="逐节点可折叠" description="每个节点可独立设置 collapsible，点击标题展开/收起 content 内容"></preview>
 
 ### 受控展开 — `expandedKeys` / `defaultExpandedKeys`
 
-<preview path="./demos/thought-chain-expanded-keys.vue" title="受控展开" description="expandedKeys 受控控制展开节点，defaultExpandedKeys 非受控设置默认展开"></preview>
+<preview path="./demos/thought-chain/thought-chain-expanded-keys.vue" title="受控展开" description="expandedKeys 受控控制展开节点，defaultExpandedKeys 非受控设置默认展开"></preview>
 
 ### 全局折叠 — `collapsible`
 
-<preview path="./demos/thought-chain-collapsible.vue" title="全局可折叠" description="collapsible 属性启用全局折叠按钮，可收起整个思维链"></preview>
+<preview path="./demos/thought-chain/thought-chain-collapsible.vue" title="全局可折叠" description="collapsible 属性启用全局折叠按钮，可收起整个思维链"></preview>
 
 ### 默认折叠 — `collapsed`
 
-<preview path="./demos/thought-chain-collapsed.vue" title="默认折叠" description="collapsed 属性配合 collapsible 使用，使思维链默认处于折叠状态"></preview>
+<preview path="./demos/thought-chain/thought-chain-collapsed.vue" title="默认折叠" description="collapsed 属性配合 collapsible 使用，使思维链默认处于折叠状态"></preview>
 
 ### 连接线样式 — `lineStyle`
 
-<preview path="./demos/thought-chain-line-style.vue" title="连接线样式" description="lineStyle 支持 solid（实线）、dashed（虚线）、dotted（点线）三种样式"></preview>
+<preview path="./demos/thought-chain/thought-chain-line-style.vue" title="连接线样式" description="lineStyle 支持 solid（实线）、dashed（虚线）、dotted（点线）三种样式"></preview>
 
 ### 隐藏连接线 — `line`
 
-<preview path="./demos/thought-chain-line-false.vue" title="隐藏连接线" description="line 属性设为 false 可完全隐藏节点间的连接线"></preview>
+<preview path="./demos/thought-chain/thought-chain-line-false.vue" title="隐藏连接线" description="line 属性设为 false 可完全隐藏节点间的连接线"></preview>
 
 ### 打字动画 — `typingSpeed`
 
-<preview path="./demos/thought-chain-typing.vue" title="打字动画" description="typingSpeed 控制描述的逐字显示速度（ms/字符），设为 0 禁用"></preview>
+<preview path="./demos/thought-chain/thought-chain-typing.vue" title="打字动画" description="typingSpeed 控制描述的逐字显示速度（ms/字符），设为 0 禁用"></preview>
 
 ## API
 

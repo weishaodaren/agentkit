@@ -21,49 +21,49 @@ Prompts 组件用于展示一组与当前上下文相关的预设问题或建议
 
 ### 基础用法
 
-<preview path="./demos/prompts-basic.vue" title="基础用法" description="展示提示集组件，支持标题、描述和点击事件"></preview>
+<preview path="./demos/prompts/prompts-basic.vue" title="基础用法" description="展示提示集组件，支持标题、描述和点击事件"></preview>
 
 ### 禁用状态 — `items[].disabled`
 
 为提示项添加 `disabled` 属性，可禁止点击：
 
-<preview path="./demos/prompts-disabled.vue" title="禁用状态" description="为提示项添加 disabled 属性后该项不可点击，常用于已使用或不可用的选项"></preview>
+<preview path="./demos/prompts/prompts-disabled.vue" title="禁用状态" description="为提示项添加 disabled 属性后该项不可点击，常用于已使用或不可用的选项"></preview>
 
 ### 垂直布局 — `vertical`
 
 使用 `vertical` 属性控制提示集的排列方向为垂直方向：
 
-<preview path="./demos/prompts-vertical.vue" title="垂直布局" description="vertical 属性使提示项垂直排列"></preview>
+<preview path="./demos/prompts/prompts-vertical.vue" title="垂直布局" description="vertical 属性使提示项垂直排列"></preview>
 
 ### 自动换行 — `wrap`
 
 使用 `wrap` 属性让提示项在空间不足时自动换行：
 
-<preview path="./demos/prompts-wrap.vue" title="自动换行" description="wrap 属性控制提示项是否自动换行布局"></preview>
+<preview path="./demos/prompts/prompts-wrap.vue" title="自动换行" description="wrap 属性控制提示项是否自动换行布局"></preview>
 
 ### 多列网格 — `columns`
 
 `columns` 控制网格布局的列数，支持 `1` / `2` / `3` / `4`，默认 `2`：
 
-<preview path="./demos/prompts-columns.vue" title="多列网格" description="columns 属性支持 1/2/3/4 列布局"></preview>
+<preview path="./demos/prompts/prompts-columns.vue" title="多列网格" description="columns 属性支持 1/2/3/4 列布局"></preview>
 
 ### 嵌套子项 — `items[].children`
 
 每个提示项可包含 `children` 数组，递归渲染嵌套的子提示集：
 
-<preview path="./demos/prompts-nest.vue" title="嵌套子项" description="children 属性支持递归嵌套，子提示集自动以垂直布局展示"></preview>
+<preview path="./demos/prompts/prompts-nest.vue" title="嵌套子项" description="children 属性支持递归嵌套，子提示集自动以垂直布局展示"></preview>
 
 ### 带图标 — `items[].icon`
 
 通过 `icon` 属性为提示项指定 lucide 图标名称：
 
-<preview path="./demos/prompts-icon.vue" title="带图标" description="icon 属性接受 lucide 图标名，显示在提示项左侧"></preview>
+<preview path="./demos/prompts/prompts-icon.vue" title="带图标" description="icon 属性接受 lucide 图标名，显示在提示项左侧"></preview>
 
 ### 淡入动画 — `fadeIn` / `fadeInLeft`
 
 `fadeIn` 启用淡入动画，`fadeInLeft` 启用从左侧淡入动画。点击按钮重新渲染可观察动画效果：
 
-<preview path="./demos/prompts-fade-in.vue" title="淡入动画" description="fadeIn 与 fadeInLeft 两种淡入效果，可切换并重新渲染观察动画"></preview>
+<preview path="./demos/prompts/prompts-fade-in.vue" title="淡入动画" description="fadeIn 与 fadeInLeft 两种淡入效果，可切换并重新渲染观察动画"></preview>
 
 ## API
 

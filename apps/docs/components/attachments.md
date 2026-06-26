@@ -18,23 +18,23 @@ description: 文件附件上传组件，支持拖拽和点击上传
 
 ### 基础用法 — `placeholder` / `multiple`
 
-<preview path="./demos/attachments-basic.vue" title="基础用法" description="placeholder 设置占位文本，multiple 启用多文件上传"></preview>
+<preview path="./demos/attachments/attachments-basic.vue" title="基础用法" description="placeholder 设置占位文本，multiple 启用多文件上传"></preview>
 
 ### 占位文本 — `placeholder`
 
-<preview path="./demos/attachments-placeholder.vue" title="占位文本" description="placeholder 属性自定义上传区域的提示文本"></preview>
+<preview path="./demos/attachments/attachments-placeholder.vue" title="占位文本" description="placeholder 属性自定义上传区域的提示文本"></preview>
 
 ### 文件类型 — `accept`
 
-<preview path="./demos/attachments-accept.vue" title="文件类型" description="accept 属性限制可上传的文件类型，如 image/* 或 .pdf,.docx"></preview>
+<preview path="./demos/attachments/attachments-accept.vue" title="文件类型" description="accept 属性限制可上传的文件类型，如 image/* 或 .pdf,.docx"></preview>
 
 ### 数量限制 — `maxCount`
 
-<preview path="./demos/attachments-max-count.vue" title="数量限制" description="maxCount 属性限制最大文件数量，达到上限后隐藏上传区域"></preview>
+<preview path="./demos/attachments/attachments-max-count.vue" title="数量限制" description="maxCount 属性限制最大文件数量，达到上限后隐藏上传区域"></preview>
 
 ### 文件列表 — `files`
 
-<preview path="./demos/attachments-files.vue" title="文件列表" description="files 属性设置已有文件列表，展示 done、uploading、error 三种状态"></preview>
+<preview path="./demos/attachments/attachments-files.vue" title="文件列表" description="files 属性设置已有文件列表，展示 done、uploading、error 三种状态"></preview>
 
 ## API
 

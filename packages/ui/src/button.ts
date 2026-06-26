@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { css, html, type CSSResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/cn";
@@ -38,13 +38,23 @@ type ButtonVariants = VariantProps<typeof buttonVariants>;
 
 @customElement("ak-button")
 export class AkButton extends AkElement {
+  static override styles: CSSResult[] = [
+    css`
+      button:disabled {
+        pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    `,
+  ];
+
   @property({ type: String })
   variant: ButtonVariants["variant"] = "default";
 
   @property({ type: String })
   size: ButtonVariants["size"] = "default";
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   disabled = false;
 
   override render() {
