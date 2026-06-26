@@ -17,15 +17,21 @@ description: 会话列表组件，支持分组、虚拟滚动和键盘导航
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `items` / `groupable` / `activeKey`
 
-<preview path="./demos/conversations-basic.vue" title="基础用法" description="支持分组的会话列表，使用虚拟滚动渲染"></preview>
+<preview path="./demos/conversations-basic.vue" title="基础用法" description="items 提供会话数据，groupable 启用分组，activeKey 控制选中项"></preview>
 
-### 新建对话按钮
+### 列表标题 — `title`
 
-```html
-<ak-conversations creation creation-label="新建对话"></ak-conversations>
-```
+<preview path="./demos/conversations-title.vue" title="列表标题" description="title 属性设置列表标题，设为空字符串则不显示标题"></preview>
+
+### 新建对话 — `creation` / `creationLabel`
+
+<preview path="./demos/conversations-creation.vue" title="新建对话" description="creation 属性显示新建按钮，creationLabel 自定义按钮文本"></preview>
+
+### 键盘导航 — `shortcutKeys`
+
+<preview path="./demos/conversations-shortcut-keys.vue" title="键盘导航" description="shortcutKeys 属性启用键盘导航，↑/↓ 切换，Enter 选中"></preview>
 
 ## API
 
@@ -58,4 +64,4 @@ description: 会话列表组件，支持分组、虚拟滚动和键盘导航
 | 事件名             | 说明         | 参数                                      |
 | ------------------ | ------------ | ----------------------------------------- |
 | conversation-click | 点击会话项   | `{ key: string, item: ConversationItem }` |
-| create             | 点击新建按钮 | -                                         |
+| creation           | 点击新建按钮 | -                                         |

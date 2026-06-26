@@ -16,36 +16,21 @@ description: 全局通知提示组件，支持多种类型和位置
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `type`
 
-<preview path="./demos/notification-basic.vue" title="基础用法" description="支持 info、success、warning、error 四种通知类型"></preview>
+<preview path="./demos/notification-basic.vue" title="基础用法" description="type 支持 info、success、warning、error 四种通知类型"></preview>
 
-### 通知类型
+### 通知位置 — `placement`
 
-```javascript
-// 信息
-notif.open({ title: "提示", description: "这是一条信息", type: "info" });
+<preview path="./demos/notification-placement.vue" title="通知位置" description="placement 支持 top-right、top-left、bottom-right、bottom-left 四个位置"></preview>
 
-// 成功
-notif.open({ title: "成功", description: "操作已完成", type: "success" });
+### 持续时间 — `duration`
 
-// 警告
-notif.open({ title: "警告", description: "请注意检查", type: "warning" });
+<preview path="./demos/notification-duration.vue" title="持续时间" description="duration 控制自动关闭时间（毫秒），0 表示不自动关闭"></preview>
 
-// 错误
-notif.open({ title: "错误", description: "操作失败", type: "error" });
-```
+### 手动关闭 — `key`
 
-### 自定义持续时间
-
-```javascript
-notif.open({
-  title: "自定义时长",
-  description: "5 秒后消失",
-  type: "info",
-  duration: 5000, // 毫秒
-});
-```
+<preview path="./demos/notification-close.vue" title="手动关闭" description="duration=0 时需手动关闭，相同 key 可更新已有通知"></preview>
 
 ## API
 

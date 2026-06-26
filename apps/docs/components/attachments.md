@@ -16,31 +16,25 @@ description: 文件附件上传组件，支持拖拽和点击上传
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `placeholder` / `multiple`
 
-<preview path="./demos/attachments-basic.vue" title="基础用法" description="支持拖拽和点击上传文件"></preview>
+<preview path="./demos/attachments-basic.vue" title="基础用法" description="placeholder 设置占位文本，multiple 启用多文件上传"></preview>
 
-### 限制文件类型
+### 占位文本 — `placeholder`
 
-```html
-<ak-attachments accept="image/*,.pdf,.docx"></ak-attachments>
-```
+<preview path="./demos/attachments-placeholder.vue" title="占位文本" description="placeholder 属性自定义上传区域的提示文本"></preview>
 
-### 多文件上传
+### 文件类型 — `accept`
 
-```html
-<ak-attachments multiple max-count="5"></ak-attachments>
-```
+<preview path="./demos/attachments-accept.vue" title="文件类型" description="accept 属性限制可上传的文件类型，如 image/* 或 .pdf,.docx"></preview>
 
-### 带已有文件列表
+### 数量限制 — `maxCount`
 
-```javascript
-const el = document.querySelector("ak-attachments");
-el.files = [
-  { name: "report.pdf", size: 1024000, status: "done" },
-  { name: "photo.png", size: 2048000, status: "uploading", progress: 60 },
-];
-```
+<preview path="./demos/attachments-max-count.vue" title="数量限制" description="maxCount 属性限制最大文件数量，达到上限后隐藏上传区域"></preview>
+
+### 文件列表 — `files`
+
+<preview path="./demos/attachments-files.vue" title="文件列表" description="files 属性设置已有文件列表，展示 done、uploading、error 三种状态"></preview>
 
 ## API
 

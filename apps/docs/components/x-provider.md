@@ -16,30 +16,17 @@ description: 全局配置组件，提供主题、国际化和方向控制
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `prefixCls`
 
-```html
-<ak-x-provider>
-  <ak-bubble content="Hello" placement="start"></ak-bubble>
-  <ak-sender placeholder="输入消息..."></ak-sender>
-</ak-x-provider>
-```
+<preview path="./demos/x-provider-basic.vue" title="基础用法" description="XProvider 包裹子组件，提供全局上下文配置，prefixCls 默认为「ant」"></preview>
 
-### 主题配置
+### 文本方向 — `direction`
 
-```html
-<ak-x-provider theme="dark">
-  <!-- 所有子组件将使用暗色主题 -->
-</ak-x-provider>
-```
+<preview path="./demos/x-provider-direction.vue" title="文本方向" description="direction=rtl 设置从右到左的布局方向"></preview>
 
-### RTL 支持
+### 主题配置 — `theme`
 
-```html
-<ak-x-provider direction="rtl">
-  <!-- 所有子组件使用从右到左的布局 -->
-</ak-x-provider>
-```
+<preview path="./demos/x-provider-theme.vue" title="主题配置" description="theme 属性设置主题名称，子组件通过 Context 响应主题变化"></preview>
 
 ## API
 

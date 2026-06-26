@@ -16,9 +16,17 @@ description: 代码语法高亮显示组件，支持行号和复制功能
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `code` / `language`
 
-<preview path="./demos/code-highlighter-basic.vue" title="基础用法" description="TypeScript 代码高亮，带行号显示和复制按钮"></preview>
+<preview path="./demos/code-highlighter-basic.vue" title="基础用法" description="code 设置代码内容，language 指定编程语言"></preview>
+
+### 多语言支持 — `language`
+
+<preview path="./demos/code-highlighter-languages.vue" title="多语言支持" description="language 支持 TypeScript、Python、JSON、Bash、CSS、HTML、SQL、YAML、Markdown 等"></preview>
+
+### 行号显示 — `showLineNumbers`
+
+<preview path="./demos/code-highlighter-line-numbers.vue" title="行号显示" description="showLineNumbers 属性控制是否在代码左侧显示行号"></preview>
 
 ### 支持的语言
 

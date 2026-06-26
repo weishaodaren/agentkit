@@ -16,22 +16,25 @@ description: 操作按钮列表，用于消息反馈（复制、点赞等）
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `items`
 
-<preview path="./demos/actions-basic.vue" title="基础用法" description="展示消息操作按钮列表，包含刷新、复制、点赞、踩"></preview>
+<preview path="./demos/actions-basic.vue" title="基础用法" description="items 提供操作项数据，包含 key、label、icon 等"></preview>
 
-### 样式变体
+### 图标与文本 — `items[].icon` / `items[].label`
 
-```html
-<!-- 无边框（默认） -->
-<ak-actions variant="borderless" .items="${JSON.stringify([...])}"></ak-actions>
+<preview path="./demos/actions-icon.vue" title="图标与文本" description="icon 设置 lucide 图标，label 设置文本，两者可单独或组合使用"></preview>
 
-<!-- 填充 -->
-<ak-actions variant="filled" .items="${JSON.stringify([...])}"></ak-actions>
+### 样式变体 — `variant`
 
-<!-- 描边 -->
-<ak-actions variant="outlined" .items="${JSON.stringify([...])}"></ak-actions>
-```
+<preview path="./demos/actions-variant.vue" title="样式变体" description="variant 支持 borderless（默认）、filled（填充）、outlined（描边）三种样式"></preview>
+
+### 激活状态 — `items[].active`
+
+<preview path="./demos/actions-active.vue" title="激活状态" description="active 属性高亮按钮，常用于点赞/收藏的选中状态"></preview>
+
+### 禁用状态 — `items[].disabled`
+
+<preview path="./demos/actions-disabled.vue" title="禁用状态" description="disabled 属性禁用按钮，不可点击且显示半透明"></preview>
 
 ## API
 

@@ -17,38 +17,25 @@ description: 文件预览卡片，显示文件名、大小、状态和进度
 
 ## 代码演示
 
-### 基础用法
+### 基础用法 — `name` / `size` / `removable`
 
-<preview path="./demos/file-card-basic.vue" title="基础用法" description="展示文件卡片，包含文件名、大小、状态和可移除操作"></preview>
+<preview path="./demos/file-card-basic.vue" title="基础用法" description="name 设置文件名，size 设置文件大小，removable 显示移除按钮"></preview>
 
-### 上传中
+### 上传状态 — `status`
 
-```html
-<ak-file-card
-  name="photo.png"
-  size="2097152"
-  status="uploading"
-  progress="65"
-></ak-file-card>
-```
+<preview path="./demos/file-card-status.vue" title="上传状态" description="status 支持 done、pending、uploading、error 四种状态"></preview>
 
-### 图片文件
+### 上传进度 — `progress`
 
-```html
-<ak-file-card
-  name="screenshot.png"
-  size="512000"
-  status="done"
-  type="image"
-  thumb="https://example.com/thumb.png"
-></ak-file-card>
-```
+<preview path="./demos/file-card-progress.vue" title="上传进度" description="status=uploading 时 progress 属性控制进度条宽度（0-100）"></preview>
 
-### 可移除
+### 图片缩略图 — `type` / `thumb`
 
-```html
-<ak-file-card name="doc.pdf" size="1024" status="done" removable></ak-file-card>
-```
+<preview path="./demos/file-card-image.vue" title="图片缩略图" description="type=image/video 时 thumb 属性显示缩略图，type=file 显示文件图标"></preview>
+
+### 悬停遮罩 — `mask`
+
+<preview path="./demos/file-card-mask.vue" title="悬停遮罩" description="mask 属性在鼠标悬停缩略图时显示遮罩层"></preview>
 
 ## API
 
