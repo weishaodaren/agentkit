@@ -12,7 +12,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rolldownOptions: {
-      external: [/^react/],
+      external: ["@agentkit/shared", "@mastra/client-js"],
     },
   },
 });

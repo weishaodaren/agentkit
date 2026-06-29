@@ -1,13 +1,14 @@
 {
   "name": "@agentkit/sdk",
   "version": "0.1.0",
-  "description": "AgentKit SDK - AI conversation data flow management (XRequest + useXChat)",
+  "description": "AgentKit SDK - Unified Mastra client wrapper for AI Agent development",
   "keywords": [
+    "agent",
     "ai",
     "chat",
     "llm",
-    "sdk",
-    "streaming"
+    "mastra",
+    "sdk"
   ],
   "license": "MIT",
   "type": "module",
@@ -24,7 +25,10 @@
     "format": "oxfmt write .",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@agentkit/shared": "workspace:*",
+    "@mastra/client-js": "1.28.0"
+  },
   "devDependencies": {
     "typescript": "catalog:",
     "unplugin-dts": "catalog:",

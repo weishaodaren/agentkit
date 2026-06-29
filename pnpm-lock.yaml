@@ -154,6 +154,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@agentkit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@agentkit/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -193,6 +196,13 @@ importers:
         version: 8.1.0(@types/node@26.0.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0)
 
   packages/sdk:
+    dependencies:
+      '@agentkit/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@mastra/client-js':
+        specifier: 1.28.0
+        version: 1.28.0(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: 'catalog:'

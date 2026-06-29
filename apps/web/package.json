@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@agentkit/sdk": "workspace:*",
     "@agentkit/ui": "workspace:*",
     "@agentkit/utils": "workspace:*",
     "@mastra/client-js": "^1.28.0",
