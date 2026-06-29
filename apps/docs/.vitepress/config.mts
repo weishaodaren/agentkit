@@ -11,6 +11,22 @@ export default defineConfig({
   lang: "zh-CN",
   ignoreDeadLinks: [/^https?:\/\/localhost/, /^https?:\/\/127\.0\.0\.1/],
 
+  vite: {
+    plugins: [
+      {
+        name: "encoding",
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            if (req.url?.includes(".txt")) {
+              res.setHeader("Content-Type", "text/plain; charset=utf-8");
+            }
+            next();
+          });
+        },
+      },
+    ],
+  },
+
   markdown: {
     config(md) {
       md.use(containerPreview, { clientOnly: true });
