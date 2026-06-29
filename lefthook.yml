@@ -16,6 +16,11 @@ pre-commit:
       glob: "*.{ts,tsx}"
       exclude: "*.d.ts"
       run: pnpm turbo run typecheck --affected
+    codegraph:
+      glob: "*.{ts,tsx,js,jsx,vue,json}"
+      exclude: "*.d.ts"
+      run: codegraph check --staged
+      fail_text: "❌ CodeGraph detected structural issues. Run 'codegraph sync' and fix before commit."
 
 commit-msg:
   commands:
