@@ -1,0 +1,80 @@
+# AgentKit
+
+> 一个面向企业级 AI Agent 开发的 Monorepo 工具箱，集成 Lit Web Components、Mastra 和 Hono，帮助开发者快速构建 ERP/CRM 智能助手。
+
+AgentKit 提供了一套完整的开发工具链，包括框架无关的 UI 组件库、基于 Mastra 的 Agent 编排引擎、以及 Hono 驱动的轻量级后端服务。所有模块以 Monorepo 形式组织，支持独立发布和灵活组合。
+
+## 快速开始
+
+- [安装指南](/guide/install): 一步步教你如何安装和配置 AgentKit。
+- [快速上手](/guide/getting-started): 5 分钟创建一个简单的 Agent 应用。
+
+## 核心组件
+
+AgentKit 提供了一套完整的 Lit Web Components，可在任何前端框架中使用：
+
+### 基础组件
+- [Button 按钮](/components/button): 基础交互按钮，支持多种变体和尺寸。
+- [Bubble 气泡](/components/bubble): 用于展示对话消息的气泡组件，支持头像、加载、流式输出等。
+- [Sender 发送器](/components/sender): 用户输入和发送消息的组件，支持附件、快捷键等。
+- [Welcome 欢迎页](/components/welcome): 对话开始前的欢迎界面，支持自定义图标和变体。
+
+### 对话与交互
+- [Conversations 对话列表](/components/conversations): 管理历史对话列表，支持标题、快捷键和创建。
+- [Prompts 快捷提示](/components/prompts): 预设快捷问题列表，支持多种布局和动画。
+- [Suggestion 建议](/components/suggestion): 输入过程中的智能建议组件。
+- [Attachments 附件](/components/attachments): 文件附件管理，支持预览、上传进度等。
+
+### AI 交互可视化
+- [Think 思考过程](/components/think): 展示 AI 的思考/推理过程，支持折叠和加载状态。
+- [Thought Chain 思维链](/components/thought-chain): 展示完整的思维链，支持节点折叠和状态标识。
+- [Sources 来源引用](/components/sources): 展示信息来源引用，支持内联和卡片模式。
+- [Mermaid 图表](/components/mermaid): 在对话中渲染流程图、时序图等 Mermaid 图表。
+
+### 布局与反馈
+- [X Card 卡片](/components/x-card): 多功能卡片容器，支持多种类型和尺寸。
+- [X Provider 主题提供者](/components/x-provider): 全局主题配置，支持亮色/暗色和方向。
+- [Notification 通知](/components/notification): 消息通知组件，支持多种位置和持续时间。
+- [File Card 文件卡片](/components/file-card): 文件展示卡片，支持图片预览和状态显示。
+- [Folder 文件夹](/components/folder): 文件夹结构展示，支持树形展开。
+
+## 技术架构
+
+AgentKit 采用 Monorepo 架构，由以下核心模块组成：
+
+### 后端服务 (`apps/server`)
+- 基于 **Hono** 的轻量级 HTTP 服务
+- 使用 **Mastra** 作为 AI Agent 编排引擎
+- 支持自定义 LLM Gateway（如 Agnes AI、DeepSeek）
+- 内置 Workflow、Tool、RAG 和 Memory 能力
+
+### UI 组件库 (`packages/ui`)
+- 基于 **Lit** 构建的 Web Components
+- 使用 **Tailwind CSS** 管理样式
+- 提供 **React** 和 **Vue** 适配器，支持跨框架使用
+- 完整的 TypeScript 类型支持
+
+### 前端 SDK (`packages/sdk`)
+- 封装 `@mastra/client-js`，提供更友好的 API
+- React Hooks（如 `useXChat`）简化聊天集成
+
+### 文档站点 (`apps/docs`)
+- 基于 **VitePress** 构建
+- 集成组件实时预览（`@vitepress-demo-preview`）
+- 支持 Mermaid 图表渲染
+- 提供 `llms.txt` 和 `llms-full.txt` 供 AI 助手使用
+
+## 开发与贡献
+
+- **GitHub 仓库**: https://github.com/weishaodaren/agentkit
+- **问题反馈**: https://github.com/weishaodaren/agentkit/issues
+- **许可证**: MIT
+
+欢迎 Star、Fork 和提交 Pull Request。
+
+## 相关链接
+
+- [Mastra 官方文档](https://mastra.ai/)
+- [Lit 官方文档](https://lit.dev/)
+- [Hono 官方文档](https://hono.dev/)
+- [VitePress 官方文档](https://vitepress.dev/)
