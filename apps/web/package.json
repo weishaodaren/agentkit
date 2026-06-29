@@ -14,7 +14,7 @@
   "dependencies": {
     "@agentkit/ui": "workspace:*",
     "@agentkit/utils": "workspace:*",
-    "@mastra/client-js": "^1.27.0",
+    "@mastra/client-js": "^1.28.0",
     "react": "catalog:",
     "react-dom": "^19.1"
   },
