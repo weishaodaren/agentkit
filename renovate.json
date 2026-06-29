@@ -2,13 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
   "extends": [
-    "config:best-practices",
+    "config:recommended",
     ":semanticCommits",
     ":dependencyDashboard",
     ":enableVulnerabilityAlertsWithLabel(security)",
     "schedule:earlyMondays",
-    "group:monorepos",
-    "replacements:all"
+    "group:monorepos"
   ],
 
   "timezone": "Asia/Shanghai",
@@ -18,23 +17,27 @@
   "branchConcurrentLimit": 5,
   "commitMessagePrefix": "deps",
   "commitMessageTopic": "{{depName}}",
-  "rangeStrategy": "bump",
+  "rangeStrategy": "auto",
 
-  "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"],
     "schedule": ["at any time"],
-    "automerge": false,
+    "automerge": true,
     "automergeType": "pr",
     "automergeStrategy": "squash"
   },
-  "transitiveRemediation": true,
 
+  "transitiveRemediation": true,
   "updateInternalDeps": true,
+
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 9am on Monday"]
+  },
+
+  "npm": {
+    "fileMatch": ["(^|/)package\\.json$", "(^|/)pnpm-workspace\\.yaml$"]
   },
 
   "packageRules": [
@@ -44,20 +47,7 @@
       "matchUpdateTypes": ["patch", "minor"],
       "automerge": true,
       "automergeType": "pr",
-      "automergeStrategy": "squash",
-      "schedule": ["before 9am on Monday"]
-    },
-    {
-      "description": "Security patch: automerge",
-      "matchUpdateTypes": ["patch"],
-      "matchCurrentVersion": "!/^0/",
-      "vulnerabilityAlerts": {
-        "enabled": true,
-        "automerge": true,
-        "automergeType": "pr",
-        "automergeStrategy": "squash",
-        "schedule": ["at any time"]
-      }
+      "automergeStrategy": "squash"
     },
     {
       "description": "Major updates: manual approval",
@@ -67,11 +57,13 @@
       "schedule": ["before 9am on Monday"]
     },
     {
-      "description": "0.x versions: manual approval",
+      "description": "0.x versions: manual approval (treat as major)",
       "matchCurrentVersion": "/^0\\./",
+      "matchUpdateTypes": ["minor"],
       "dependencyDashboardApproval": true,
       "labels": ["pre-release"]
     },
+
     {
       "description": "React ecosystem",
       "matchPackageNames": [
@@ -107,6 +99,18 @@
       "groupName": "Hono"
     },
     {
+      "description": "Vitest ecosystem",
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/browser",
+        "@vitest/browser-playwright",
+        "@vitest/coverage-v8",
+        "@vitest/ui",
+        "vitest-browser-lit"
+      ],
+      "groupName": "Vitest"
+    },
+    {
       "description": "Changesets",
       "matchPackageNames": ["/^@changesets\\//"],
       "groupName": "Changesets"
@@ -119,13 +123,13 @@
     {
       "description": "TypeScript: major needs approval",
       "matchPackageNames": ["typescript"],
-      "groupName": "TypeScript",
       "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true
+      "dependencyDashboardApproval": true,
+      "groupName": "TypeScript"
     },
     {
       "description": "Node.js major needs approval",
-      "matchDepNames": ["node"],
+      "matchPackageNames": ["node"],
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true
     },
@@ -134,10 +138,16 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/^ghcr\\.io\\//", "/^registry\\.github\\.com\\//"],
       "groupName": "CI containers"
+    },
+    {
+      "description": "Ignore docs deps from automerge",
+      "matchPaths": ["apps/docs/package.json"],
+      "matchDepTypes": ["devDependencies"],
+      "automerge": false
     }
   ],
 
-  "npm": {
-    "fileMatch": ["(^|/)package\\.json$", "(^|/)pnpm-workspace\\.yaml$"]
-  }
+  "prBodyNotes": [
+    "🔗 [Release notes]({{#if releases}}{{#each releases as |release|}}[{{release.version}}]{{/each}}{{/if}})"
+  ]
 }
