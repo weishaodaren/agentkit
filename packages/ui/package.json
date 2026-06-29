@@ -78,7 +78,7 @@
     "react": "catalog:",
     "tailwindcss": "^4.3.1",
     "typescript": "catalog:",
-    "unplugin-dts": "^1.0.3",
+    "unplugin-dts": "catalog:",
     "vite": "catalog:",
     "vitest-browser-lit": "^1.0.1"
   },

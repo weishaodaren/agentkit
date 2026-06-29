@@ -27,7 +27,7 @@
   "dependencies": {},
   "devDependencies": {
     "typescript": "catalog:",
-    "unplugin-dts": "^1.0.2",
+    "unplugin-dts": "catalog:",
     "vite": "catalog:"
   }
 }
