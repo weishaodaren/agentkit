@@ -16,7 +16,9 @@ export interface AgentsApiInstance {
 /**
  * 创建 Agent API 实例。
  */
-export function createAgentsApi(sdkClient: SdkClientInstance): AgentsApiInstance {
+export function createAgentsApi(
+  sdkClient: SdkClientInstance,
+): AgentsApiInstance {
   return {
     async listAgents() {
       return sdkClient.call(async () => {

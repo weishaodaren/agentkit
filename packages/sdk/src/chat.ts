@@ -32,7 +32,9 @@ type ChunkHandler = (payload: unknown, callbacks: ChatCallbacks) => void;
 const CHUNK_HANDLERS: Record<string, ChunkHandler> = {
   // 文本
   "text-delta": (payload, callbacks) => {
-    const text = (payload as Record<string, unknown>)?.text as string | undefined;
+    const text = (payload as Record<string, unknown>)?.text as
+      | string
+      | undefined;
     if (text) {
       callbacks.onText?.(text);
     }
@@ -43,7 +45,9 @@ const CHUNK_HANDLERS: Record<string, ChunkHandler> = {
     callbacks.onReasoningStart?.();
   },
   "reasoning-delta": (payload, callbacks) => {
-    const text = (payload as Record<string, unknown>)?.text as string | undefined;
+    const text = (payload as Record<string, unknown>)?.text as
+      | string
+      | undefined;
     if (text) {
       callbacks.onReasoningDelta?.(text);
     }
@@ -82,7 +86,9 @@ const CHUNK_HANDLERS: Record<string, ChunkHandler> = {
   "step-finish": (payload, callbacks) => {
     const p = payload as Record<string, unknown>;
     const output = p.output as Record<string, unknown> | undefined;
-    const stepResult = output?.stepResult as Record<string, unknown> | undefined;
+    const stepResult = output?.stepResult as
+      | Record<string, unknown>
+      | undefined;
     callbacks.onStepFinish?.({
       usage: output?.usage as
         | {
@@ -125,9 +131,7 @@ export interface ChatApiInstance {
 /**
  * 创建聊天 API 实例。
  */
-export function createChatApi(
-  sdkClient: SdkClientInstance,
-): ChatApiInstance {
+export function createChatApi(sdkClient: SdkClientInstance): ChatApiInstance {
   const config = sdkClient.getConfig();
 
   return {

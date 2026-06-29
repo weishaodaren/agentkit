@@ -8,7 +8,10 @@ export interface McpApiInstance {
   /** 列出 MCP 服务器 */
   listServers(params?: Record<string, unknown>): Promise<unknown>;
   /** 获取 MCP 服务器详情 */
-  getServerDetails(serverId: string, params?: Record<string, unknown>): Promise<unknown>;
+  getServerDetails(
+    serverId: string,
+    params?: Record<string, unknown>,
+  ): Promise<unknown>;
   /** 获取 MCP 服务器工具列表 */
   getServerTools(serverId: string): Promise<unknown>;
   /** 获取 MCP 服务器工具实例 */

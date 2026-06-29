@@ -12,7 +12,10 @@ export interface MemoryApiInstance {
   /** 获取线程实例 */
   getThread(threadId: string, agentId?: string): any;
   /** 获取线程消息 */
-  getThreadMessages(threadId: string, opts?: Record<string, unknown>): Promise<unknown>;
+  getThreadMessages(
+    threadId: string,
+    opts?: Record<string, unknown>,
+  ): Promise<unknown>;
   /** 删除线程 */
   deleteThread(threadId: string, agentId: string): Promise<unknown>;
   /** 保存消息到记忆 */

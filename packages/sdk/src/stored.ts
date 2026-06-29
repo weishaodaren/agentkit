@@ -49,7 +49,9 @@ export function createStoredApi(
       return sdkClient.call(async () => client.listStoredAgents(params));
     },
     async createAgent(params) {
-      return sdkClient.call(async () => client.createStoredAgent(params as any));
+      return sdkClient.call(async () =>
+        client.createStoredAgent(params as any),
+      );
     },
     getAgent(id: string) {
       return client.getStoredAgent(id);
@@ -60,7 +62,9 @@ export function createStoredApi(
       return sdkClient.call(async () => client.listStoredPromptBlocks(params));
     },
     async createPromptBlock(params) {
-      return sdkClient.call(async () => client.createStoredPromptBlock(params as any));
+      return sdkClient.call(async () =>
+        client.createStoredPromptBlock(params as any),
+      );
     },
     getPromptBlock(id: string) {
       return client.getStoredPromptBlock(id);
@@ -71,7 +75,9 @@ export function createStoredApi(
       return sdkClient.call(async () => client.listStoredScorers(params));
     },
     async createScorer(params) {
-      return sdkClient.call(async () => client.createStoredScorer(params as any));
+      return sdkClient.call(async () =>
+        client.createStoredScorer(params as any),
+      );
     },
     async getScorer(id) {
       return sdkClient.call(async () => client.getStoredScorer(id));
@@ -82,7 +88,9 @@ export function createStoredApi(
       return sdkClient.call(async () => client.listStoredMCPClients(params));
     },
     async createMcpClient(params) {
-      return sdkClient.call(async () => client.createStoredMCPClient(params as any));
+      return sdkClient.call(async () =>
+        client.createStoredMCPClient(params as any),
+      );
     },
     getMcpClient(id: string) {
       return client.getStoredMCPClient(id);
@@ -93,7 +101,9 @@ export function createStoredApi(
       return sdkClient.call(async () => client.listStoredSkills(params));
     },
     async createSkill(params) {
-      return sdkClient.call(async () => client.createStoredSkill(params as any));
+      return sdkClient.call(async () =>
+        client.createStoredSkill(params as any),
+      );
     },
     getSkill(id: string) {
       return client.getStoredSkill(id);

@@ -12,11 +12,17 @@ export interface DatasetsApiInstance {
   /** 创建数据集 */
   createDataset(params: Record<string, unknown>): Promise<unknown>;
   /** 更新数据集 */
-  updateDataset(datasetId: string, params: Record<string, unknown>): Promise<unknown>;
+  updateDataset(
+    datasetId: string,
+    params: Record<string, unknown>,
+  ): Promise<unknown>;
   /** 删除数据集 */
   deleteDataset(datasetId: string): Promise<unknown>;
   /** 列出数据集项 */
-  listDatasetItems(datasetId: string, params?: Record<string, unknown>): Promise<unknown>;
+  listDatasetItems(
+    datasetId: string,
+    params?: Record<string, unknown>,
+  ): Promise<unknown>;
   /** 添加数据集项 */
   addItem(params: Record<string, unknown>): Promise<unknown>;
   /** 触发实验 */

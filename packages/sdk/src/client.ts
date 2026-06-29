@@ -43,15 +43,11 @@ export function createSdkClient(config: SdkConfig): SdkClientInstance {
     getConfig: () => resolved,
 
     call<T>(fn: () => Promise<T>): Promise<T> {
-      return withRetry(
-        fn,
-        resolved.logger ?? undefined,
-        {
-          maxRetries: resolved.retries ?? 0,
-          retryDelay: resolved.retryDelay ?? 1000,
-          retryBackoff: resolved.retryBackoff ?? 2,
-        },
-      ).catch((err) => {
+      return withRetry(fn, resolved.logger ?? undefined, {
+        maxRetries: resolved.retries ?? 0,
+        retryDelay: resolved.retryDelay ?? 1000,
+        retryBackoff: resolved.retryBackoff ?? 2,
+      }).catch((err) => {
         const sdkError = normalizeError(err);
         if (hasLogger(resolved.logger)) {
           resolved.logger.error("[SdkClient.call]", sdkError.message, sdkError);
