@@ -18,9 +18,7 @@ export interface LogsApiInstance {
 /**
  * 创建 Logs API 实例。
  */
-export function createLogsApi(
-  sdkClient: SdkClientInstance,
-): LogsApiInstance {
+export function createLogsApi(sdkClient: SdkClientInstance): LogsApiInstance {
   const client = sdkClient.getClient();
 
   return {

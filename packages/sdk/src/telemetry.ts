@@ -129,16 +129,24 @@ export function createTelemetryApi(
       return sdkClient.call(async () => client.createScore(params as any));
     },
     async getScoreAggregate(params) {
-      return sdkClient.call(async () => client.getScoreAggregate(params as any));
+      return sdkClient.call(async () =>
+        client.getScoreAggregate(params as any),
+      );
     },
     async getScoreBreakdown(params) {
-      return sdkClient.call(async () => client.getScoreBreakdown(params as any));
+      return sdkClient.call(async () =>
+        client.getScoreBreakdown(params as any),
+      );
     },
     async getScoreTimeSeries(params) {
-      return sdkClient.call(async () => client.getScoreTimeSeries(params as any));
+      return sdkClient.call(async () =>
+        client.getScoreTimeSeries(params as any),
+      );
     },
     async getScorePercentiles(params) {
-      return sdkClient.call(async () => client.getScorePercentiles(params as any));
+      return sdkClient.call(async () =>
+        client.getScorePercentiles(params as any),
+      );
     },
     async listFeedback(params) {
       return sdkClient.call(async () => client.listFeedback(params as any));
@@ -147,37 +155,57 @@ export function createTelemetryApi(
       return sdkClient.call(async () => client.createFeedback(params as any));
     },
     async getFeedbackAggregate(params) {
-      return sdkClient.call(async () => client.getFeedbackAggregate(params as any));
+      return sdkClient.call(async () =>
+        client.getFeedbackAggregate(params as any),
+      );
     },
     async getFeedbackBreakdown(params) {
-      return sdkClient.call(async () => client.getFeedbackBreakdown(params as any));
+      return sdkClient.call(async () =>
+        client.getFeedbackBreakdown(params as any),
+      );
     },
     async getFeedbackTimeSeries(params) {
-      return sdkClient.call(async () => client.getFeedbackTimeSeries(params as any));
+      return sdkClient.call(async () =>
+        client.getFeedbackTimeSeries(params as any),
+      );
     },
     async getFeedbackPercentiles(params) {
-      return sdkClient.call(async () => client.getFeedbackPercentiles(params as any));
+      return sdkClient.call(async () =>
+        client.getFeedbackPercentiles(params as any),
+      );
     },
     async getMetricAggregate(params) {
-      return sdkClient.call(async () => client.getMetricAggregate(params as any));
+      return sdkClient.call(async () =>
+        client.getMetricAggregate(params as any),
+      );
     },
     async getMetricBreakdown(params) {
-      return sdkClient.call(async () => client.getMetricBreakdown(params as any));
+      return sdkClient.call(async () =>
+        client.getMetricBreakdown(params as any),
+      );
     },
     async getMetricTimeSeries(params) {
-      return sdkClient.call(async () => client.getMetricTimeSeries(params as any));
+      return sdkClient.call(async () =>
+        client.getMetricTimeSeries(params as any),
+      );
     },
     async getMetricPercentiles(params) {
-      return sdkClient.call(async () => client.getMetricPercentiles(params as any));
+      return sdkClient.call(async () =>
+        client.getMetricPercentiles(params as any),
+      );
     },
     async getMetricNames(params) {
       return sdkClient.call(async () => client.getMetricNames(params));
     },
     async getMetricLabelKeys(params) {
-      return sdkClient.call(async () => client.getMetricLabelKeys(params as any));
+      return sdkClient.call(async () =>
+        client.getMetricLabelKeys(params as any),
+      );
     },
     async getMetricLabelValues(params) {
-      return sdkClient.call(async () => client.getMetricLabelValues(params as any));
+      return sdkClient.call(async () =>
+        client.getMetricLabelValues(params as any),
+      );
     },
     async getEntityTypes() {
       return sdkClient.call(async () => client.getEntityTypes());

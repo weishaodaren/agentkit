@@ -58,12 +58,7 @@ export type { RetryOptions } from "./retry";
 
 // ─── 共享类型和常量（从 @agentkit/shared 重新导出）──────────────────
 
-export {
-  API_BASE_PATH,
-  REQUEST_TIMEOUT,
-  ERROR_CODE,
-  SSE_EVENT,
-} from "./types";
+export { API_BASE_PATH, REQUEST_TIMEOUT, ERROR_CODE, SSE_EVENT } from "./types";
 
 export type {
   ID,

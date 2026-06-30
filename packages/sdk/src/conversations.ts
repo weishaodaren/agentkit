@@ -13,7 +13,10 @@ export interface ConversationsApiInstance {
   /** 获取对话 */
   retrieve(conversationId: string): Promise<unknown>;
   /** 列出对话项 */
-  listItems(conversationId: string, params?: Record<string, unknown>): Promise<unknown>;
+  listItems(
+    conversationId: string,
+    params?: Record<string, unknown>,
+  ): Promise<unknown>;
 }
 
 /**
@@ -26,15 +29,21 @@ export function createConversationsApi(
 
   return {
     async create(params) {
-      return sdkClient.call(async () => client.conversations.create(params as any));
+      return sdkClient.call(async () =>
+        client.conversations.create(params as any),
+      );
     },
 
     async retrieve(conversationId) {
-      return sdkClient.call(async () => client.conversations.retrieve(conversationId));
+      return sdkClient.call(async () =>
+        client.conversations.retrieve(conversationId),
+      );
     },
 
     async listItems(conversationId, params) {
-      return sdkClient.call(async () => client.conversations.items.list(conversationId, params as any));
+      return sdkClient.call(async () =>
+        client.conversations.items.list(conversationId, params as any),
+      );
     },
   };
 }
