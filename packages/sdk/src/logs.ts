@@ -1,37 +1,47 @@
 /**
  * @agentkit/sdk - Logs API
  *
- * 对应 Mastra Client SDK 文档中的 Logs API。
+ * 对应 Mastra Client SDK 文档中的 Logs API
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type { SdkClientInstance } from "./client";
 
 export interface LogsApiInstance {
   /** 列出日志（旧版） */
-  listLogs(params?: Record<string, unknown>): Promise<unknown>;
+  listLogs: (
+    params: Parameters<MastraClient["listLogs"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listLogs"]>>>;
   /** 获取日志（按 runId） */
-  getLogForRun(params: Record<string, unknown>): Promise<unknown>;
+  getLogForRun: (
+    params: Parameters<MastraClient["getLogForRun"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getLogForRun"]>>>;
   /** 列出日志（新版） */
-  listLogsVNext(params?: Record<string, unknown>): Promise<unknown>;
+  listLogsVNext: (
+    params?: Parameters<MastraClient["listLogsVNext"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listLogsVNext"]>>>;
+  /** 列出日志传输 */
+  listLogTransports: () => Promise<
+    Awaited<ReturnType<MastraClient["listLogTransports"]>>
+  >;
 }
 
 /**
  * 创建 Logs API 实例。
  */
-export function createLogsApi(sdkClient: SdkClientInstance): LogsApiInstance {
+export const createLogsApi = (
+  sdkClient: SdkClientInstance,
+): LogsApiInstance => {
   const client = sdkClient.getClient();
 
   return {
-    async listLogs(params) {
-      return sdkClient.call(async () => client.listLogs(params as any));
-    },
+    listLogs: (params) => sdkClient.call(() => client.listLogs(params)),
 
-    async getLogForRun(params) {
-      return sdkClient.call(async () => client.getLogForRun(params as any));
-    },
+    getLogForRun: (params) => sdkClient.call(() => client.getLogForRun(params)),
 
-    async listLogsVNext(params) {
-      return sdkClient.call(async () => client.listLogsVNext(params as any));
-    },
+    listLogsVNext: (params) =>
+      sdkClient.call(() => client.listLogsVNext(params)),
+
+    listLogTransports: () => sdkClient.call(() => client.listLogTransports()),
   };
-}
+};

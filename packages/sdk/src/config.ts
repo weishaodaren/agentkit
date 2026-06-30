@@ -23,17 +23,15 @@ const DEFAULTS: Omit<ResolvedConfig, "baseUrl"> = {
 /**
  * 解析并合并配置
  */
-export function resolveConfig(userConfig: SdkConfig): ResolvedConfig {
-  return {
-    baseUrl: userConfig.baseUrl,
-    apiPrefix: userConfig.apiPrefix ?? DEFAULTS.apiPrefix,
-    timeout: userConfig.timeout ?? DEFAULTS.timeout,
-    headers: { ...DEFAULTS.headers, ...userConfig.headers },
-    fetch: userConfig.fetch,
-    retries: userConfig.retries ?? DEFAULTS.retries,
-    retryDelay: userConfig.retryDelay ?? DEFAULTS.retryDelay,
-    retryBackoff: userConfig.retryBackoff ?? DEFAULTS.retryBackoff,
-    logger: createLogger(userConfig.logger),
-    credentials: userConfig.credentials ?? DEFAULTS.credentials,
-  };
-}
+export const resolveConfig = (userConfig: SdkConfig): ResolvedConfig => ({
+  baseUrl: userConfig.baseUrl,
+  apiPrefix: userConfig.apiPrefix ?? DEFAULTS.apiPrefix,
+  timeout: userConfig.timeout ?? DEFAULTS.timeout,
+  headers: { ...DEFAULTS.headers, ...userConfig.headers },
+  fetch: userConfig.fetch,
+  retries: userConfig.retries ?? DEFAULTS.retries,
+  retryDelay: userConfig.retryDelay ?? DEFAULTS.retryDelay,
+  retryBackoff: userConfig.retryBackoff ?? DEFAULTS.retryBackoff,
+  logger: createLogger(userConfig.logger),
+  credentials: userConfig.credentials ?? DEFAULTS.credentials,
+});

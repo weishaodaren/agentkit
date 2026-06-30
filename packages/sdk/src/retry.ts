@@ -21,20 +21,18 @@ export const DEFAULT_RETRY_OPTIONS: RetryOptions = {
 };
 
 /** 计算重试延迟（指数退避） */
-export function getRetryDelay(attempt: number, options: RetryOptions): number {
-  return options.retryDelay * Math.pow(options.retryBackoff, attempt);
-}
+export const getRetryDelay = (attempt: number, options: RetryOptions): number =>
+  options.retryDelay * Math.pow(options.retryBackoff, attempt);
 
 /** 等待指定毫秒数 */
-export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+export const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * 判断是否应该重试
- * 5xx 错误和网络错误可重试。
+ * 5xx 错误和网络错误可重试
  */
-export function shouldRetry(error: unknown, maxRetries: number): boolean {
+export const shouldRetry = (error: unknown, maxRetries: number): boolean => {
   if (maxRetries <= 0) return false;
   // 网络错误（TypeError）可重试
   if (error instanceof TypeError) return true;
@@ -44,16 +42,16 @@ export function shouldRetry(error: unknown, maxRetries: number): boolean {
     return status >= 500;
   }
   return false;
-}
+};
 
 /**
- * 带重试的执行包装器。
+ * 带重试的执行包装器
  */
-export async function withRetry<T>(
+export const withRetry = async <T>(
   fn: () => Promise<T>,
   logger: Logger | undefined,
   options: RetryOptions = DEFAULT_RETRY_OPTIONS,
-): Promise<T> {
+): Promise<T> => {
   const log = createLogger(logger);
   let lastError: unknown;
 
@@ -74,4 +72,4 @@ export async function withRetry<T>(
   }
 
   throw lastError;
-}
+};

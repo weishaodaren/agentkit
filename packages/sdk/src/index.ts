@@ -67,3 +67,26 @@ export type {
   PaginationParams,
   PaginatedResponse,
 } from "./types";
+
+// ─── 新增模块 API 实例类型导出 ─────────────────────────────────────
+
+export type { McpApiInstance } from "./mcp";
+export type { ProcessorsApiInstance } from "./processors";
+export type { StoredApiInstance } from "./stored";
+export type { WorkspaceApiInstance } from "./workspace";
+export type { ScorersApiInstance } from "./scorers";
+export type { BuilderApiInstance } from "./builder";
+
+// ─── 补全导出的 API 类型 ─────────────────────────────────────────────
+
+export type { AgentsApiInstance, AgentVersionIdentifier } from "./agents";
+export type { WorkflowsApiInstance } from "./workflows";
+export type { ToolsApiInstance } from "./tools";
+export type { MemoryApiInstance } from "./memory";
+export type { TelemetryApiInstance } from "./telemetry";
+export type { LogsApiInstance } from "./logs";
+export type { VectorsApiInstance } from "./vectors";
+export type { DatasetsApiInstance } from "./datasets";
+export type { ResponsesApiInstance } from "./responses";
+export type { ConversationsApiInstance } from "./conversations";
+export type { ChatApiInstance } from "./chat";

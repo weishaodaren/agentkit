@@ -5,6 +5,7 @@
  * 严格对齐 Mastra Client SDK 官方文档侧边栏。
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type { SdkConfig } from "./client";
 import { createSdkClient } from "./client";
 import { createChatApi } from "./chat";
@@ -18,7 +19,12 @@ import { createResponsesApi } from "./responses";
 import { createConversationsApi } from "./conversations";
 import { createLogsApi } from "./logs";
 import { createVectorsApi } from "./vectors";
-import type { SdkClientInstance } from "./client";
+import { createMcpApi } from "./mcp";
+import { createProcessorsApi } from "./processors";
+import { createStoredApi } from "./stored";
+import { createWorkspaceApi } from "./workspace";
+import { createScorersApi } from "./scorers";
+import { createBuilderApi } from "./builder";
 
 /** Agent SDK 完整接口 */
 export interface AgentSdk {
@@ -44,8 +50,20 @@ export interface AgentSdk {
   responses: ReturnType<typeof createResponsesApi>;
   /** Conversations API（实验性） */
   conversations: ReturnType<typeof createConversationsApi>;
+  /** MCP Server 管理 */
+  mcp: ReturnType<typeof createMcpApi>;
+  /** Processors（处理器与提供者） */
+  processors: ReturnType<typeof createProcessorsApi>;
+  /** Stored Resources（Agents/PromptBlocks/Scorers/MCP Clients/Skills） */
+  stored: ReturnType<typeof createStoredApi>;
+  /** Workspaces（工作空间） */
+  workspace: ReturnType<typeof createWorkspaceApi>;
+  /** Scorers Legacy（旧版评分器 API） */
+  scorers: ReturnType<typeof createScorersApi>;
+  /** Builder & System（Agent Builder/Controllers/System/Editor） */
+  builder: ReturnType<typeof createBuilderApi>;
   /** 底层 MastraClient（高级用法） */
-  getClient(): any;
+  getClient: () => MastraClient;
 }
 
 /**
@@ -81,7 +99,7 @@ export interface AgentSdk {
  * const vector = sdk.vectors.getVector('my-vector');
  * ```
  */
-export function createAgentSdk(config: SdkConfig): AgentSdk {
+export const createAgentSdk = (config: SdkConfig): AgentSdk => {
   const sdkClient = createSdkClient(config);
 
   return {
@@ -96,8 +114,14 @@ export function createAgentSdk(config: SdkConfig): AgentSdk {
     datasets: createDatasetsApi(sdkClient),
     responses: createResponsesApi(sdkClient),
     conversations: createConversationsApi(sdkClient),
+    mcp: createMcpApi(sdkClient),
+    processors: createProcessorsApi(sdkClient),
+    stored: createStoredApi(sdkClient),
+    workspace: createWorkspaceApi(sdkClient),
+    scorers: createScorersApi(sdkClient),
+    builder: createBuilderApi(sdkClient),
     getClient: sdkClient.getClient,
   };
-}
+};
 
 export type { SdkConfig } from "./client";

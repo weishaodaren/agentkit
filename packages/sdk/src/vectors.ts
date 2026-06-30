@@ -1,40 +1,35 @@
 /**
  * @agentkit/sdk - Vectors API
- *
- * 对应 Mastra Client SDK 文档中的 Vectors API。
- * 提供向量嵌入和语义搜索能力。
+ * 提供向量嵌入和语义搜索能力
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type { SdkClientInstance } from "./client";
 
 export interface VectorsApiInstance {
   /** 列出所有向量存储 */
-  listVectors(): Promise<unknown>;
+  listVectors: () => Promise<Awaited<ReturnType<MastraClient["listVectors"]>>>;
   /** 获取向量实例 */
-  getVector(vectorName: string): any;
+  getVector: (vectorName: string) => ReturnType<MastraClient["getVector"]>;
   /** 列出所有嵌入模型 */
-  listEmbedders(): Promise<unknown>;
+  listEmbedders: () => Promise<
+    Awaited<ReturnType<MastraClient["listEmbedders"]>>
+  >;
 }
 
 /**
- * 创建 Vectors API 实例。
+ * 创建 Vectors API 实例
  */
-export function createVectorsApi(
+export const createVectorsApi = (
   sdkClient: SdkClientInstance,
-): VectorsApiInstance {
+): VectorsApiInstance => {
   const client = sdkClient.getClient();
 
   return {
-    async listVectors() {
-      return sdkClient.call(async () => client.listVectors());
-    },
+    listVectors: () => sdkClient.call(() => client.listVectors()),
 
-    getVector(vectorName: string) {
-      return client.getVector(vectorName);
-    },
+    getVector: (vectorName) => client.getVector(vectorName),
 
-    async listEmbedders() {
-      return sdkClient.call(async () => client.listEmbedders());
-    },
+    listEmbedders: () => sdkClient.call(() => client.listEmbedders()),
   };
-}
+};

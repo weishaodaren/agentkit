@@ -1,8 +1,5 @@
 /**
  * @agentkit/sdk - Web 应用适配层
- *
- * 旧版 chat.ts 的替代品，内部使用 createAgentSdk。
- * 对外保持与旧版一致的 API 签名，确保 App.tsx 无需改动。
  */
 
 import { createAgentSdk } from "@agentkit/sdk";
@@ -34,7 +31,7 @@ export async function listTools() {
 }
 
 export async function getAgentDetails(agentId: string) {
-  return sdk.agents.getAgentDetails(agentId);
+  return sdk.agents.getAgent(agentId).details();
 }
 
 export async function runWorkflow(

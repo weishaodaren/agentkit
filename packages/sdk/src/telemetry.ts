@@ -6,221 +6,247 @@
  * - Observability API: 评分/反馈/指标/实体
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type { SdkClientInstance } from "./client";
 
 export interface TelemetryApiInstance {
   // ── Telemetry API ──────────────────────────────────────────────
   /** 列出追踪 */
-  listTraces(params?: Record<string, unknown>): Promise<unknown>;
+  listTraces: (
+    params?: Parameters<MastraClient["listTraces"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listTraces"]>>>;
   /** 获取单个追踪 */
-  getTrace(traceId: string): Promise<unknown>;
+  getTrace: (
+    traceId: string,
+  ) => Promise<Awaited<ReturnType<MastraClient["getTrace"]>>>;
   /** 获取轻量追踪（仅 timeline 字段） */
-  getTraceLight(traceId: string): Promise<unknown>;
+  getTraceLight: (
+    traceId: string,
+  ) => Promise<Awaited<ReturnType<MastraClient["getTraceLight"]>>>;
   /** 获取 span 详情 */
-  getSpan(traceId: string, spanId: string): Promise<unknown>;
+  getSpan: (
+    traceId: string,
+    spanId: string,
+  ) => Promise<Awaited<ReturnType<MastraClient["getSpan"]>>>;
   /** 提取轨迹 */
-  getTraceTrajectory(traceId: string): Promise<unknown>;
+  getTraceTrajectory: (
+    traceId: string,
+  ) => Promise<Awaited<ReturnType<MastraClient["getTraceTrajectory"]>>>;
   /** 列出分支 */
-  listBranches(params?: Record<string, unknown>): Promise<unknown>;
+  listBranches: (
+    params?: Parameters<MastraClient["listBranches"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listBranches"]>>>;
   /** 获取分支子树 */
-  getBranch(params: Record<string, unknown>): Promise<unknown>;
+  getBranch: (
+    params: Parameters<MastraClient["getBranch"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getBranch"]>>>;
   /** 按 span 列出评分 */
-  listScoresBySpan(params: Record<string, unknown>): Promise<unknown>;
+  listScoresBySpan: (
+    params: Parameters<MastraClient["listScoresBySpan"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listScoresBySpan"]>>>;
   /** 打分 */
-  score(params: Record<string, unknown>): Promise<unknown>;
+  score: (
+    params: Parameters<MastraClient["score"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["score"]>>>;
 
   // ── Observability API ──────────────────────────────────────────
   /** 列出评分 */
-  listScores(params?: Record<string, unknown>): Promise<unknown>;
+  listScores: (
+    params?: Parameters<MastraClient["listScores"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listScores"]>>>;
   /** 创建评分 */
-  createScore(params: Record<string, unknown>): Promise<unknown>;
+  createScore: (
+    params: Parameters<MastraClient["createScore"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["createScore"]>>>;
   /** 评分聚合 */
-  getScoreAggregate(params: Record<string, unknown>): Promise<unknown>;
+  getScoreAggregate: (
+    params: Parameters<MastraClient["getScoreAggregate"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getScoreAggregate"]>>>;
   /** 评分细分 */
-  getScoreBreakdown(params: Record<string, unknown>): Promise<unknown>;
+  getScoreBreakdown: (
+    params: Parameters<MastraClient["getScoreBreakdown"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getScoreBreakdown"]>>>;
   /** 评分时间序列 */
-  getScoreTimeSeries(params: Record<string, unknown>): Promise<unknown>;
+  getScoreTimeSeries: (
+    params: Parameters<MastraClient["getScoreTimeSeries"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getScoreTimeSeries"]>>>;
   /** 评分百分位 */
-  getScorePercentiles(params: Record<string, unknown>): Promise<unknown>;
+  getScorePercentiles: (
+    params: Parameters<MastraClient["getScorePercentiles"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getScorePercentiles"]>>>;
 
   /** 列出反馈 */
-  listFeedback(params?: Record<string, unknown>): Promise<unknown>;
+  listFeedback: (
+    params?: Parameters<MastraClient["listFeedback"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["listFeedback"]>>>;
   /** 创建反馈 */
-  createFeedback(params: Record<string, unknown>): Promise<unknown>;
+  createFeedback: (
+    params: Parameters<MastraClient["createFeedback"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["createFeedback"]>>>;
   /** 反馈聚合 */
-  getFeedbackAggregate(params: Record<string, unknown>): Promise<unknown>;
+  getFeedbackAggregate: (
+    params: Parameters<MastraClient["getFeedbackAggregate"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getFeedbackAggregate"]>>>;
   /** 反馈细分 */
-  getFeedbackBreakdown(params: Record<string, unknown>): Promise<unknown>;
+  getFeedbackBreakdown: (
+    params: Parameters<MastraClient["getFeedbackBreakdown"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getFeedbackBreakdown"]>>>;
   /** 反馈时间序列 */
-  getFeedbackTimeSeries(params: Record<string, unknown>): Promise<unknown>;
+  getFeedbackTimeSeries: (
+    params: Parameters<MastraClient["getFeedbackTimeSeries"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getFeedbackTimeSeries"]>>>;
   /** 反馈百分位 */
-  getFeedbackPercentiles(params: Record<string, unknown>): Promise<unknown>;
+  getFeedbackPercentiles: (
+    params: Parameters<MastraClient["getFeedbackPercentiles"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getFeedbackPercentiles"]>>>;
 
   /** 指标聚合 */
-  getMetricAggregate(params: Record<string, unknown>): Promise<unknown>;
+  getMetricAggregate: (
+    params: Parameters<MastraClient["getMetricAggregate"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricAggregate"]>>>;
   /** 指标细分 */
-  getMetricBreakdown(params: Record<string, unknown>): Promise<unknown>;
+  getMetricBreakdown: (
+    params: Parameters<MastraClient["getMetricBreakdown"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricBreakdown"]>>>;
   /** 指标时间序列 */
-  getMetricTimeSeries(params: Record<string, unknown>): Promise<unknown>;
+  getMetricTimeSeries: (
+    params: Parameters<MastraClient["getMetricTimeSeries"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricTimeSeries"]>>>;
   /** 指标百分位 */
-  getMetricPercentiles(params: Record<string, unknown>): Promise<unknown>;
+  getMetricPercentiles: (
+    params: Parameters<MastraClient["getMetricPercentiles"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricPercentiles"]>>>;
   /** 指标名称 */
-  getMetricNames(params?: Record<string, unknown>): Promise<unknown>;
+  getMetricNames: (
+    params: Parameters<MastraClient["getMetricNames"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricNames"]>>>;
   /** 指标标签键 */
-  getMetricLabelKeys(params: Record<string, unknown>): Promise<unknown>;
+  getMetricLabelKeys: (
+    params: Parameters<MastraClient["getMetricLabelKeys"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricLabelKeys"]>>>;
   /** 指标标签值 */
-  getMetricLabelValues(params: Record<string, unknown>): Promise<unknown>;
+  getMetricLabelValues: (
+    params: Parameters<MastraClient["getMetricLabelValues"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getMetricLabelValues"]>>>;
 
   /** 实体类型 */
-  getEntityTypes(): Promise<unknown>;
+  getEntityTypes: () => Promise<
+    Awaited<ReturnType<MastraClient["getEntityTypes"]>>
+  >;
   /** 实体名称 */
-  getEntityNames(params?: Record<string, unknown>): Promise<unknown>;
+  getEntityNames: (
+    params?: Parameters<MastraClient["getEntityNames"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getEntityNames"]>>>;
   /** 服务名称 */
-  getServiceNames(): Promise<unknown>;
+  getServiceNames: () => Promise<
+    Awaited<ReturnType<MastraClient["getServiceNames"]>>
+  >;
   /** 环境 */
-  getEnvironments(): Promise<unknown>;
+  getEnvironments: () => Promise<
+    Awaited<ReturnType<MastraClient["getEnvironments"]>>
+  >;
   /** 标签 */
-  getTags(params?: Record<string, unknown>): Promise<unknown>;
+  getTags: (
+    params?: Parameters<MastraClient["getTags"]>[0],
+  ) => Promise<Awaited<ReturnType<MastraClient["getTags"]>>>;
 }
 
 /**
- * 创建 Telemetry & Observability API 实例。
+ * 创建 Telemetry & Observability API 实例
  */
-export function createTelemetryApi(
+export const createTelemetryApi = (
   sdkClient: SdkClientInstance,
-): TelemetryApiInstance {
+): TelemetryApiInstance => {
   const client = sdkClient.getClient();
 
   return {
     // ── Telemetry ──────────────────────────────────────────────
-    async listTraces(params) {
-      return sdkClient.call(async () => client.listTraces(params as any));
-    },
-    async getTrace(traceId) {
-      return sdkClient.call(async () => client.getTrace(traceId));
-    },
-    async getTraceLight(traceId) {
-      return sdkClient.call(async () => client.getTraceLight(traceId));
-    },
-    async getSpan(traceId, spanId) {
-      return sdkClient.call(async () => client.getSpan(traceId, spanId));
-    },
-    async getTraceTrajectory(traceId) {
-      return sdkClient.call(async () => client.getTraceTrajectory(traceId));
-    },
-    async listBranches(params) {
-      return sdkClient.call(async () => client.listBranches(params as any));
-    },
-    async getBranch(params) {
-      return sdkClient.call(async () => client.getBranch(params as any));
-    },
-    async listScoresBySpan(params) {
-      return sdkClient.call(async () => client.listScoresBySpan(params as any));
-    },
-    async score(params) {
-      return sdkClient.call(async () => client.score(params as any));
-    },
+    listTraces: (params) => sdkClient.call(() => client.listTraces(params)),
+
+    getTrace: (traceId) => sdkClient.call(() => client.getTrace(traceId)),
+
+    getTraceLight: (traceId) =>
+      sdkClient.call(() => client.getTraceLight(traceId)),
+
+    getSpan: (traceId, spanId) =>
+      sdkClient.call(() => client.getSpan(traceId, spanId)),
+
+    getTraceTrajectory: (traceId) =>
+      sdkClient.call(() => client.getTraceTrajectory(traceId)),
+
+    listBranches: (params) => sdkClient.call(() => client.listBranches(params)),
+
+    getBranch: (params) => sdkClient.call(() => client.getBranch(params)),
+
+    listScoresBySpan: (params) =>
+      sdkClient.call(() => client.listScoresBySpan(params)),
+
+    score: (params) => sdkClient.call(() => client.score(params)),
 
     // ── Observability ────────────────────────────────────────
-    async listScores(params) {
-      return sdkClient.call(async () => client.listScores(params as any));
-    },
-    async createScore(params) {
-      return sdkClient.call(async () => client.createScore(params as any));
-    },
-    async getScoreAggregate(params) {
-      return sdkClient.call(async () =>
-        client.getScoreAggregate(params as any),
-      );
-    },
-    async getScoreBreakdown(params) {
-      return sdkClient.call(async () =>
-        client.getScoreBreakdown(params as any),
-      );
-    },
-    async getScoreTimeSeries(params) {
-      return sdkClient.call(async () =>
-        client.getScoreTimeSeries(params as any),
-      );
-    },
-    async getScorePercentiles(params) {
-      return sdkClient.call(async () =>
-        client.getScorePercentiles(params as any),
-      );
-    },
-    async listFeedback(params) {
-      return sdkClient.call(async () => client.listFeedback(params as any));
-    },
-    async createFeedback(params) {
-      return sdkClient.call(async () => client.createFeedback(params as any));
-    },
-    async getFeedbackAggregate(params) {
-      return sdkClient.call(async () =>
-        client.getFeedbackAggregate(params as any),
-      );
-    },
-    async getFeedbackBreakdown(params) {
-      return sdkClient.call(async () =>
-        client.getFeedbackBreakdown(params as any),
-      );
-    },
-    async getFeedbackTimeSeries(params) {
-      return sdkClient.call(async () =>
-        client.getFeedbackTimeSeries(params as any),
-      );
-    },
-    async getFeedbackPercentiles(params) {
-      return sdkClient.call(async () =>
-        client.getFeedbackPercentiles(params as any),
-      );
-    },
-    async getMetricAggregate(params) {
-      return sdkClient.call(async () =>
-        client.getMetricAggregate(params as any),
-      );
-    },
-    async getMetricBreakdown(params) {
-      return sdkClient.call(async () =>
-        client.getMetricBreakdown(params as any),
-      );
-    },
-    async getMetricTimeSeries(params) {
-      return sdkClient.call(async () =>
-        client.getMetricTimeSeries(params as any),
-      );
-    },
-    async getMetricPercentiles(params) {
-      return sdkClient.call(async () =>
-        client.getMetricPercentiles(params as any),
-      );
-    },
-    async getMetricNames(params) {
-      return sdkClient.call(async () => client.getMetricNames(params));
-    },
-    async getMetricLabelKeys(params) {
-      return sdkClient.call(async () =>
-        client.getMetricLabelKeys(params as any),
-      );
-    },
-    async getMetricLabelValues(params) {
-      return sdkClient.call(async () =>
-        client.getMetricLabelValues(params as any),
-      );
-    },
-    async getEntityTypes() {
-      return sdkClient.call(async () => client.getEntityTypes());
-    },
-    async getEntityNames(params) {
-      return sdkClient.call(async () => client.getEntityNames(params));
-    },
-    async getServiceNames() {
-      return sdkClient.call(async () => client.getServiceNames());
-    },
-    async getEnvironments() {
-      return sdkClient.call(async () => client.getEnvironments());
-    },
-    async getTags(params) {
-      return sdkClient.call(async () => client.getTags(params));
-    },
+    listScores: (params) => sdkClient.call(() => client.listScores(params)),
+
+    createScore: (params) => sdkClient.call(() => client.createScore(params)),
+
+    getScoreAggregate: (params) =>
+      sdkClient.call(() => client.getScoreAggregate(params)),
+
+    getScoreBreakdown: (params) =>
+      sdkClient.call(() => client.getScoreBreakdown(params)),
+
+    getScoreTimeSeries: (params) =>
+      sdkClient.call(() => client.getScoreTimeSeries(params)),
+
+    getScorePercentiles: (params) =>
+      sdkClient.call(() => client.getScorePercentiles(params)),
+
+    listFeedback: (params) => sdkClient.call(() => client.listFeedback(params)),
+
+    createFeedback: (params) =>
+      sdkClient.call(() => client.createFeedback(params)),
+
+    getFeedbackAggregate: (params) =>
+      sdkClient.call(() => client.getFeedbackAggregate(params)),
+
+    getFeedbackBreakdown: (params) =>
+      sdkClient.call(() => client.getFeedbackBreakdown(params)),
+
+    getFeedbackTimeSeries: (params) =>
+      sdkClient.call(() => client.getFeedbackTimeSeries(params)),
+
+    getFeedbackPercentiles: (params) =>
+      sdkClient.call(() => client.getFeedbackPercentiles(params)),
+
+    getMetricAggregate: (params) =>
+      sdkClient.call(() => client.getMetricAggregate(params)),
+
+    getMetricBreakdown: (params) =>
+      sdkClient.call(() => client.getMetricBreakdown(params)),
+
+    getMetricTimeSeries: (params) =>
+      sdkClient.call(() => client.getMetricTimeSeries(params)),
+
+    getMetricPercentiles: (params) =>
+      sdkClient.call(() => client.getMetricPercentiles(params)),
+
+    getMetricNames: (params) =>
+      sdkClient.call(() => client.getMetricNames(params)),
+
+    getMetricLabelKeys: (params) =>
+      sdkClient.call(() => client.getMetricLabelKeys(params)),
+
+    getMetricLabelValues: (params) =>
+      sdkClient.call(() => client.getMetricLabelValues(params)),
+
+    getEntityTypes: () => sdkClient.call(() => client.getEntityTypes()),
+
+    getEntityNames: (params) =>
+      sdkClient.call(() => client.getEntityNames(params)),
+
+    getServiceNames: () => sdkClient.call(() => client.getServiceNames()),
+
+    getEnvironments: () => sdkClient.call(() => client.getEnvironments()),
+
+    getTags: (params) => sdkClient.call(() => client.getTags(params)),
   };
-}
+};

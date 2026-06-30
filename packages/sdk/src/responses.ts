@@ -1,46 +1,48 @@
 /**
  * @agentkit/sdk - Responses API (Experimental)
- *
- * 对应 Mastra Client SDK 文档中的 Responses API。
- * 使用 Mastra Agent 作为 OpenAI 兼容的 agent-backed Responses API。
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type { SdkClientInstance } from "./client";
+
+type ResponsesResource = MastraClient["responses"];
 
 export interface ResponsesApiInstance {
   /** 创建响应 */
-  create(params: Record<string, unknown>): Promise<unknown>;
+  create: (
+    params: Parameters<ResponsesResource["create"]>[0],
+  ) => Promise<Awaited<ReturnType<ResponsesResource["create"]>>>;
   /** 流式创建响应 */
-  stream(params: Record<string, unknown>): Promise<unknown>;
+  stream: (
+    params: Parameters<ResponsesResource["stream"]>[0],
+  ) => Promise<Awaited<ReturnType<ResponsesResource["stream"]>>>;
   /** 获取响应 */
-  retrieve(responseId: string): Promise<unknown>;
+  retrieve: (
+    responseId: string,
+  ) => Promise<Awaited<ReturnType<ResponsesResource["retrieve"]>>>;
   /** 删除响应 */
-  delete(responseId: string): Promise<unknown>;
+  delete: (
+    responseId: string,
+  ) => Promise<Awaited<ReturnType<ResponsesResource["delete"]>>>;
 }
 
 /**
- * 创建 Responses API 实例。
+ * 创建 Responses API 实例
  */
-export function createResponsesApi(
+export const createResponsesApi = (
   sdkClient: SdkClientInstance,
-): ResponsesApiInstance {
+): ResponsesApiInstance => {
   const client = sdkClient.getClient();
 
   return {
-    async create(params) {
-      return sdkClient.call(async () => client.responses.create(params as any));
-    },
+    create: (params) => sdkClient.call(() => client.responses.create(params)),
 
-    async stream(params) {
-      return sdkClient.call(async () => client.responses.stream(params as any));
-    },
+    stream: (params) => sdkClient.call(() => client.responses.stream(params)),
 
-    async retrieve(responseId) {
-      return sdkClient.call(async () => client.responses.retrieve(responseId));
-    },
+    retrieve: (responseId) =>
+      sdkClient.call(() => client.responses.retrieve(responseId)),
 
-    async delete(responseId) {
-      return sdkClient.call(async () => client.responses.delete(responseId));
-    },
+    delete: (responseId) =>
+      sdkClient.call(() => client.responses.delete(responseId)),
   };
-}
+};

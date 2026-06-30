@@ -50,54 +50,54 @@ export class SdkError extends Error {
 
 // ─── Error Factories ───────────────────────────────────────────────
 
-export function createNetworkError(message: string, cause?: Error): SdkError {
-  return new SdkError({
+export const createNetworkError = (message: string, cause?: Error): SdkError =>
+  new SdkError({
     message,
     code: ERROR_CODE.INTERNAL_ERROR,
     phase: "network",
     cause,
   });
-}
 
-export function createStreamError(
+export const createStreamError = (
   message: string,
   details?: unknown,
-): SdkError {
-  return new SdkError({
+): SdkError =>
+  new SdkError({
     message,
     code: ERROR_CODE.INTERNAL_ERROR,
     phase: "stream",
     details,
   });
-}
 
-export function createParseError(message: string, details?: unknown): SdkError {
-  return new SdkError({
+export const createParseError = (
+  message: string,
+  details?: unknown,
+): SdkError =>
+  new SdkError({
     message,
     code: ERROR_CODE.INTERNAL_ERROR,
     phase: "parse",
     details,
   });
-}
 
-export function createValidationError(
+export const createValidationError = (
   message: string,
   details?: unknown,
-): SdkError {
-  return new SdkError({
+): SdkError =>
+  new SdkError({
     message,
     code: ERROR_CODE.BAD_REQUEST,
     phase: "validation",
     details,
   });
-}
 
-export function createHttpError(
+export const createHttpError = (
   status: number,
   message: string,
   body?: unknown,
-): SdkError {
-  const code = (ERROR_CODE as any)[status] ?? ERROR_CODE.INTERNAL_ERROR;
+): SdkError => {
+  const code =
+    (ERROR_CODE as Record<number, number>)[status] ?? ERROR_CODE.INTERNAL_ERROR;
   return new SdkError({
     message,
     code,
@@ -105,25 +105,24 @@ export function createHttpError(
     phase: "network",
     details: body,
   });
-}
+};
 
 // ─── Error Utilities ───────────────────────────────────────────────
 
-export function isSdkError(err: unknown): err is SdkError {
-  return err instanceof SdkError;
-}
+export const isSdkError = (err: unknown): err is SdkError =>
+  err instanceof SdkError;
 
-export function normalizeError(err: unknown): SdkError {
+export const normalizeError = (err: unknown): SdkError => {
   if (isSdkError(err)) return err;
   if (err instanceof Error) {
     return createNetworkError(err.message, err);
   }
   return createNetworkError(String(err));
-}
+};
 
-export function logError(logger: Logger, err: SdkError): void {
+export const logError = (logger: Logger, err: SdkError): void => {
   logger.error(
     `[SdkError] code=${err.code} status=${err.statusCode} phase=${err.phase} message=${err.message}`,
     err.details,
   );
-}
+};

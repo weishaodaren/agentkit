@@ -6,6 +6,11 @@
 
 import type { Logger } from "./types";
 
+/** 空操作 */
+const noop = (): void => {
+  /* no-op */
+};
+
 /** 空日志记录器（默认） */
 const noopLogger: Logger = {
   debug: noop,
@@ -14,16 +19,9 @@ const noopLogger: Logger = {
   error: noop,
 };
 
-function noop(): void {
-  /* no-op */
-}
-
 /** 创建日志记录器 */
-export function createLogger(custom?: Logger | null): Logger {
-  return custom ?? noopLogger;
-}
+export const createLogger = (custom?: Logger | null): Logger =>
+  custom ?? noopLogger;
 
 /** 判断是否有活跃日志 */
-export function hasLogger(custom?: Logger | null): custom is Logger {
-  return !!custom;
-}
+export const hasLogger = (custom?: Logger | null): custom is Logger => !!custom;

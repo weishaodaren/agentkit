@@ -10,6 +10,7 @@
  * - 支持 AbortController 取消
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type {
   ChatCallbacks,
   ChatMessage,
@@ -22,6 +23,23 @@ import type {
 import type { SdkClientInstance } from "./client";
 import { normalizeError } from "./error";
 import { hasLogger } from "./logger";
+
+// ─── 类型提取 ──────────────────────────────────────────────────────
+
+type MastraAgent = ReturnType<MastraClient["getAgent"]>;
+type MastraStreamResponse = Awaited<ReturnType<MastraAgent["stream"]>>;
+type MastraGenerateResponse = Awaited<ReturnType<MastraAgent["generate"]>>;
+
+/** Agent stream() 方法接受的消息类型 */
+type MastraMessages = Parameters<MastraAgent["stream"]>[0];
+
+/** processDataStream 选项类型 */
+type DataStreamOptions = Parameters<
+  MastraStreamResponse["processDataStream"]
+>[0];
+
+/** processDataStream onChunk 回调的 chunk 类型 */
+type DataStreamChunk = Parameters<DataStreamOptions["onChunk"]>[0];
 
 // ─── Chunk Handler 映射表 ──────────────────────────────────────────
 // 新增 chunk 类型只需在这里添加一行，无需修改 switch。
@@ -120,26 +138,44 @@ const CHUNK_HANDLERS: Record<string, ChunkHandler> = {
 export interface ChatApiInstance {
   /**
    * 向指定 Agent 发送消息并流式接收响应。
+   * 返回 assistant 完整响应文本。
    */
-  sendMessage(
+  sendMessage: (
     agentId: string,
     textOrMessages: string | ChatMessage[],
     params?: SendMessageParams,
-  ): Promise<string>;
+  ) => Promise<string>;
+  /**
+   * 向指定 Agent 发送消息并等待完整响应（非流式）。
+   * 返回 assistant 完整响应文本。
+   */
+  generate: (
+    agentId: string,
+    textOrMessages: string | ChatMessage[],
+    params?: SendMessageParams,
+  ) => Promise<string>;
+  /**
+   * 获取 Agent 详情（模型、指令等）。
+   */
+  getDetails: (
+    agentId: string,
+  ) => Promise<Awaited<ReturnType<MastraAgent["details"]>>>;
 }
 
 /**
- * 创建聊天 API 实例。
+ * 创建聊天 API 实例
  */
-export function createChatApi(sdkClient: SdkClientInstance): ChatApiInstance {
+export const createChatApi = (
+  sdkClient: SdkClientInstance,
+): ChatApiInstance => {
   const config = sdkClient.getConfig();
 
   return {
-    async sendMessage(
+    sendMessage: (
       agentId: string,
       textOrMessages: string | ChatMessage[],
       params?: SendMessageParams,
-    ): Promise<string> {
+    ): Promise<string> => {
       const messages = _parseMessages(textOrMessages, params?.messages);
       const callbacks = params?.callbacks ?? {};
       const signal = params?.signal;
@@ -153,45 +189,104 @@ export function createChatApi(sdkClient: SdkClientInstance): ChatApiInstance {
 
       const client = sdkClient.createScopedClient(signal);
       const agent = client.getAgent(agentId);
+      const textBuffer: string[] = [];
 
-      try {
-        const response = await agent.stream(messages as any);
+      // 包装 callbacks 以同时收集文本
+      const wrappedCallbacks: ChatCallbacks = {
+        ...callbacks,
+        onText: (text: string) => {
+          textBuffer.push(text);
+          callbacks.onText?.(text);
+        },
+      };
 
-        await response.processDataStream({
-          onChunk: (chunk: any) => {
-            const handler = CHUNK_HANDLERS[chunk.type];
-            if (handler) {
-              handler(chunk.payload, callbacks);
-            }
-          },
-        });
+      return (async () => {
+        try {
+          const response = await agent.stream(messages as MastraMessages);
 
-        if (config.logger) {
-          config.logger.debug("[Chat.sendMessage]", "stream completed");
+          await response.processDataStream({
+            onChunk: (chunk: DataStreamChunk) => {
+              const handler = CHUNK_HANDLERS[chunk.type];
+              if (handler) {
+                const payload = (chunk as unknown as Record<string, unknown>)
+                  .payload;
+                handler(payload, wrappedCallbacks);
+              }
+            },
+          });
+
+          if (config.logger) {
+            config.logger.debug("[Chat.sendMessage]", "stream completed");
+          }
+
+          return textBuffer.join("");
+        } catch (error) {
+          const sdkError = normalizeError(error);
+          callbacks.onError?.(sdkError);
+          throw sdkError;
         }
-
-        return `assistant-${Date.now()}`;
-      } catch (error) {
-        const sdkError = normalizeError(error);
-        callbacks.onError?.(sdkError);
-        throw sdkError;
-      }
+      })();
     },
+
+    generate: (
+      agentId: string,
+      textOrMessages: string | ChatMessage[],
+      params?: SendMessageParams,
+    ): Promise<string> => {
+      const messages = _parseMessages(textOrMessages, params?.messages);
+      const callbacks = params?.callbacks ?? {};
+      const signal = params?.signal;
+
+      if (hasLogger(config.logger)) {
+        config.logger.debug("[Chat.generate]", {
+          agentId,
+          messageCount: messages.length,
+        });
+      }
+
+      const client = sdkClient.createScopedClient(signal);
+      const agent = client.getAgent(agentId);
+
+      return (async () => {
+        try {
+          const response = (await agent.generate(
+            messages as MastraMessages,
+          )) as MastraGenerateResponse;
+          const text =
+            (response as Record<string, unknown>)?.text ??
+            (response as Record<string, unknown>)?.content ??
+            "";
+
+          if (config.logger) {
+            config.logger.debug("[Chat.generate]", "generate completed");
+          }
+
+          return typeof text === "string" ? text : String(text);
+        } catch (error) {
+          const sdkError = normalizeError(error);
+          callbacks.onError?.(sdkError);
+          throw sdkError;
+        }
+      })();
+    },
+
+    getDetails: (agentId: string) =>
+      sdkClient.call(() => sdkClient.getClient().getAgent(agentId).details()),
   };
-}
+};
 
 /**
  * 解析消息格式：支持字符串或 ChatMessage[]。
  */
-function _parseMessages(
+const _parseMessages = (
   textOrMessages: string | ChatMessage[],
   history?: ChatMessage[],
-): ChatMessage[] {
+): ChatMessage[] => {
   if (typeof textOrMessages === "string") {
     const userMsg: ChatMessage = { role: "user", content: textOrMessages };
     return history ? [...history, userMsg] : [userMsg];
   }
   return textOrMessages;
-}
+};
 
 export type { ChatCallbacks, ChatMessage, SendMessageParams } from "./types";

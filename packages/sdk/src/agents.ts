@@ -1,40 +1,51 @@
 /**
- * @agentkit/sdk - Agent 发现 API
+ * @agentkit/sdk - Agents API
  */
 
+import type { MastraClient } from "@mastra/client-js";
 import type { SdkClientInstance } from "./client";
+
+/** Agent 版本标识符 */
+export type AgentVersionIdentifier =
+  | Parameters<MastraClient["getAgent"]>[1]
+  | undefined;
 
 export interface AgentsApiInstance {
   /** 列出所有已注册的 Agent */
-  listAgents(): Promise<Record<string, unknown>>;
+  listAgents: (
+    requestContext?: Parameters<MastraClient["listAgents"]>[0],
+    partial?: Parameters<MastraClient["listAgents"]>[1],
+  ) => Promise<Awaited<ReturnType<MastraClient["listAgents"]>>>;
+  /** 列出 Agent 模型提供者 */
+  listModelProviders: () => Promise<
+    Awaited<ReturnType<MastraClient["listAgentsModelProviders"]>>
+  >;
   /** 获取 Agent 实例（用于流式调用等） */
-  getAgent(agentId: string): any;
-  /** 获取 Agent 详细信息 */
-  getAgentDetails(agentId: string): Promise<unknown>;
+  getAgent: (
+    agentId: Parameters<MastraClient["getAgent"]>[0],
+    version?: AgentVersionIdentifier,
+  ) => ReturnType<MastraClient["getAgent"]>;
+  /** 获取 A2A 客户端 */
+  getA2A: (agentId: string) => ReturnType<MastraClient["getA2A"]>;
 }
 
 /**
- * 创建 Agent API 实例。
+ * 创建 Agent API 实例
  */
-export function createAgentsApi(
+export const createAgentsApi = (
   sdkClient: SdkClientInstance,
-): AgentsApiInstance {
+): AgentsApiInstance => {
+  const client = sdkClient.getClient();
+
   return {
-    async listAgents() {
-      return sdkClient.call(async () => {
-        return sdkClient.getClient().listAgents();
-      });
-    },
+    listAgents: (requestContext, partial) =>
+      sdkClient.call(() => client.listAgents(requestContext, partial)),
 
-    getAgent(agentId: string) {
-      return sdkClient.getClient().getAgent(agentId);
-    },
+    listModelProviders: () =>
+      sdkClient.call(() => client.listAgentsModelProviders()),
 
-    async getAgentDetails(agentId: string) {
-      return sdkClient.call(async () => {
-        const agent = sdkClient.getClient().getAgent(agentId);
-        return agent.details();
-      });
-    },
+    getAgent: (agentId, version) => client.getAgent(agentId, version),
+
+    getA2A: (agentId) => client.getA2A(agentId),
   };
-}
+};
