@@ -13,6 +13,9 @@ export default defineConfig({
     },
     rolldownOptions: {
       external: ["@agentkit/shared", "@mastra/client-js"],
+      output: {
+        preserveModules: true,
+      },
     },
   },
 });
