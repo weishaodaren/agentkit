@@ -6,6 +6,10 @@
  * - 简化的聊天 API（sendMessage）
  * - 完整的 Agent/Workflow/Tool/Memory/Dataset 操作
  * - 统一的错误处理和日志
+ *
+ * 模块严格对齐 Mastra Client SDK 官方文档侧边栏：
+ * Agents, Memory, Workflows, Tools, Vectors, Logs, Telemetry,
+ * Observability, Datasets, Responses, Conversations, Error Handling
  */
 
 export { createAgentSdk } from "./sdk";
@@ -54,7 +58,12 @@ export type { RetryOptions } from "./retry";
 
 // ─── 共享类型和常量（从 @agentkit/shared 重新导出）──────────────────
 
-export { API_BASE_PATH, REQUEST_TIMEOUT, ERROR_CODE, SSE_EVENT } from "./types";
+export {
+  API_BASE_PATH,
+  REQUEST_TIMEOUT,
+  ERROR_CODE,
+  SSE_EVENT,
+} from "./types";
 
 export type {
   ID,

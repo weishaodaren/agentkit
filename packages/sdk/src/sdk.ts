@@ -2,7 +2,7 @@
  * @agentkit/sdk - 工厂函数
  *
  * createAgentSdk(config) → 返回完整的 SDK 实例，
- * 包含 chat、agents、workflows、tools、memory、observability、datasets 等子模块。
+ * 严格对齐 Mastra Client SDK 官方文档侧边栏。
  */
 
 import type { SdkConfig } from "./client";
@@ -12,20 +12,17 @@ import { createAgentsApi } from "./agents";
 import { createWorkflowsApi } from "./workflows";
 import { createToolsApi } from "./tools";
 import { createMemoryApi } from "./memory";
-import { createObservabilityApi } from "./observability";
+import { createTelemetryApi } from "./telemetry";
 import { createDatasetsApi } from "./datasets";
-import { createMcpApi } from "./mcp";
-import { createStorageApi } from "./storage";
-import { createBuilderApi } from "./builder";
-import { createWorkspaceApi } from "./workspace";
-import { createBackgroundApi } from "./background";
-import { createProcessorsApi } from "./processors";
-import { createStoredApi } from "./stored";
+import { createResponsesApi } from "./responses";
+import { createConversationsApi } from "./conversations";
+import { createLogsApi } from "./logs";
+import { createVectorsApi } from "./vectors";
 import type { SdkClientInstance } from "./client";
 
 /** Agent SDK 完整接口 */
 export interface AgentSdk {
-  /** 流式聊天 */
+  /** 流式聊天（Agents API 的 stream/generate 封装） */
   chat: ReturnType<typeof createChatApi>;
   /** Agent 发现 */
   agents: ReturnType<typeof createAgentsApi>;
@@ -35,24 +32,18 @@ export interface AgentSdk {
   tools: ReturnType<typeof createToolsApi>;
   /** 记忆/线程 */
   memory: ReturnType<typeof createMemoryApi>;
-  /** 可观测性 */
-  observability: ReturnType<typeof createObservabilityApi>;
+  /** Telemetry（追踪/span/分支/打分）+ Observability（评分/反馈/指标/实体） */
+  telemetry: ReturnType<typeof createTelemetryApi>;
+  /** 日志 */
+  logs: ReturnType<typeof createLogsApi>;
+  /** 向量/嵌入 */
+  vectors: ReturnType<typeof createVectorsApi>;
   /** 数据集 */
   datasets: ReturnType<typeof createDatasetsApi>;
-  /** MCP 服务 */
-  mcp: ReturnType<typeof createMcpApi>;
-  /** 向量/嵌入存储 */
-  storage: ReturnType<typeof createStorageApi>;
-  /** Agent Builder */
-  builder: ReturnType<typeof createBuilderApi>;
-  /** 工作空间 */
-  workspace: ReturnType<typeof createWorkspaceApi>;
-  /** 后台任务 */
-  background: ReturnType<typeof createBackgroundApi>;
-  /** 处理器 */
-  processors: ReturnType<typeof createProcessorsApi>;
-  /** 存储资源（stored agents, skills, scorers 等） */
-  stored: ReturnType<typeof createStoredApi>;
+  /** Responses API（实验性） */
+  responses: ReturnType<typeof createResponsesApi>;
+  /** Conversations API（实验性） */
+  conversations: ReturnType<typeof createConversationsApi>;
   /** 底层 MastraClient（高级用法） */
   getClient(): any;
 }
@@ -81,11 +72,13 @@ export interface AgentSdk {
  * // 记忆
  * const threads = await sdk.memory.listThreads({ agentId: "weather-agent" });
  *
- * // MCP
- * const servers = await sdk.mcp.listServers();
+ * // Telemetry
+ * const traces = await sdk.telemetry.listTraces();
+ * const trace = await sdk.telemetry.getTrace(traceId);
  *
- * // 存储资源
- * const storedAgents = await sdk.stored.listAgents();
+ * // Vectors
+ * const vectors = await sdk.vectors.listVectors();
+ * const vector = sdk.vectors.getVector('my-vector');
  * ```
  */
 export function createAgentSdk(config: SdkConfig): AgentSdk {
@@ -97,15 +90,12 @@ export function createAgentSdk(config: SdkConfig): AgentSdk {
     workflows: createWorkflowsApi(sdkClient),
     tools: createToolsApi(sdkClient),
     memory: createMemoryApi(sdkClient),
-    observability: createObservabilityApi(sdkClient),
+    telemetry: createTelemetryApi(sdkClient),
+    logs: createLogsApi(sdkClient),
+    vectors: createVectorsApi(sdkClient),
     datasets: createDatasetsApi(sdkClient),
-    mcp: createMcpApi(sdkClient),
-    storage: createStorageApi(sdkClient),
-    builder: createBuilderApi(sdkClient),
-    workspace: createWorkspaceApi(sdkClient),
-    background: createBackgroundApi(sdkClient),
-    processors: createProcessorsApi(sdkClient),
-    stored: createStoredApi(sdkClient),
+    responses: createResponsesApi(sdkClient),
+    conversations: createConversationsApi(sdkClient),
     getClient: sdkClient.getClient,
   };
 }
