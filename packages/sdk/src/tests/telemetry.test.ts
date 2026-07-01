@@ -124,7 +124,10 @@ describe("createTelemetryApi", () => {
     await api.getBranch({ traceId: "trace-1", spanId: "span-1" } as never);
     expect(mockClient.getBranch).toHaveBeenCalled();
 
-    await api.listScoresBySpan({ traceId: "trace-1", spanId: "span-1" } as never);
+    await api.listScoresBySpan({
+      traceId: "trace-1",
+      spanId: "span-1",
+    } as never);
     expect(mockClient.listScoresBySpan).toHaveBeenCalled();
 
     await api.score({ scorerName: "scorer-1", targets: [] } as never);
