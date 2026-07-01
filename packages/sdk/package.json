@@ -22,6 +22,9 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "oxlint .",
     "format": "oxfmt write .",
     "typecheck": "tsc --noEmit"
@@ -31,8 +34,10 @@
     "@mastra/client-js": "1.28.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.9",
     "typescript": "catalog:",
     "unplugin-dts": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "^4.1.9"
   }
 }

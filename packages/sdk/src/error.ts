@@ -96,8 +96,7 @@ export const createHttpError = (
   message: string,
   body?: unknown,
 ): SdkError => {
-  const code =
-    (ERROR_CODE as Record<number, number>)[status] ?? ERROR_CODE.INTERNAL_ERROR;
+  const code = (ERROR_CODE as Record<number, number>)[status] ?? status;
   return new SdkError({
     message,
     code,
