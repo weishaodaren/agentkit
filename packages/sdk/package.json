@@ -34,7 +34,6 @@
     "@mastra/client-js": "1.28.0"
   },
   "devDependencies": {
-    "typescript": "catalog:",
     "unplugin-dts": "catalog:",
     "vite": "catalog:"
   }
