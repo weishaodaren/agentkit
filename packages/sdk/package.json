@@ -34,10 +34,8 @@
     "@mastra/client-js": "1.28.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.9",
     "typescript": "catalog:",
     "unplugin-dts": "catalog:",
-    "vite": "catalog:",
-    "vitest": "^4.1.9"
+    "vite": "catalog:"
   }
 }
