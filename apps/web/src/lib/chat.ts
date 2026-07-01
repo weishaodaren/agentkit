@@ -1,42 +1,44 @@
-import { MastraClient } from "@mastra/client-js";
+/**
+ * @agentkit/sdk - Web 应用适配层
+ */
 
-/** Base URL — 开发环境走 Vite proxy，生产环境走 VITE_API_BASE_URL */
+import { createAgentSdk } from "@agentkit/sdk";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
-const API_PREFIX = "/api";
 
-/** 全局客户端实例（无 abortSignal，用于 list* 类 API） */
-const client = new MastraClient({ baseUrl: BASE_URL, apiPrefix: API_PREFIX });
+// 全局 SDK 实例
+const sdk = createAgentSdk({
+  baseUrl: BASE_URL,
+  apiPrefix: "/api",
+});
 
 // ─── Agent / Workflow / Tool 列表 API ────────────────────────────
 
-/** 获取所有已注册的 agent */
 export async function listAgents() {
-  return client.listAgents();
+  const agents = await sdk.agents.listAgents();
+  // Convert our simplified AgentInfo back to the shape App.tsx expects
+  // App.tsx does: Object.keys(agents) — so just return a Record<string, unknown>
+  return agents as unknown as Record<string, unknown>;
 }
 
-/** 获取所有已注册的 workflow */
 export async function listWorkflows() {
-  return client.listWorkflows();
+  const workflows = await sdk.workflows.listWorkflows();
+  return workflows as Record<string, unknown>;
 }
 
-/** 获取所有已注册的 tool */
 export async function listTools() {
-  return client.listTools();
+  return sdk.tools.listTools();
 }
 
-/** 获取 agent 详情 */
 export async function getAgentDetails(agentId: string) {
-  return client.getAgent(agentId).details();
+  return sdk.agents.getAgent(agentId).details();
 }
 
-/** 触发 workflow 执行 */
 export async function runWorkflow(
   workflowId: string,
   input: Record<string, unknown>,
 ) {
-  const wf = client.getWorkflow(workflowId);
-  const run = await wf.createRun();
-  return run.startAsync({ inputData: input });
+  return sdk.workflows.runWorkflow(workflowId, input);
 }
 
 // ─── 流式 Agent 调用 ────────────────────────────────────────────
@@ -91,6 +93,7 @@ type SimpleMessage = { role: "user" | "assistant" | "system"; content: string };
 
 /**
  * 向指定 agent 发送消息并流式接收全部事件。
+ * 签名与旧版保持一致。
  */
 export async function streamAgentMessage(
   agentId: string,
@@ -98,64 +101,25 @@ export async function streamAgentMessage(
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
-  const requestClient = new MastraClient({
-    baseUrl: BASE_URL,
-    apiPrefix: API_PREFIX,
-    abortSignal: signal,
-  });
+  // Convert SimpleMessage[] to ChatMessage[]
+  const chatMessages = messages.map((m) => ({
+    role: m.role as "user" | "assistant" | "system",
+    content: m.content,
+  }));
 
-  const agent = requestClient.getAgent(agentId);
-  const response = await agent.stream(messages as any);
-
-  await response.processDataStream({
-    onChunk(chunk) {
-      switch (chunk.type) {
-        case "text-delta":
-          callbacks.onTextDelta?.(chunk.payload.text);
-          break;
-        case "reasoning-start":
-          callbacks.onReasoningStart?.();
-          break;
-        case "reasoning-delta":
-          callbacks.onReasoningDelta?.(chunk.payload.text);
-          break;
-        case "reasoning-end":
-          callbacks.onReasoningEnd?.();
-          break;
-        case "tool-call":
-          callbacks.onToolCall?.({
-            toolCallId: chunk.payload.toolCallId,
-            toolName: chunk.payload.toolName,
-            args: chunk.payload.args,
-          });
-          break;
-        case "tool-result":
-          callbacks.onToolResult?.({
-            toolCallId: chunk.payload.toolCallId,
-            toolName: chunk.payload.toolName,
-            result: chunk.payload.result,
-            isError: chunk.payload.isError,
-          });
-          break;
-        case "step-start":
-          callbacks.onStepStart?.({
-            messageId: (chunk.payload as any).messageId,
-            request: (chunk.payload as any).request,
-          });
-          break;
-        case "step-finish":
-          callbacks.onStepFinish?.({
-            usage: (chunk.payload as any).output?.usage,
-            reason: (chunk.payload as any).stepResult?.reason,
-          });
-          break;
-        case "finish":
-          callbacks.onFinish?.();
-          break;
-        case "error":
-          callbacks.onError?.(chunk.payload.error);
-          break;
-      }
+  await sdk.chat.sendMessage(agentId, chatMessages, {
+    callbacks: {
+      onText: callbacks.onTextDelta,
+      onReasoningStart: callbacks.onReasoningStart,
+      onReasoningDelta: callbacks.onReasoningDelta,
+      onReasoningEnd: callbacks.onReasoningEnd,
+      onToolCall: callbacks.onToolCall,
+      onToolResult: callbacks.onToolResult,
+      onStepStart: callbacks.onStepStart,
+      onStepFinish: callbacks.onStepFinish,
+      onFinish: callbacks.onFinish,
+      onError: (err) => callbacks.onError?.(err),
     },
+    signal,
   });
 }

@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@agentkit/sdk": "workspace:*",
     "@agentkit/ui": "workspace:*",
     "@agentkit/utils": "workspace:*",
     "@mastra/client-js": "^1.28.0",
@@ -24,7 +25,6 @@
     "@types/react-dom": "^19.1",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
-    "typescript": "catalog:",
     "vite": "catalog:"
   }
 }
