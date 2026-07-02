@@ -43,10 +43,29 @@ export interface StreamCallbacks {
   onReasoningStart?: () => void;
   onReasoningDelta?: (text: string) => void;
   onReasoningEnd?: () => void;
-  onToolCall?: (event: { toolCallId: string; toolName: string; args?: unknown }) => void;
-  onToolResult?: (event: { toolCallId: string; toolName: string; result: unknown; isError?: boolean }) => void;
-  onStepStart?: (event: { messageId?: string; request?: Record<string, unknown> }) => void;
-  onStepFinish?: (event: { usage?: { promptTokens?: number; completionTokens?: number; totalTokens?: number }; reason?: string }) => void;
+  onToolCall?: (event: {
+    toolCallId: string;
+    toolName: string;
+    args?: unknown;
+  }) => void;
+  onToolResult?: (event: {
+    toolCallId: string;
+    toolName: string;
+    result: unknown;
+    isError?: boolean;
+  }) => void;
+  onStepStart?: (event: {
+    messageId?: string;
+    request?: Record<string, unknown>;
+  }) => void;
+  onStepFinish?: (event: {
+    usage?: {
+      promptTokens?: number;
+      completionTokens?: number;
+      totalTokens?: number;
+    };
+    reason?: string;
+  }) => void;
   onFinish?: () => void;
   onError?: (error: unknown) => void;
 }

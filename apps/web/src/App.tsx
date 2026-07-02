@@ -46,7 +46,11 @@ interface ChatMessage {
     result: unknown;
     isError?: boolean;
   }[];
-  usage?: { promptTokens?: number; completionTokens?: number; totalTokens?: number };
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
   status: "loading" | "streaming" | "done" | "error";
 }
 
@@ -92,7 +96,10 @@ function buildThoughtChain(msg: ChatMessage): ThoughtChainItem[] {
       key: `reason-${idx++}`,
       title: "深度推理",
       description: msg.thinking,
-      status: msg.status === "loading" || msg.status === "streaming" ? "running" : "success",
+      status:
+        msg.status === "loading" || msg.status === "streaming"
+          ? "running"
+          : "success",
       collapsible: true,
       content: "",
     });
@@ -103,8 +110,15 @@ function buildThoughtChain(msg: ChatMessage): ThoughtChainItem[] {
     items.push({
       key: `tool-${idx++}`,
       title: `调用工具: ${tc.toolName}`,
-      description: tc.args !== undefined ? `参数: ${JSON.stringify(tc.args)}` : undefined,
-      status: result ? (result.isError ? "error" : "success") : msg.status === "done" ? "success" : "running",
+      description:
+        tc.args !== undefined ? `参数: ${JSON.stringify(tc.args)}` : undefined,
+      status: result
+        ? result.isError
+          ? "error"
+          : "success"
+        : msg.status === "done"
+          ? "success"
+          : "running",
       collapsible: !!result,
       content: result ? `结果: ${JSON.stringify(result.result, null, 2)}` : "",
     });
@@ -114,7 +128,12 @@ function buildThoughtChain(msg: ChatMessage): ThoughtChainItem[] {
     items.push({
       key: `gen-${idx++}`,
       title: "生成回复",
-      status: msg.status === "streaming" ? "running" : msg.status === "done" ? "success" : "pending",
+      status:
+        msg.status === "streaming"
+          ? "running"
+          : msg.status === "done"
+            ? "success"
+            : "pending",
     });
   }
 
@@ -293,7 +312,9 @@ const S = {
 
 export function App() {
   // State
-  const [conversations, setConversations] = useState<ConversationItem[]>(DEFAULT_CONVERSATIONS);
+  const [conversations, setConversations] = useState<ConversationItem[]>(
+    DEFAULT_CONVERSATIONS,
+  );
   const [activeKey, setActiveKey] = useState("1");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -435,9 +456,7 @@ export function App() {
         onReasoningDelta(delta) {
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === aId
-                ? { ...m, thinking: (m.thinking || "") + delta }
-                : m,
+              m.id === aId ? { ...m, thinking: (m.thinking || "") + delta } : m,
             ),
           );
         },
@@ -620,12 +639,18 @@ export function App() {
   const handleRemoveFile = useCallback((e: Event) => {
     const detail = (e as CustomEvent).detail;
     const idx = detail?.index as number;
-    if (typeof idx === "number") setFiles((prev) => prev.filter((_, i) => i !== idx));
+    if (typeof idx === "number")
+      setFiles((prev) => prev.filter((_, i) => i !== idx));
   }, []);
 
   const makeActionItems = (): ActionsItem[] => [
     { key: "copy", label: "复制", icon: "copy" },
-    { key: "like", label: liked ? "已赞" : "点赞", icon: "heart", active: liked },
+    {
+      key: "like",
+      label: liked ? "已赞" : "点赞",
+      icon: "heart",
+      active: liked,
+    },
     { key: "regenerate", label: "重新生成", icon: "refresh-cw" },
   ];
 
@@ -678,9 +703,7 @@ export function App() {
         {/* Header */}
         <div style={S.mainHeader}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 13, color: "#6b7280" }}>
-              当前 Agent:
-            </span>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>当前 Agent:</span>
             <select
               style={S.agentBadge}
               value={selectedAgent}
@@ -738,9 +761,7 @@ export function App() {
                         <Think
                           blink
                           title={
-                            msg.status === "done"
-                              ? "思考完成"
-                              : "深度思考中..."
+                            msg.status === "done" ? "思考完成" : "深度思考中..."
                           }
                           defaultExpanded
                           loading={
@@ -790,9 +811,7 @@ export function App() {
                         <Markdown
                           content={msg.content}
                           streamStatus={
-                            msg.status === "streaming"
-                              ? "loading"
-                              : "done"
+                            msg.status === "streaming" ? "loading" : "done"
                           }
                         />
                       </div>
@@ -820,7 +839,9 @@ export function App() {
         {/* Workflow Bar */}
         {workflowIds.length > 0 && (
           <div style={S.workflowBar}>
-            <span style={{ fontSize: 12, color: "#6b7280", whiteSpace: "nowrap" }}>
+            <span
+              style={{ fontSize: 12, color: "#6b7280", whiteSpace: "nowrap" }}
+            >
               Workflow
             </span>
             <input
@@ -870,9 +891,7 @@ export function App() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() =>
-                  handleSubmit("帮我规划一下东京的周末活动")
-                }
+                onClick={() => handleSubmit("帮我规划一下东京的周末活动")}
               >
                 📋 活动规划
               </Button>
