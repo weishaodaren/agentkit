@@ -1,29 +1,31 @@
 /**
  * @agentkit/sdk - Web 应用适配层
+ *
+ * 直接使用 @agentkit/sdk 提供的 createAgentSdk，
+ * 封装流式调用与列表查询。
  */
 
 import { createAgentSdk } from "@agentkit/sdk";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
-// 全局 SDK 实例
+// 全局 SDK 实例 — 单例复用
 const sdk = createAgentSdk({
   baseUrl: BASE_URL,
   apiPrefix: "/api",
+  logger: import.meta.env.DEV ? console : undefined,
 });
 
-// ─── Agent / Workflow / Tool 列表 API ────────────────────────────
+export { sdk };
+
+// ─── Agent / Workflow / Tool 列表 ────────────────────────────────
 
 export async function listAgents() {
-  const agents = await sdk.agents.listAgents();
-  // Convert our simplified AgentInfo back to the shape App.tsx expects
-  // App.tsx does: Object.keys(agents) — so just return a Record<string, unknown>
-  return agents as unknown as Record<string, unknown>;
+  return sdk.agents.listAgents();
 }
 
 export async function listWorkflows() {
-  const workflows = await sdk.workflows.listWorkflows();
-  return workflows as Record<string, unknown>;
+  return sdk.workflows.listWorkflows();
 }
 
 export async function listTools() {
@@ -34,80 +36,51 @@ export async function getAgentDetails(agentId: string) {
   return sdk.agents.getAgent(agentId).details();
 }
 
-export async function runWorkflow(
-  workflowId: string,
-  input: Record<string, unknown>,
-) {
-  return sdk.workflows.runWorkflow(workflowId, input);
-}
+// ─── 流式聊天 ────────────────────────────────────────────────────
 
-// ─── 流式 Agent 调用 ────────────────────────────────────────────
-
-/** 工具调用事件 */
-export interface ToolCallEvent {
-  toolCallId: string;
-  toolName: string;
-  args?: unknown;
-}
-
-/** 工具结果事件 */
-export interface ToolResultEvent {
-  toolCallId: string;
-  toolName: string;
-  result: unknown;
-  isError?: boolean;
-}
-
-/** 步骤开始事件 */
-export interface StepStartEvent {
-  messageId?: string;
-  request?: Record<string, unknown>;
-}
-
-/** 步骤结束事件 */
-export interface StepFinishEvent {
-  usage?: {
-    promptTokens?: number;
-    completionTokens?: number;
-    totalTokens?: number;
-  };
-  reason?: string;
-}
-
-/** Agent 流式响应的完整回调 */
-export type StreamCallbacks = {
+export interface StreamCallbacks {
   onTextDelta?: (text: string) => void;
   onReasoningStart?: () => void;
   onReasoningDelta?: (text: string) => void;
   onReasoningEnd?: () => void;
-  onToolCall?: (event: ToolCallEvent) => void;
-  onToolResult?: (event: ToolResultEvent) => void;
-  onStepStart?: (event: StepStartEvent) => void;
-  onStepFinish?: (event: StepFinishEvent) => void;
+  onToolCall?: (event: {
+    toolCallId: string;
+    toolName: string;
+    args?: unknown;
+  }) => void;
+  onToolResult?: (event: {
+    toolCallId: string;
+    toolName: string;
+    result: unknown;
+    isError?: boolean;
+  }) => void;
+  onStepStart?: (event: {
+    messageId?: string;
+    request?: Record<string, unknown>;
+  }) => void;
+  onStepFinish?: (event: {
+    usage?: {
+      promptTokens?: number;
+      completionTokens?: number;
+      totalTokens?: number;
+    };
+    reason?: string;
+  }) => void;
   onFinish?: () => void;
   onError?: (error: unknown) => void;
-};
-
-/** 简单消息格式 */
-type SimpleMessage = { role: "user" | "assistant" | "system"; content: string };
+}
 
 /**
- * 向指定 agent 发送消息并流式接收全部事件。
- * 签名与旧版保持一致。
+ * 向指定 agent 发送消息并流式接收响应。
+ * 内部委托给 sdk.chat.sendMessage，自动处理 chunk 解析。
  */
 export async function streamAgentMessage(
   agentId: string,
-  messages: SimpleMessage[],
+  messages: Array<{ role: "user" | "assistant" | "system"; content: string }>,
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
-  // Convert SimpleMessage[] to ChatMessage[]
-  const chatMessages = messages.map((m) => ({
-    role: m.role as "user" | "assistant" | "system",
-    content: m.content,
-  }));
-
-  await sdk.chat.sendMessage(agentId, chatMessages, {
+  await sdk.chat.sendMessage(agentId, messages, {
     callbacks: {
       onText: callbacks.onTextDelta,
       onReasoningStart: callbacks.onReasoningStart,
@@ -122,4 +95,13 @@ export async function streamAgentMessage(
     },
     signal,
   });
+}
+
+// ─── Workflow 执行 ───────────────────────────────────────────────
+
+export async function runWorkflow(
+  workflowId: string,
+  input: Record<string, unknown>,
+) {
+  return sdk.workflows.runWorkflow(workflowId, input);
 }
