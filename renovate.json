@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
+  "repositories": ["weishaodaren/agentkit"],
+
   "extends": [
     "config:recommended",
     ":semanticCommits",
