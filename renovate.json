@@ -30,7 +30,6 @@
     "automergeStrategy": "squash"
   },
 
-  "transitiveRemediation": true,
   "updateInternalDeps": true,
 
   "lockFileMaintenance": {
@@ -39,7 +38,7 @@
   },
 
   "npm": {
-    "fileMatch": ["(^|/)package\\.json$", "(^|/)pnpm-workspace\\.yaml$"]
+    "managerFilePatterns": ["/(^|/)package\\.json$/", "/(^|/)pnpm-workspace\\.yaml$/"]
   },
 
   "packageRules": [
@@ -143,7 +142,7 @@
     },
     {
       "description": "Ignore docs deps from automerge",
-      "matchPaths": ["apps/docs/package.json"],
+      "matchFileNames": ["apps/docs/package.json"],
       "matchDepTypes": ["devDependencies"],
       "automerge": false
     }
