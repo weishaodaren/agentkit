@@ -1,8 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-
-  "repositories": ["weishaodaren/agentkit"],
-
   "extends": [
     "config:recommended",
     ":semanticCommits",
@@ -11,7 +8,6 @@
     "schedule:earlyMondays",
     "group:monorepos"
   ],
-
   "timezone": "Asia/Shanghai",
   "labels": ["dependencies"],
   "prConcurrentLimit": 5,
@@ -20,7 +16,6 @@
   "commitMessagePrefix": "deps",
   "commitMessageTopic": "{{depName}}",
   "rangeStrategy": "auto",
-
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"],
@@ -29,18 +24,17 @@
     "automergeType": "pr",
     "automergeStrategy": "squash"
   },
-
   "updateInternalDeps": true,
-
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 9am on Monday"]
   },
-
   "npm": {
-    "managerFilePatterns": ["/(^|/)package\\.json$/", "/(^|/)pnpm-workspace\\.yaml$/"]
+    "managerFilePatterns": [
+      "/(^|/)package\\.json$/",
+      "/(^|/)pnpm-workspace\\.yaml$/"
+    ]
   },
-
   "packageRules": [
     {
       "description": "devDependencies patch/minor: automerge",
@@ -64,7 +58,6 @@
       "dependencyDashboardApproval": true,
       "labels": ["pre-release"]
     },
-
     {
       "description": "React ecosystem",
       "matchPackageNames": [
@@ -147,7 +140,6 @@
       "automerge": false
     }
   ],
-
   "prBodyNotes": [
     "🔗 [Release notes]({{#if releases}}{{#each releases as |release|}}[{{release.version}}]{{/each}}{{/if}})"
   ]

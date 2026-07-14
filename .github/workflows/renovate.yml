@@ -51,5 +51,6 @@ jobs:
         env:
           LOG_LEVEL: ${{ inputs.log-level || 'info' }}
           RENOVATE_DRY_RUN: ${{ inputs.dry-run == true && 'full' || '' }}
+          RENOVATE_REPOSITORIES: '["weishaodaren/agentkit"]'
           # 用于拉取 release notes / changelog，提升速率限制
           GITHUB_COM_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
