@@ -60,7 +60,7 @@
     "@vitest/coverage-v8": "catalog:",
     "lefthook": "2.1.9",
     "oxfmt": "0.56.0",
-    "oxlint": "1.71.0",
+    "oxlint": "1.74.0",
     "turbo": "2.10.0",
     "typescript": "catalog:",
     "vitest": "catalog:"
