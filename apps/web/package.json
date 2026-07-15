@@ -15,14 +15,13 @@
     "@agentkit/sdk": "workspace:*",
     "@agentkit/ui": "workspace:*",
     "@agentkit/utils": "workspace:*",
-    "@mastra/client-js": "^1.28.0",
     "react": "catalog:",
-    "react-dom": "^19.1"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "^19.1",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "vite": "catalog:"
