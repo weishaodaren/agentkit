@@ -59,7 +59,7 @@
     "@commitlint/config-conventional": "21.2.0",
     "@vitest/coverage-v8": "catalog:",
     "lefthook": "2.1.10",
-    "oxfmt": "0.59.0",
+    "oxfmt": "0.60.0",
     "oxlint": "1.74.0",
     "turbo": "2.10.5",
     "typescript": "catalog:",
