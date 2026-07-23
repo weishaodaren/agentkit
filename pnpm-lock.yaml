@@ -88,7 +88,7 @@ importers:
         version: 11.16.0
       vitepress-mermaid-renderer:
         specifier: ^1.1.27
-        version: 1.1.27(mermaid@11.16.0)(vue@3.5.39(typescript@7.0.2))
+        version: 1.1.28(mermaid@11.16.0)(vue@3.5.39(typescript@7.0.2))
     devDependencies:
       vitepress:
         specifier: 2.0.0-alpha.18
@@ -5398,8 +5398,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-mermaid-renderer@1.1.27:
-    resolution: {integrity: sha512-VFAV3lSlOhfCq11ythkan4YRwJWNH/XZ/XqbQ/FZp/EYeGZtxlHA/LQWfr8ZyMAurzLVtv1oc2eu1xISU+3XzA==}
+  vitepress-mermaid-renderer@1.1.28:
+    resolution: {integrity: sha512-cEZAIaTr5TEEsdKJZSkUtOz8ZH3hPHIXU8jkEI3RnxsnphN84QR6TuTJEIxmX4wceMFkw26nDZ86Z9gFiG6hJw==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       mermaid: ^11.0.0
@@ -10962,7 +10962,7 @@ snapshots:
       tsx: 4.23.1
       yaml: 2.9.0
 
-  vitepress-mermaid-renderer@1.1.27(mermaid@11.16.0)(vue@3.5.39(typescript@7.0.2)):
+  vitepress-mermaid-renderer@1.1.28(mermaid@11.16.0)(vue@3.5.39(typescript@7.0.2)):
     dependencies:
       mermaid: 11.16.0
       vue: 3.5.39(typescript@7.0.2)
