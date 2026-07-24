@@ -17,3 +17,10 @@ catalog:
 onlyBuiltDependencies:
   - esbuild
   - lefthook
+
+# 已知上游 peer dependency 范围未更新，项目运行已验证可兼容
+peerDependencyRules:
+  allowedVersions:
+    "@ai-sdk/ui-utils>zod": "4.4.3"
+    "@ai-sdk/provider-utils>zod": "4.4.3"
+    "@hono/node-ws>@hono/node-server": "2.0.11"

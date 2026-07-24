@@ -75,7 +75,7 @@ describe("AkMarkdown", () => {
   });
 
   it("renders inline code", async () => {
-    render(html`<ak-markdown .content=${"Use \`code\` here"}></ak-markdown>`);
+    render(html`<ak-markdown .content=${"Use `code` here"}></ak-markdown>`);
     await vi.waitFor(() => {
       expect(page.getByCSS(".ak-md code")).toBeDefined();
     });

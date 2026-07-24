@@ -26,5 +26,9 @@
     "babel-plugin-react-compiler": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   }
 }

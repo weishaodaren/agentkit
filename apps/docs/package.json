@@ -20,5 +20,9 @@
     "typescript": "catalog:",
     "vitepress": "2.0.0-alpha.18",
     "vue": "^3.5.40"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   }
 }

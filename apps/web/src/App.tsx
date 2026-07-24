@@ -29,7 +29,6 @@ import {
   listAgents,
   listWorkflows,
   runWorkflow,
-  type StreamCallbacks,
 } from "~/lib/chat";
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -319,7 +318,6 @@ export function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(false);
-  const [showConvPopover, setShowConvPopover] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
   const [attachmentsOpen, setAttachmentsOpen] = useState(false);
   const [files, setFiles] = useState<AttachmentFile[]>([]);
@@ -368,7 +366,6 @@ export function App() {
       if (key && key !== activeKey) {
         setActiveKey(key);
         setMessages([]);
-        setShowConvPopover(false);
       }
     },
     [activeKey],
@@ -382,7 +379,6 @@ export function App() {
     ]);
     setActiveKey(key);
     setMessages([]);
-    setShowConvPopover(false);
   }, []);
 
   // ── Send message ──
@@ -489,6 +485,7 @@ export function App() {
           abortRef.current = null;
         },
         onError(err) {
+          // oxlint-disable-next-line no-console — demo error surface
           console.error("Agent stream error:", err);
           setMessages((prev) =>
             prev.map((m) =>
@@ -505,6 +502,7 @@ export function App() {
           abortRef.current = null;
         },
       }).catch((err) => {
+        // oxlint-disable-next-line no-console — demo error surface
         console.error("Agent stream failed:", err);
         setMessages((prev) =>
           prev.map((m) =>
@@ -568,6 +566,7 @@ export function App() {
         ),
       );
     } catch (err) {
+      // oxlint-disable-next-line no-console — demo error surface
       console.error("Workflow error:", err);
       setMessages((prev) =>
         prev.map((m) =>
