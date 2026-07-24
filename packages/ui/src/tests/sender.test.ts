@@ -3,7 +3,7 @@ import "@vitest/browser/matchers";
 import { render } from "vitest-browser-lit";
 import { html } from "lit";
 import "@/sender.ts";
-import { AkSender, AkSenderHeader } from "@/sender.ts";
+import { AkSenderHeader } from "@/sender.ts";
 
 describe("AkSender", () => {
   it("renders textarea with default placeholder", async () => {

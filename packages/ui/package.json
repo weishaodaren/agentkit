@@ -109,5 +109,9 @@
     "vue": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   }
 }

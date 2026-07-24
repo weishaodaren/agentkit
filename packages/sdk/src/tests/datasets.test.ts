@@ -119,7 +119,7 @@ describe("createDatasetsApi", () => {
   it("should call listDatasetItems", async () => {
     const api = createDatasetsApi(mockSdkClient);
     await api.listDatasetItems("ds-1");
-    expect(mockClient.listDatasetItems).toHaveBeenCalledWith("ds-1");
+    expect(mockClient.listDatasetItems).toHaveBeenCalledWith("ds-1", undefined);
   });
 
   it("should call addDatasetItem", async () => {
