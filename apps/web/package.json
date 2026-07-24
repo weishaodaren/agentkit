@@ -16,7 +16,7 @@
     "@agentkit/ui": "workspace:*",
     "@agentkit/utils": "workspace:*",
     "react": "catalog:",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "catalog:",
@@ -24,6 +24,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:"
   }
 }

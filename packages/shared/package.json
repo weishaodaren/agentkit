@@ -14,5 +14,7 @@
     "format": "oxfmt write .",
     "typecheck": "tsc --noEmit"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
 }

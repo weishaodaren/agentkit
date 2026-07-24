@@ -18,5 +18,7 @@
   "dependencies": {
     "@agentkit/shared": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
 }

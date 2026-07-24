@@ -14,10 +14,11 @@
     "@vitepress-demo-preview/plugin": "^1.4.1",
     "highlight.js": "^11.11.1",
     "mermaid": "^11.16.0",
-    "vitepress-mermaid-renderer": "^1.1.27"
+    "vitepress-mermaid-renderer": "^1.1.28"
   },
   "devDependencies": {
+    "typescript": "catalog:",
     "vitepress": "2.0.0-alpha.18",
-    "vue": "^3.5.39"
+    "vue": "^3.5.40"
   }
 }
