@@ -21,7 +21,7 @@
   "devDependencies": {
     "@rolldown/plugin-babel": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "^19.2.3",
+    "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "typescript": "catalog:",

@@ -13,13 +13,13 @@
     "@vitepress-demo-preview/component": "^2.6.2",
     "@vitepress-demo-preview/plugin": "^1.4.1",
     "highlight.js": "^11.11.1",
-    "mermaid": "^11.16.0",
-    "vitepress-mermaid-renderer": "^1.1.28"
+    "mermaid": "^11.16.1",
+    "vitepress-mermaid-renderer": "^1.1.29"
   },
   "devDependencies": {
     "typescript": "catalog:",
     "vitepress": "2.0.0-alpha.18",
-    "vue": "^3.5.40"
+    "vue": "^3.5.41"
   },
   "engines": {
     "node": ">=22.0.0",

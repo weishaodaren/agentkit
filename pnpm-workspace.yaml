@@ -3,24 +3,23 @@ packages:
   - packages/*
 
 catalog:
-  "@rolldown/plugin-babel": ^0.2.3
-  "@types/react": ^19.2.17
-  "@vitejs/plugin-react": ^6.0.4
-  "@vitest/coverage-v8": ^4.1.10
+  '@rolldown/plugin-babel': ^0.2.3
+  '@types/react': ^19.2.18
+  '@vitejs/plugin-react': ^6.0.5
+  '@vitest/coverage-v8': ^4.1.10
   babel-plugin-react-compiler: ^1.0.0
   react: ^19.2.8
   typescript: ^6.0.3
   unplugin-dts: ^1.0.3
-  vite: ^8.1.5
+  vite: ^8.2.0
   vitest: ^4.1.10
 
 onlyBuiltDependencies:
   - esbuild
   - lefthook
 
-# 已知上游 peer dependency 范围未更新，项目运行已验证可兼容
 peerDependencyRules:
   allowedVersions:
-    "@ai-sdk/ui-utils>zod": "4.4.3"
-    "@ai-sdk/provider-utils>zod": "4.4.3"
-    "@hono/node-ws>@hono/node-server": "2.0.11"
+    '@ai-sdk/provider-utils>zod': 4.4.3
+    '@ai-sdk/ui-utils>zod': 4.4.3
+    '@hono/node-ws>@hono/node-server': 2.0.11
