@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@agentkit/shared": "workspace:*",
-    "@mastra/client-js": "1.33.1"
+    "@mastra/client-js": "1.43.0"
   },
   "devDependencies": {
     "typescript": "catalog:",
